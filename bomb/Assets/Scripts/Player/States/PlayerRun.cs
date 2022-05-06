@@ -17,6 +17,7 @@ public class PlayerRun : IState
         Debug.Log("Run Exit");
     }
     public void OperateUpdate(){
-        player.transform.position += new Vector3(Input.GetAxisRaw("Horizontal") * player.MoveSpeed * Time.deltaTime, Input.GetAxisRaw("Vertical") * player.MoveSpeed * Time.deltaTime, 0.0f);
+        float direction = Input.GetAxis("Horizontal");
+        player.transform.position += new Vector3(direction, 0, 0) * player.MoveSpeed * Time.deltaTime;
     }
 }

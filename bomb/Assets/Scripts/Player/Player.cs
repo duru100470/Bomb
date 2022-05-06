@@ -17,13 +17,19 @@ public class Player : NetworkBehaviour
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-    private List<Item> itemList = new List<Item>();
+    private Item curItem;
     private SpriteRenderer spriteRenderer;
-    private Rigidbody2D rigid2d;
+    public Rigidbody2D rigid2d;
+    private Collider2D coll;
    
     [SerializeField]
-    private float moveSpeed = 1.0f;
+    private float moveSpeed = 10f;
+    [SerializeField]
+    private float jumpForce = 5.0f;
     public float MoveSpeed => moveSpeed;
+    public float JumpForce => jumpForce;
+    [SerializeField]
+    private bool isGround = false;
 
     // Initialize states
     private void Start() {
@@ -44,6 +50,7 @@ public class Player : NetworkBehaviour
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigid2d = GetComponent<Rigidbody2D>();
+        coll = GetComponent<Collider2D>();
     }
 
     // 키보드 입력 받기 및 CurruentState 실행
@@ -54,20 +61,26 @@ public class Player : NetworkBehaviour
         stateMachine.DoOperateUpdate();
     }
 
+    private void FixedUpdate(){
+        RaycastHit2D raycastHit = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.02f, LayerMask.GetMask("Ground"));
+        if(raycastHit.collider != null) isGround = true;
+        else isGround = false;
+    }
+
     // 키보드 입력 제어
     private void KeyboardInput()
     {
         // Stun이나 Dead가 아닐 때 행동 가능
         if (stateMachine.CurruentState != dicState[PlayerState.Stun] && stateMachine.CurruentState != dicState[PlayerState.Dead]){
             // Run State
-            if (Input.GetAxisRaw("Horizontal") != 0 || Input.GetAxisRaw("Vertical") != 0){
+            if (Input.GetAxisRaw("Horizontal") != 0){
                 stateMachine.SetState(dicState[PlayerState.Run]);
             }else{
                 stateMachine.SetState(dicState[PlayerState.Idle]);
             }
 
             // Jump State
-            if (Input.GetKeyDown(KeyCode.Space) && stateMachine.CurruentState != dicState[PlayerState.Jump]){
+            if (Input.GetKeyDown(KeyCode.Space) && this.isGround){
                 stateMachine.SetState(dicState[PlayerState.Jump]);
             }
 
@@ -82,29 +95,25 @@ public class Player : NetworkBehaviour
     private void OnCollisionEnter2D(Collision2D other) {
         // 플레이어인 경우
 
-        // 아이템인 경우
-
+        // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
+        if(other.transform.tag == "Item" && curItem == null){
+            this.AddItem(other.transform.GetComponent<Item>());
+            Destroy(other.gameObject);
+        }
         // 서버에 로그 전송
     }
 
     // 아이템 획득
     private void AddItem(Item item){
-        // 아이템이 1개 이상이면 아무 작동 안함
-        if(itemList.Count > 0) return;
-
         // 아이템 리스트에 추가
-        itemList.Add(item);
+        curItem = item;
     }
 
     // 아이템 사용
     public void UseItem(){
         // 아이템이 0개면 작동 안함
-        if(itemList.Count == 0) return;
-        
-        foreach (var i in itemList){
-            i.OnUse();
-        }
-
-        itemList.Clear();
+        if(curItem != null) return;
+        curItem.OnUse();
+        curItem = null;
     }
 }
