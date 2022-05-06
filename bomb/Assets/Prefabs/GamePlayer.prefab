@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 7722025156765796187}
   - component: {fileID: 1415960573302611292}
   - component: {fileID: 4660991381574885762}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GamePlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -67,6 +67,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  Items:
+  - {fileID: 921445780658722327, guid: 68e9c04c16d1e8642aa05332ade374d1, type: 3}
+  - {fileID: 2166312131603724090, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
+  curItem: {fileID: 0}
   rigid2d: {fileID: 0}
   moveSpeed: 5
   jumpForce: 5

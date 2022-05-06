@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ItemStone : Item
+public class Dash : Item
 {
     public override void OnUse()
     {
-        base.OnUse();
+        Debug.Log("Dash");
     }
 }

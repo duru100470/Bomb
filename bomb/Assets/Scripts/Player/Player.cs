@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
+    public List<Item> Items = new List<Item>();
     private enum PlayerState{
         Idle,
         Run,
@@ -17,6 +18,7 @@ public class Player : NetworkBehaviour
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
+    [SerializeField]
     private Item curItem;
     private SpriteRenderer spriteRenderer;
     public Rigidbody2D rigid2d;
@@ -38,12 +40,14 @@ public class Player : NetworkBehaviour
         IState jump = new PlayerJump(this);
         IState stun = new PlayerStun(this);
         IState dead = new PlayerDead(this);
+        IState cast = new PlayerCast(this);
 
         dicState.Add(PlayerState.Idle, idle);
         dicState.Add(PlayerState.Run, run);
         dicState.Add(PlayerState.Jump, jump);
         dicState.Add(PlayerState.Stun, stun);
         dicState.Add(PlayerState.Dead, dead);
+        dicState.Add(PlayerState.Cast, cast);
 
         // 시작 상태를 Idle로 설정
         stateMachine = new StateMachine(dicState[PlayerState.Idle]);
@@ -92,28 +96,29 @@ public class Player : NetworkBehaviour
     }
 
     // 다른 플레이어 및 아이템 충돌
-    private void OnCollisionEnter2D(Collision2D other) {
+    private void OnTriggerEnter2D(Collider2D other) {
         // 플레이어인 경우
 
         // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
-        if(other.transform.tag == "Item" && curItem == null){
-            this.AddItem(other.transform.GetComponent<Item>());
+        if(other.transform.CompareTag("Item") && curItem == null){
+            AddItem(other.transform.GetComponent<Item>().type);
             Destroy(other.gameObject);
         }
         // 서버에 로그 전송
     }
 
     // 아이템 획득
-    private void AddItem(Item item){
+    private void AddItem(ItemType _type){
         // 아이템 리스트에 추가
-        curItem = item;
+        curItem = Items[(int)_type];
     }
 
     // 아이템 사용
     public void UseItem(){
-        // 아이템이 0개면 작동 안함
-        if(curItem != null) return;
-        curItem.OnUse();
-        curItem = null;
+        // 아이템이 없으면 작동 안함
+        if(curItem != null){
+            curItem.OnUse();
+            curItem = null;
+        }
     }
 }
