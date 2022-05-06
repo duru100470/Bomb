@@ -10,17 +10,17 @@ public class Player : NetworkBehaviour
         Run,
         Jump,
         Stun,
-        Dead
+        Dead,
+        Cast
     }
 
     private StateMachine stateMachine;
-
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-
+    private List<Item> itemList = new List<Item>();
     private SpriteRenderer spriteRenderer;
     private Rigidbody2D rigid2d;
-
+   
     [SerializeField]
     private float moveSpeed = 1.0f;
     public float MoveSpeed => moveSpeed;
@@ -54,13 +54,57 @@ public class Player : NetworkBehaviour
         stateMachine.DoOperateUpdate();
     }
 
+    // 키보드 입력 제어
     private void KeyboardInput()
     {
-        // 키보드 입력 통한 State 전이 관리
-        if (Input.GetAxisRaw("Horizontal") != 0 || Input.GetAxisRaw("Vertical") != 0){
-            stateMachine.SetState(dicState[PlayerState.Run]);
-        }else{
-            stateMachine.SetState(dicState[PlayerState.Idle]);
+        // Stun이나 Dead가 아닐 때 행동 가능
+        if (stateMachine.CurruentState != dicState[PlayerState.Stun] && stateMachine.CurruentState != dicState[PlayerState.Dead]){
+            // Run State
+            if (Input.GetAxisRaw("Horizontal") != 0 || Input.GetAxisRaw("Vertical") != 0){
+                stateMachine.SetState(dicState[PlayerState.Run]);
+            }else{
+                stateMachine.SetState(dicState[PlayerState.Idle]);
+            }
+
+            // Jump State
+            if (Input.GetKeyDown(KeyCode.Space) && stateMachine.CurruentState != dicState[PlayerState.Jump]){
+                stateMachine.SetState(dicState[PlayerState.Jump]);
+            }
+
+            // Cast State
+            if (Input.GetKeyDown(KeyCode.Q) && stateMachine.CurruentState != dicState[PlayerState.Cast]){
+                stateMachine.SetState(dicState[PlayerState.Cast]);
+            }
         }
+    }
+
+    // 다른 플레이어 및 아이템 충돌
+    private void OnCollisionEnter2D(Collision2D other) {
+        // 플레이어인 경우
+
+        // 아이템인 경우
+
+        // 서버에 로그 전송
+    }
+
+    // 아이템 획득
+    private void AddItem(Item item){
+        // 아이템이 1개 이상이면 아무 작동 안함
+        if(itemList.Count > 0) return;
+
+        // 아이템 리스트에 추가
+        itemList.Add(item);
+    }
+
+    // 아이템 사용
+    public void UseItem(){
+        // 아이템이 0개면 작동 안함
+        if(itemList.Count == 0) return;
+        
+        foreach (var i in itemList){
+            i.OnUse();
+        }
+
+        itemList.Clear();
     }
 }
