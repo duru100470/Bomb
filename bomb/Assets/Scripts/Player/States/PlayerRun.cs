@@ -18,6 +18,7 @@ public class PlayerRun : IState
     }
     public void OperateUpdate(){
         float direction = Input.GetAxis("Horizontal");
+        if(direction != 0) player.isHeadingRight = direction > 0 ? true : false;
         player.transform.position += new Vector3(direction, 0, 0) * player.MoveSpeed * Time.deltaTime;
     }
 }

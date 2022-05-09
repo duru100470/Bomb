@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
-    public List<Item> Items = new List<Item>();
+
     private enum PlayerState{
         Idle,
         Run,
@@ -32,7 +32,11 @@ public class Player : NetworkBehaviour
     public float JumpForce => jumpForce;
     [SerializeField]
     private bool isGround = false;
-
+    public bool isHeadingRight = false;
+    public bool isCasting = false;
+    public GameObject curItemObj;
+    private float refVelocity = 0f;
+    public float dashTime = 0f;
     // Initialize states
     private void Start() {
         IState idle = new PlayerIdle(this);
@@ -63,19 +67,21 @@ public class Player : NetworkBehaviour
         if(!isLocalPlayer) return;
         KeyboardInput();
         stateMachine.DoOperateUpdate();
+        if(isCasting) rigid2d.velocity = new Vector2(Mathf.SmoothDamp(rigid2d.velocity.x, 0f, ref refVelocity, dashTime), rigid2d.velocity.y);
+
     }
 
     private void FixedUpdate(){
         RaycastHit2D raycastHit = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.02f, LayerMask.GetMask("Ground"));
         if(raycastHit.collider != null) isGround = true;
         else isGround = false;
+        spriteRenderer.flipX = isHeadingRight;
     }
-
     // 키보드 입력 제어
     private void KeyboardInput()
     {
-        // Stun이나 Dead가 아닐 때 행동 가능
-        if (stateMachine.CurruentState != dicState[PlayerState.Stun] && stateMachine.CurruentState != dicState[PlayerState.Dead]){
+        // Stun, Dead상태가 아니거나 돌진 중이 아닐 때 행동 가능
+        if (stateMachine.CurruentState != dicState[PlayerState.Stun] && stateMachine.CurruentState != dicState[PlayerState.Dead] && !isCasting){
             // Run State
             if (Input.GetAxisRaw("Horizontal") != 0){
                 stateMachine.SetState(dicState[PlayerState.Run]);
@@ -101,16 +107,23 @@ public class Player : NetworkBehaviour
 
         // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
         if(other.transform.CompareTag("Item") && curItem == null){
-            AddItem(other.transform.GetComponent<Item>().type);
+            AddItem(other.GetComponent<Item>());
+            this.curItemObj = other.GetComponent<Item>().itemObj;
+            other.gameObject.SetActive(false);
+        }
+        // Stone에 맞았을 때
+        if(other.transform.CompareTag("Projectile")){
+            StartCoroutine(Stunned(other.GetComponent<StoneProjectile>().stunTime));
             Destroy(other.gameObject);
         }
         // 서버에 로그 전송
     }
 
     // 아이템 획득
-    private void AddItem(ItemType _type){
+    private void AddItem(Item item){
         // 아이템 리스트에 추가
-        curItem = Items[(int)_type];
+        item.player = this;
+        curItem = item;
     }
 
     // 아이템 사용
@@ -120,5 +133,18 @@ public class Player : NetworkBehaviour
             curItem.OnUse();
             curItem = null;
         }
+    }
+
+    private IEnumerator Stunned(float stunTime){
+        stateMachine.SetState(dicState[PlayerState.Stun]);
+        yield return new WaitForSeconds(stunTime);
+        stateMachine.SetState(dicState[PlayerState.Idle]);
+    }
+
+    [Command]
+    public void StoneSpawn(GameObject obj){
+        GameObject projectile = Instantiate(curItemObj, transform.position + (isHeadingRight ? new Vector3(1,0,0) : new Vector3(-1,0,0)), Quaternion.identity);
+        projectile.GetComponent<StoneProjectile>().dir = isHeadingRight;
+        NetworkServer.Spawn(projectile);
     }
 }
