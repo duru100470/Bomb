@@ -11,7 +11,7 @@ public class PlayerStun : IState
     }
     
     public void OperateEnter(){
-        Debug.Log("stunned" + player.name);
+        //Debug.Log("stunned" + player.name);
     }
     public void OperateExit(){
 

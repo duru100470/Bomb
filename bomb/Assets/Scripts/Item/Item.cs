@@ -12,7 +12,6 @@ public abstract class Item : NetworkBehaviour
 {
     public Player player;
     public GameObject itemObj;
-
     public ItemType type;
     public Sprite itemSprite;
     public abstract void OnUse();

@@ -31,7 +31,7 @@ Transform:
   m_GameObject: {fileID: 2556292238141432243}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 2, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -69,14 +69,13 @@ MonoBehaviour:
   syncInterval: 0.1
   curItem: {fileID: 0}
   rigid2d: {fileID: 0}
+  curItemObj: {fileID: 0}
   moveSpeed: 5
   jumpForce: 5
+  dashTime: 0
   isGround: 0
-  Items:
-  - {fileID: 921445780658722327, guid: 68e9c04c16d1e8642aa05332ade374d1, type: 3}
-  - {fileID: 2166312131603724090, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
   isHeadingRight: 0
-  curItemObj: {fileID: 0}
+  isCasting: 0
 --- !u!212 &9070056971482222781
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -13,7 +13,7 @@ public class PlayerCast : IState
     public void OperateEnter(){
         // 아이템 사용
         player.UseItem();
-        Debug.Log("Cast enter");
+        //Debug.Log("Cast enter");
     }
     public void OperateExit(){
 

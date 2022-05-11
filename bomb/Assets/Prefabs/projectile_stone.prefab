@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -777264795062042028}
   - component: {fileID: -2625019371000932454}
   - component: {fileID: -7930286616728988817}
+  - component: {fileID: -9004699211253539192}
   m_Layer: 0
   m_Name: projectile_stone
   m_TagString: Projectile
@@ -123,6 +124,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebfba18b4a36a7046b1cbce7cc34c51c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
   stunTime: 1
   dir: 0
   projectileSpeed: 10
@@ -143,3 +146,24 @@ MonoBehaviour:
   visible: 0
   m_AssetId: a151900f561a7c047965f80ba290c0b7
   hasSpawned: 0
+--- !u!50 &-9004699211253539192
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4087488319536920985}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 0
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0

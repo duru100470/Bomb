@@ -5,11 +5,11 @@ using Mirror;
 
 public class Stone : Item
 {
-    [SerializeField]
     private GameObject projectile;
     public override void OnUse()
     {
-        Debug.Log("Stone");
-        player.StoneSpawn(projectile);
+        //Debug.Log("Stone");
+        player.CmdStoneSpawn();
+        player.CmdDestroy(gameObject);
     }
 }

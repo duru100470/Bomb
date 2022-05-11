@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
-
     private enum PlayerState{
         Idle,
         Run,
@@ -23,6 +22,7 @@ public class Player : NetworkBehaviour
     private SpriteRenderer spriteRenderer;
     public Rigidbody2D rigid2d;
     private Collider2D coll;
+    public GameObject curItemObj;
    
     [SerializeField]
     private float moveSpeed = 10f;
@@ -30,13 +30,15 @@ public class Player : NetworkBehaviour
     private float jumpForce = 5.0f;
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
+    private float refVelocity = 0f;
+    public float dashTime = 0f;
+
+    ///
     [SerializeField]
     private bool isGround = false;
     public bool isHeadingRight = false;
     public bool isCasting = false;
-    public GameObject curItemObj;
-    private float refVelocity = 0f;
-    public float dashTime = 0f;
+
     // Initialize states
     private void Start() {
         IState idle = new PlayerIdle(this);
@@ -67,6 +69,7 @@ public class Player : NetworkBehaviour
         if(!isLocalPlayer) return;
         KeyboardInput();
         stateMachine.DoOperateUpdate();
+        // dash 속도 감소
         if(isCasting) rigid2d.velocity = new Vector2(Mathf.SmoothDamp(rigid2d.velocity.x, 0f, ref refVelocity, dashTime), rigid2d.velocity.y);
 
     }
@@ -103,27 +106,34 @@ public class Player : NetworkBehaviour
 
     // 다른 플레이어 및 아이템 충돌
     private void OnTriggerEnter2D(Collider2D other) {
-        // 플레이어인 경우
+        // 플레이어인 경우, 내가 폭탄을 가지고 있으면 상대에게 폭탄을 옮기고 서로 반대 방향으로 튕겨져 나간다
+        if(other.transform.CompareTag("Player")){
+            
 
+        }
         // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
         if(other.transform.CompareTag("Item") && curItem == null){
-            AddItem(other.GetComponent<Item>());
-            this.curItemObj = other.GetComponent<Item>().itemObj;
-            other.gameObject.SetActive(false);
+            Item _item = other.GetComponent<Item>();
+            _item.GetComponent<Collider2D>().enabled = false;
+            _item.GetComponent<SpriteRenderer>().enabled = false;
+            CmdAddItem(_item);
+            CmdGetItem(_item.GetComponent<NetworkIdentity>().netId);
         }
         // Stone에 맞았을 때
         if(other.transform.CompareTag("Projectile")){
             StartCoroutine(Stunned(other.GetComponent<StoneProjectile>().stunTime));
-            Destroy(other.gameObject);
+            NetworkServer.Destroy(other.gameObject);
         }
         // 서버에 로그 전송
     }
 
     // 아이템 획득
-    private void AddItem(Item item){
+    [Command]
+    private void CmdAddItem(Item item){
         // 아이템 리스트에 추가
         item.player = this;
         curItem = item;
+        curItemObj = item.itemObj;
     }
 
     // 아이템 사용
@@ -135,6 +145,17 @@ public class Player : NetworkBehaviour
         }
     }
 
+    public void DashDone(float time){
+        dashTime = time;
+        StartCoroutine(_DashDone());
+    }
+    private IEnumerator _DashDone(){
+        yield return new WaitForSeconds(dashTime);
+        isCasting = false;
+        rigid2d.velocity = Vector2.zero;
+        rigid2d.gravityScale = 1f;
+    }
+
     private IEnumerator Stunned(float stunTime){
         stateMachine.SetState(dicState[PlayerState.Stun]);
         yield return new WaitForSeconds(stunTime);
@@ -142,9 +163,33 @@ public class Player : NetworkBehaviour
     }
 
     [Command]
-    public void StoneSpawn(GameObject obj){
+    public void CmdDestroy(GameObject obj){
+        NetworkServer.Destroy(obj);
+    }
+
+    [Command]
+    public void CmdStoneSpawn(){
+        if(!isLocalPlayer) return;
         GameObject projectile = Instantiate(curItemObj, transform.position + (isHeadingRight ? new Vector3(1,0,0) : new Vector3(-1,0,0)), Quaternion.identity);
         projectile.GetComponent<StoneProjectile>().dir = isHeadingRight;
         NetworkServer.Spawn(projectile);
+    }
+
+    [Command]
+    public void CmdBombTransition(){
+
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdGetItem(uint netId){
+        RpcItemSync(netId);    
+    }
+
+    [ClientRpc]
+    public void RpcItemSync(uint netId){
+        if(!isServer) return;
+        GameObject obj = NetworkClient.spawned[netId].gameObject; 
+        obj.GetComponent<Collider2D>().enabled = false;
+        obj.GetComponent<SpriteRenderer>().enabled = false;
     }
 }

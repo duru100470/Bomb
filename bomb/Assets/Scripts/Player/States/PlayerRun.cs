@@ -11,10 +11,10 @@ public class PlayerRun : IState
     }
     
     public void OperateEnter(){
-        Debug.Log("Run Enter");
+        //Debug.Log("Run Enter");
     }
     public void OperateExit(){
-        Debug.Log("Run Exit");
+        //Debug.Log("Run Exit");
     }
     public void OperateUpdate(){
         float direction = Input.GetAxis("Horizontal");

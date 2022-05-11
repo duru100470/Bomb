@@ -10,6 +10,12 @@ public class StoneProjectile : NetworkBehaviour
     [SerializeField]
     float projectileSpeed = 10f;
     public void Update(){
-        transform.position += (dir?new Vector3(1,0,0):new Vector3(-1,0,0)) * Time.deltaTime * projectileSpeed;
+        transform.position += (dir? new Vector3(1,0,0):new Vector3(-1,0,0)) * Time.deltaTime * projectileSpeed;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other) {
+        if(other.transform.CompareTag("Ground")){
+            NetworkServer.Destroy(gameObject);
+        }
     }
 }
