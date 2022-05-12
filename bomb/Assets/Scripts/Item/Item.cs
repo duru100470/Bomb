@@ -10,9 +10,19 @@ public enum ItemType{
 
 public abstract class Item : NetworkBehaviour
 {
+    [SyncVar]
     public Player player;
     public GameObject itemObj;
     public ItemType type;
     public Sprite itemSprite;
-    public abstract void OnUse();
+    public void OnUse(){
+        _OnUse();
+        CmdDestroy(GetComponent<NetworkIdentity>().netId);
+    }
+    public abstract void _OnUse();
+
+    [Command(requiresAuthority = false)]
+    protected void CmdDestroy(uint netId){
+        player.RpcItemDestroy(netId);
+    }
 }

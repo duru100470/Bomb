@@ -11,7 +11,7 @@ public class Dash : Item
     private float dashTime = 1f;
     private Rigidbody2D rbody;
         
-    public override void OnUse()
+    public override void _OnUse()
     {
         //Debug.Log("Dash");
         rbody = player.GetComponent<Rigidbody2D>();
@@ -20,6 +20,5 @@ public class Dash : Item
         rbody.velocity = Vector2.zero;
         rbody.velocity += new Vector2((player.isHeadingRight? 1 : -1) * force , 0);
         player.DashDone(dashTime);
-        player.CmdDestroy(gameObject);
     }
 }

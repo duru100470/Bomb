@@ -17,7 +17,7 @@ public class Player : NetworkBehaviour
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-    [SerializeField]
+    [SyncVar][SerializeField]
     private Item curItem;
     private SpriteRenderer spriteRenderer;
     public Rigidbody2D rigid2d;
@@ -62,8 +62,7 @@ public class Player : NetworkBehaviour
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
     }
-
-    // 키보드 입력 받기 및 CurruentState 실행
+    // 키보드 입력 받기 및 State 갱신
     private void Update() {
         // 로컬 플레이어가 아닐 경우 작동 X
         if(!isLocalPlayer) return;
@@ -103,39 +102,6 @@ public class Player : NetworkBehaviour
             }
         }
     }
-
-    // 다른 플레이어 및 아이템 충돌
-    private void OnTriggerEnter2D(Collider2D other) {
-        // 플레이어인 경우, 내가 폭탄을 가지고 있으면 상대에게 폭탄을 옮기고 서로 반대 방향으로 튕겨져 나간다
-        if(other.transform.CompareTag("Player")){
-            
-
-        }
-        // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
-        if(other.transform.CompareTag("Item") && curItem == null){
-            Item _item = other.GetComponent<Item>();
-            _item.GetComponent<Collider2D>().enabled = false;
-            _item.GetComponent<SpriteRenderer>().enabled = false;
-            CmdAddItem(_item);
-            CmdGetItem(_item.GetComponent<NetworkIdentity>().netId);
-        }
-        // Stone에 맞았을 때
-        if(other.transform.CompareTag("Projectile")){
-            StartCoroutine(Stunned(other.GetComponent<StoneProjectile>().stunTime));
-            NetworkServer.Destroy(other.gameObject);
-        }
-        // 서버에 로그 전송
-    }
-
-    // 아이템 획득
-    [Command]
-    private void CmdAddItem(Item item){
-        // 아이템 리스트에 추가
-        item.player = this;
-        curItem = item;
-        curItemObj = item.itemObj;
-    }
-
     // 아이템 사용
     public void UseItem(){
         // 아이템이 없으면 작동 안함
@@ -145,10 +111,46 @@ public class Player : NetworkBehaviour
         }
     }
 
+    private IEnumerator Stunned(float stunTime){
+        stateMachine.SetState(dicState[PlayerState.Stun]);
+        yield return new WaitForSeconds(stunTime);
+        stateMachine.SetState(dicState[PlayerState.Idle]);
+    }
+    // 다른 플레이어 및 아이템 충돌
+    private void OnTriggerEnter2D(Collider2D other) {
+        // 플레이어인 경우, 내가 폭탄을 가지고 있으면 상대에게 폭탄을 옮기고 서로 반대 방향으로 튕겨져 나간다
+        if(other.transform.CompareTag("Player")){
+            
+        }
+        // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
+        if(other.transform.CompareTag("Item") && curItem == null){
+            Item _item = other.GetComponent<Item>();
+            curItemObj = _item.itemObj;
+            CmdAddItem(_item);
+        }
+        // Stone에 맞았을 때
+        if(other.transform.CompareTag("Projectile")){
+            StartCoroutine(Stunned(other.GetComponent<StoneProjectile>().stunTime));
+            NetworkServer.Destroy(other.gameObject);
+        }
+        // 서버에 로그 전송
+    }
+
+    // 아이템 획득 상태 동기화
+    [Command]
+    private void CmdAddItem(Item item){
+        item.player = this;
+        curItem = item;
+        curItemObj = item.itemObj;
+        RpcItemSync(item.GetComponent<NetworkIdentity>().netId);
+    }
+
+    //Dash후 감속
     public void DashDone(float time){
         dashTime = time;
         StartCoroutine(_DashDone());
     }
+    //감속 종료 후 gravityScale 정상화, Casting 종료
     private IEnumerator _DashDone(){
         yield return new WaitForSeconds(dashTime);
         isCasting = false;
@@ -156,40 +158,21 @@ public class Player : NetworkBehaviour
         rigid2d.gravityScale = 1f;
     }
 
-    private IEnumerator Stunned(float stunTime){
-        stateMachine.SetState(dicState[PlayerState.Stun]);
-        yield return new WaitForSeconds(stunTime);
-        stateMachine.SetState(dicState[PlayerState.Idle]);
-    }
-
-    [Command]
-    public void CmdDestroy(GameObject obj){
-        NetworkServer.Destroy(obj);
-    }
-
-    [Command]
-    public void CmdStoneSpawn(){
-        if(!isLocalPlayer) return;
-        GameObject projectile = Instantiate(curItemObj, transform.position + (isHeadingRight ? new Vector3(1,0,0) : new Vector3(-1,0,0)), Quaternion.identity);
-        projectile.GetComponent<StoneProjectile>().dir = isHeadingRight;
-        NetworkServer.Spawn(projectile);
-    }
-
     [Command]
     public void CmdBombTransition(){
 
     }
 
-    [Command(requiresAuthority = false)]
-    public void CmdGetItem(uint netId){
-        RpcItemSync(netId);    
-    }
-
+    //획득된 아이템의 collider와 renderer의 비활성화 상태 동기화
     [ClientRpc]
     public void RpcItemSync(uint netId){
-        if(!isServer) return;
         GameObject obj = NetworkClient.spawned[netId].gameObject; 
         obj.GetComponent<Collider2D>().enabled = false;
         obj.GetComponent<SpriteRenderer>().enabled = false;
+    }
+    //Destroy되는 아이템의 상태 동기화
+    [ClientRpc]
+    public void RpcItemDestroy(uint netId){
+        NetworkServer.Destroy(NetworkClient.spawned[netId].gameObject);
     }
 }

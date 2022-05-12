@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3555851843046068163}
-  - component: {fileID: 3965615835837010556}
-  - component: {fileID: 8000131804112529726}
   - component: {fileID: 9070056971482222781}
+  - component: {fileID: 8000131804112529726}
+  - component: {fileID: 3965615835837010556}
   - component: {fileID: 7722025156765796187}
   - component: {fileID: 1415960573302611292}
   - component: {fileID: 4660991381574885762}
@@ -36,46 +36,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3965615835837010556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556292238141432243}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 0
-  serverOnly: 0
-  visible: 0
-  m_AssetId: d9d345430133f9948a47d914788b1a8b
-  hasSpawned: 0
---- !u!114 &8000131804112529726
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556292238141432243}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51de1f0ca0721a94eb7d596fe8df2821, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  curItem: {fileID: 0}
-  rigid2d: {fileID: 0}
-  curItemObj: {fileID: 0}
-  moveSpeed: 5
-  jumpForce: 5
-  dashTime: 0
-  isGround: 0
-  isHeadingRight: 0
-  isCasting: 0
 --- !u!212 &9070056971482222781
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -127,6 +87,46 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8000131804112529726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2556292238141432243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51de1f0ca0721a94eb7d596fe8df2821, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncMode: 0
+  syncInterval: 0.1
+  curItem: {fileID: 0}
+  rigid2d: {fileID: 0}
+  curItemObj: {fileID: 0}
+  moveSpeed: 5
+  jumpForce: 5
+  dashTime: 0
+  isGround: 0
+  isHeadingRight: 0
+  isCasting: 0
+--- !u!114 &3965615835837010556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2556292238141432243}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  serverOnly: 0
+  visible: 0
+  m_AssetId: d9d345430133f9948a47d914788b1a8b
+  hasSpawned: 0
 --- !u!114 &7722025156765796187
 MonoBehaviour:
   m_ObjectHideFlags: 0
