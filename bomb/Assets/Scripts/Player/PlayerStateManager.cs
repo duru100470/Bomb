@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
-
+using UnityEngine.UI;
 public class PlayerStateManager : NetworkBehaviour
 {
     private enum PlayerState{
@@ -25,6 +25,9 @@ public class PlayerStateManager : NetworkBehaviour
     public GameObject curItemObj {set; get;}
     public PhysicsMaterial2D idlePhysicsMat {set; get;}
     public PhysicsMaterial2D stunPhysicsMat {set; get;}
+    // 폭탄 글로벌 타이머 (For Debugging)
+    [SerializeField]
+    private Text timer;
    
     [SerializeField]
     private float moveSpeed = 10f;
@@ -49,6 +52,9 @@ public class PlayerStateManager : NetworkBehaviour
     private void Start() {
         // 게임 매니저에 해당 플레이어 추가
         GameManager.Instance.AddPlayer(this);
+
+        // 타이머 초기화 (For Debugging)
+        timer.text = GameManager.Instance.bombGlobalTime.ToString();
 
         IState idle = new PlayerIdle(this);
         IState run = new PlayerRun(this);
@@ -190,5 +196,10 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcTeleport(Vector3 position){
         transform.position = position;
+    }
+
+    [ClientRpc]
+    public void RpcSetTimer(float time){
+        timer.text = time.ToString();
     }
 }

@@ -12,6 +12,15 @@ public class GameManager : NetworkBehaviour
 
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
 
+    [SerializeField]
+    private float maxBombGlobalTime = 80f;
+    [SerializeField]
+    private float minBombGlobalTime = 60f;
+    [SyncVar]
+    public float bombGlobalTime;
+    [SyncVar]
+    public float bombLocalTime;
+
     // 플레이어 리스트에 플레이어 추가
     public void AddPlayer(PlayerStateManager player){
         if(!players.Contains(player)){
@@ -32,7 +41,7 @@ public class GameManager : NetworkBehaviour
             yield return null;
         }
 
-        // 랜덤 플레이어에게 폭탄 부여
+        // 랜덤 플레이어에게 폭탄줌
         for (int i = 0; i < 1; i++){
             var player = players[Random.Range(0, players.Count)];
             if (player.hasBomb == false){
@@ -48,6 +57,30 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    private IEnumerator StartBombTimer(){
+        bombGlobalTime = Mathf.Round( Random.Range(minBombGlobalTime, maxBombGlobalTime) );
+
+        for (int i = 0; i < players.Count; i++){
+            if (players[i].hasBomb == true){
+                players[i].RpcSetTimer(bombGlobalTime);
+            }else{
+                players[i].RpcSetTimer(0);
+            }
+        }
+        
+        while (bombGlobalTime > 0){
+            yield return new WaitForSeconds(1f);
+            bombGlobalTime--;
+            for (int i = 0; i < players.Count; i++){
+                if (players[i].hasBomb == true){
+                    players[i].RpcSetTimer(bombGlobalTime);
+                }else{
+                    players[i].RpcSetTimer(0);
+                }
+            }
+        }
+    }
+
     private void Awake() {
         Instance = this;
     }
@@ -55,6 +88,7 @@ public class GameManager : NetworkBehaviour
     private void Start() {
         if (isServer){
             StartCoroutine(GameReady());
+            StartCoroutine(StartBombTimer());
         }
     }
 }
