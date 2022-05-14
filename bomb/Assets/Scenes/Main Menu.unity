@@ -280,12 +280,13 @@ MonoBehaviour:
   playerPrefab: {fileID: 2556292238141432243, guid: d9d345430133f9948a47d914788b1a8b, type: 3}
   autoCreatePlayer: 1
   playerSpawnMethod: 1
-  spawnPrefabs: []
+  spawnPrefabs:
+  - {fileID: 4087488319536920985, guid: a151900f561a7c047965f80ba290c0b7, type: 3}
   showRoomGUI: 1
   minPlayers: 1
   roomPlayerPrefab: {fileID: 1158177511340733789, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
   RoomScene: Assets/Scenes/GameRoom.unity
-  GameplayScene: Assets/Scenes/Gameplay.unity
+  GameplayScene: Assets/Scenes/PlayScene_DM.unity
   _allPlayersReady: 0
   roomSlots: []
   clientIndex: 0

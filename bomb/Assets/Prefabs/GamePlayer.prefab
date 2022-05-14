@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
-  syncInterval: 0.01
+  syncInterval: 0
   clientAuthority: 1
   sendInterval: 0.05
   syncPosition: 1
@@ -170,7 +170,7 @@ MonoBehaviour:
   bufferSizeLimit: 64
   catchupThreshold: 4
   catchupMultiplier: 0.1
-  onlySyncOnChange: 1
+  onlySyncOnChange: 0
   bufferResetMultiplier: 5
   positionSensitivity: 0.01
   rotationSensitivity: 0.01

@@ -45,6 +45,9 @@ public class PlayerStateManager : NetworkBehaviour
 
     // Initialize states
     private void Start() {
+        // 게임 매니저에 해당 플레이어 추가
+        GameManager.Instance.AddPlayer(this);
+
         IState idle = new PlayerIdle(this);
         IState run = new PlayerRun(this);
         IState jump = new PlayerJump(this);
@@ -180,5 +183,10 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcItemDestroy(uint netId){
         NetworkServer.Destroy(NetworkClient.spawned[netId].gameObject);
+    }
+
+    [ClientRpc]
+    public void RpcTeleport(Vector3 position){
+        transform.position = position;
     }
 }
