@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerIdle : IState 
 {
-    private Player player;
+    private PlayerStateManager player;
 
-    public PlayerIdle(Player player){
+    public PlayerIdle(PlayerStateManager player){
         this.player = player;
     }
 

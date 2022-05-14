@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerCast : IState 
 {
-    private Player player;
+    private PlayerStateManager player;
 
-    public PlayerCast(Player player){
+    public PlayerCast(PlayerStateManager player){
         this.player = player;
     }
     

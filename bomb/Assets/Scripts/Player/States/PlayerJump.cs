@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerJump : IState 
 {
-    private Player player;
+    private PlayerStateManager player;
 
-    public PlayerJump(Player player){
+    public PlayerJump(PlayerStateManager player){
         this.player = player;
     }
     
