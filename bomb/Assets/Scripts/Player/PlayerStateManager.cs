@@ -20,11 +20,11 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar][SerializeField]
     private Item curItem;
     private SpriteRenderer spriteRenderer;
-    public Rigidbody2D rigid2d;
-    public Collider2D coll;
-    public GameObject curItemObj;
-    public PhysicsMaterial2D idlePhysicsMat;
-    public PhysicsMaterial2D stunPhysicsMat;
+    public Rigidbody2D rigid2d {set; get;}
+    public Collider2D coll {set; get;}
+    public GameObject curItemObj {set; get;}
+    public PhysicsMaterial2D idlePhysicsMat {set; get;}
+    public PhysicsMaterial2D stunPhysicsMat {set; get;}
    
     [SerializeField]
     private float moveSpeed = 10f;
@@ -40,8 +40,10 @@ public class PlayerStateManager : NetworkBehaviour
     ///
     [SerializeField]
     private bool isGround = false;
-    public bool isHeadingRight = false;
-    public bool isCasting = false;
+    public bool isHeadingRight {set; get;} = false;
+    public bool isCasting {set; get;} = false;
+    [SyncVar]
+    public bool hasBomb = false;
 
     // Initialize states
     private void Start() {
