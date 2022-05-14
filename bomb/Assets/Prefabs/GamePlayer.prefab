@@ -103,10 +103,12 @@ MonoBehaviour:
   syncInterval: 0.1
   curItem: {fileID: 0}
   rigid2d: {fileID: 0}
+  coll: {fileID: 0}
   curItemObj: {fileID: 0}
+  idlePhysicsMat: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
+  stunPhysicsMat: {fileID: 6200000, guid: fe24cf6f6cd398b49aecc32f16d4e8be, type: 2}
   moveSpeed: 5
   jumpForce: 5
-  dashTime: 0
   isGround: 0
   isHeadingRight: 0
   isCasting: 0

@@ -21,8 +21,10 @@ public class Player : NetworkBehaviour
     private Item curItem;
     private SpriteRenderer spriteRenderer;
     public Rigidbody2D rigid2d;
-    private Collider2D coll;
+    public Collider2D coll;
     public GameObject curItemObj;
+    public PhysicsMaterial2D idlePhysicsMat;
+    public PhysicsMaterial2D stunPhysicsMat;
    
     [SerializeField]
     private float moveSpeed = 10f;
@@ -31,7 +33,9 @@ public class Player : NetworkBehaviour
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
     private float refVelocity = 0f;
-    public float dashTime = 0f;
+    private float dashTime = 0f;
+    private float stunBounciness = 1f;
+    public float StunBounciness => stunBounciness;
 
     ///
     [SerializeField]
@@ -150,6 +154,7 @@ public class Player : NetworkBehaviour
         dashTime = time;
         StartCoroutine(_DashDone());
     }
+
     //감속 종료 후 gravityScale 정상화, Casting 종료
     private IEnumerator _DashDone(){
         yield return new WaitForSeconds(dashTime);
@@ -160,7 +165,7 @@ public class Player : NetworkBehaviour
 
     [Command]
     public void CmdBombTransition(){
-
+        
     }
 
     //획득된 아이템의 collider와 renderer의 비활성화 상태 동기화
@@ -170,6 +175,7 @@ public class Player : NetworkBehaviour
         obj.GetComponent<Collider2D>().enabled = false;
         obj.GetComponent<SpriteRenderer>().enabled = false;
     }
+
     //Destroy되는 아이템의 상태 동기화
     [ClientRpc]
     public void RpcItemDestroy(uint netId){

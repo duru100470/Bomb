@@ -12,9 +12,10 @@ public class PlayerStun : IState
     
     public void OperateEnter(){
         //Debug.Log("stunned" + player.name);
+        player.coll.sharedMaterial = player.stunPhysicsMat;
     }
     public void OperateExit(){
-        
+        player.coll.sharedMaterial = player.idlePhysicsMat;
     }
     public void OperateUpdate(){
 
