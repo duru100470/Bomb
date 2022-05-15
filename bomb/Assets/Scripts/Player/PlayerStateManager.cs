@@ -35,6 +35,8 @@ public class PlayerStateManager : NetworkBehaviour
     private float jumpForce = 5.0f;
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
+    [SerializeField]
+    private float power = 30f;
     private float refVelocity = 0f;
     private float dashTime = 0f;
     private float stunBounciness = 1f;
@@ -45,6 +47,7 @@ public class PlayerStateManager : NetworkBehaviour
     private bool isGround = false;
     public bool isHeadingRight {set; get;} = false;
     public bool isCasting {set; get;} = false;
+    public bool isTransferable {set; get;} = true;
     [SyncVar]
     public bool hasBomb = false;
 
@@ -131,12 +134,25 @@ public class PlayerStateManager : NetworkBehaviour
         yield return new WaitForSeconds(stunTime);
         stateMachine.SetState(dicState[PlayerState.Idle]);
     }
-    // 다른 플레이어 및 아이템 충돌
-    private void OnTriggerEnter2D(Collider2D other) {
-        // 플레이어인 경우, 내가 폭탄을 가지고 있으면 상대에게 폭탄을 옮기고 서로 반대 방향으로 튕겨져 나간다
-        if(other.transform.CompareTag("Player")){
-            
+
+    // 다른 플레이어 충돌
+    private void OnCollisionEnter2D(Collision2D other) {
+        if(other.transform.CompareTag("Player") && hasBomb == true && isTransferable == true){
+            var targetPSM = other.transform.GetComponent<PlayerStateManager>();
+
+            if (targetPSM.hasBomb == false && hasAuthority){
+                StartCoroutine(_TransitionDone());
+                Vector2 dir = ( transform.position - other.transform.position ).normalized * power;
+
+                Debug.Log(dir);
+                rigid2d.AddForce(dir);
+                CmdBombTransition(targetPSM.netId, dir * (-1));
+            }
         }
+    }
+
+    // 다른 아이템 충돌
+    private void OnTriggerEnter2D(Collider2D other) {
         // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
         if(other.transform.CompareTag("Item") && curItem == null){
             Item _item = other.GetComponent<Item>();
@@ -174,9 +190,28 @@ public class PlayerStateManager : NetworkBehaviour
         rigid2d.gravityScale = 1f;
     }
 
+    // 폭탄 전달시 약간의 딜레이 부여
+    private IEnumerator _TransitionDone(){
+        isTransferable = false;
+        yield return new WaitForSeconds(0.2f);
+        isTransferable = true;
+    }
+
     [Command]
-    public void CmdBombTransition(){
-        
+    public void CmdBombTransition(uint targetNetId, Vector3 dir){
+        PlayerStateManager target = null;
+
+        foreach (var player in GameManager.Instance.GetPlayerList()){
+            if (player.netId == targetNetId){
+                target = player;
+            }
+        }
+
+        if (target != null){
+            target.hasBomb = true;
+            hasBomb = false;
+            rigid2d.AddForce(target.transform.position - dir);
+        }
     }
 
     //획득된 아이템의 collider와 renderer의 비활성화 상태 동기화
