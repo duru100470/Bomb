@@ -121,6 +121,9 @@ MonoBehaviour:
   timer: {fileID: 2210880777623232470}
   moveSpeed: 5
   jumpForce: 5
+  maxSpeed: 10
+  minSpeed: 2
+  accelaration: 10
   isGround: 0
   hasBomb: 0
 --- !u!114 &3965615835837010556
