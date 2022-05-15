@@ -15,6 +15,7 @@ public abstract class Item : NetworkBehaviour
     public GameObject itemObj;
     public ItemType type;
     public Sprite itemSprite;
+    public ItemSpawner spawner;
     public void OnUse(){
         _OnUse();
         CmdDestroy(GetComponent<NetworkIdentity>().netId);

@@ -12,7 +12,6 @@ public class PlayerJump : IState
     
     public void OperateEnter(){
         //Debug.Log("Enter jump");
-        //player.rigid2d.AddForce(new Vector2(0,1)*player.JumpForce, ForceMode2D.Impulse);
         player.rigid2d.velocity = new Vector2(player.rigid2d.velocity.x, player.JumpForce);
     }
     public void OperateExit(){

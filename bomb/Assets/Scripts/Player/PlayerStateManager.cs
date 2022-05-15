@@ -19,7 +19,7 @@ public class PlayerStateManager : NetworkBehaviour
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
     [SyncVar][SerializeField]
     private Item curItem;
-    private SpriteRenderer spriteRenderer;
+    public SpriteRenderer spriteRenderer;
     public Rigidbody2D rigid2d {set; get;}
     public Collider2D coll {set; get;}
     public GameObject curItemObj {set; get;}
@@ -39,12 +39,15 @@ public class PlayerStateManager : NetworkBehaviour
     private float minSpeed = 2f;
     [SerializeField]
     private float accelaration = 10f;
+    [SerializeField]
+    private float ghostSpeed = 10f;
     
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
     public float MaxSpeed => maxSpeed;
     public float MinSpeed => minSpeed;
     public float Accelaration => accelaration;
+    public float GhostSpeed => ghostSpeed;
     private float refVelocity = 0f;
     private float dashTime = 0f;
     private float stunBounciness = 1f;
@@ -126,6 +129,11 @@ public class PlayerStateManager : NetworkBehaviour
                 stateMachine.SetState(dicState[PlayerState.Cast]);
             }
         }
+        if(stateMachine.CurruentState == dicState[PlayerState.Dead]){
+            //고스트 상태에서 하는 무언가
+
+
+        }
     }
     // 아이템 사용
     public void UseItem(){
@@ -167,6 +175,7 @@ public class PlayerStateManager : NetworkBehaviour
         item.player = this;
         curItem = item;
         curItemObj = item.itemObj;
+        item.spawner.isSpawnable = true;
         RpcItemSync(item.GetComponent<NetworkIdentity>().netId);
     }
 
