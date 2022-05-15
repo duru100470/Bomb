@@ -19,7 +19,7 @@ public class PlayerStateManager : NetworkBehaviour
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
     [SyncVar][SerializeField]
     private Item curItem;
-    private SpriteRenderer spriteRenderer;
+    public SpriteRenderer spriteRenderer {set; get;}
     public Rigidbody2D rigid2d {set; get;}
     public Collider2D coll {set; get;}
     public GameObject curItemObj {set; get;}
@@ -142,9 +142,9 @@ public class PlayerStateManager : NetworkBehaviour
 
             if (targetPSM.hasBomb == false && hasAuthority){
                 StartCoroutine(_TransitionDone());
+                StartCoroutine(Stunned(10f));
                 Vector2 dir = ( transform.position - other.transform.position ).normalized * power;
 
-                Debug.Log(dir);
                 rigid2d.AddForce(dir);
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
@@ -208,10 +208,21 @@ public class PlayerStateManager : NetworkBehaviour
         }
 
         if (target != null){
-            target.hasBomb = true;
             hasBomb = false;
-            rigid2d.AddForce(target.transform.position - dir);
+            target.GetBomb(dir);
         }
+    }
+
+    public void GetBomb(Vector2 dir){
+        hasBomb = true;
+        rigid2d.AddForce(dir);
+        RpcGetStunned(10f);
+    }
+
+    [ClientRpc]
+    public void RpcGetStunned(float duration){
+        Debug.Log("Stunned");
+        StartCoroutine(Stunned(duration));
     }
 
     //획득된 아이템의 collider와 renderer의 비활성화 상태 동기화
