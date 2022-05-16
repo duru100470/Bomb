@@ -19,11 +19,7 @@ public class PlayerStateManager : NetworkBehaviour
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
     [SyncVar][SerializeField]
     private Item curItem;
-<<<<<<< HEAD
     public SpriteRenderer spriteRenderer {set; get;}
-=======
-    public SpriteRenderer spriteRenderer;
->>>>>>> DM
     public Rigidbody2D rigid2d {set; get;}
     public Collider2D coll {set; get;}
     public GameObject curItemObj {set; get;}
@@ -48,15 +44,12 @@ public class PlayerStateManager : NetworkBehaviour
     
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
-<<<<<<< HEAD
     [SerializeField]
     private float power = 30f;
-=======
     public float MaxSpeed => maxSpeed;
     public float MinSpeed => minSpeed;
     public float Accelaration => accelaration;
     public float GhostSpeed => ghostSpeed;
->>>>>>> DM
     private float refVelocity = 0f;
     private float dashTime = 0f;
     private float stunBounciness = 1f;
