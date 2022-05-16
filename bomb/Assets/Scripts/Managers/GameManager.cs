@@ -59,21 +59,23 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator StartBombTimer(){
         bombGlobalTime = Mathf.Round( Random.Range(minBombGlobalTime, maxBombGlobalTime) );
+        bombLocalTime = Mathf.Round(bombGlobalTime / 5);
 
         for (int i = 0; i < players.Count; i++){
             if (players[i].hasBomb == true){
-                players[i].RpcSetTimer(bombGlobalTime);
+                players[i].RpcSetTimer(bombLocalTime);
             }else{
                 players[i].RpcSetTimer(0);
             }
         }
         
-        while (true){
+        while (bombLocalTime > 0){
             yield return new WaitForSeconds(1f);
             bombGlobalTime--;
+            bombLocalTime--;
             for (int i = 0; i < players.Count; i++){
                 if (players[i].hasBomb == true){
-                    players[i].RpcSetTimer(bombGlobalTime);
+                    players[i].RpcSetTimer(bombLocalTime);
                 }else{
                     players[i].RpcSetTimer(0);
                 }

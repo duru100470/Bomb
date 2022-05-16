@@ -213,6 +213,7 @@ public class PlayerStateManager : NetworkBehaviour
 
         if (target != null){
             Debug.Log("CmdBombTransition Called!!");
+            GameManager.Instance.bombLocalTime =Mathf.Max( Mathf.Round( GameManager.Instance.bombGlobalTime / 5 ), 2f);
             hasBomb = false;
             target.GetBomb(dir);
         }
