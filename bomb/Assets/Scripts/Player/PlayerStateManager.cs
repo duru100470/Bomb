@@ -162,7 +162,7 @@ public class PlayerStateManager : NetworkBehaviour
 
             if (targetPSM.hasBomb == false && hasAuthority){
                 StartCoroutine(_TransitionDone());
-                StartCoroutine(Stunned(10f));
+                StartCoroutine(Stunned(2f));
                 Vector2 dir = ( transform.position - other.transform.position ).normalized * power;
 
                 rigid2d.AddForce(dir);
@@ -256,7 +256,7 @@ public class PlayerStateManager : NetworkBehaviour
         StartCoroutine(_TransitionDone());
         hasBomb = true;
         RpcGetBomb(dir);
-        RpcStunSync(10f);
+        RpcStunSync(2f);
     }
 
     [ClientRpc]
@@ -280,6 +280,7 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcDead(){
         if (hasAuthority){
+            StopAllCoroutines();
             stateMachine.SetState(dicState[PlayerState.Dead]);
         }else{
             // 죽으면 모습 안보이게 (임시)
