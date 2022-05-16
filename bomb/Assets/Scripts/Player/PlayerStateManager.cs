@@ -47,7 +47,9 @@ public class PlayerStateManager : NetworkBehaviour
     private bool isGround = false;
     public bool isHeadingRight {set; get;} = false;
     public bool isCasting {set; get;} = false;
-    public bool isTransferable {set; get;} = true;
+    [SyncVar]
+    private bool isTransferable = true;
+    public bool IsTransferable => isTransferable;
     [SyncVar]
     public bool hasBomb = false;
 
@@ -137,6 +139,8 @@ public class PlayerStateManager : NetworkBehaviour
 
     // 다른 플레이어 충돌
     private void OnCollisionEnter2D(Collision2D other) {
+        if (!hasAuthority) return;
+
         if(other.transform.CompareTag("Player") && hasBomb == true && isTransferable == true){
             var targetPSM = other.transform.GetComponent<PlayerStateManager>();
 
@@ -193,7 +197,7 @@ public class PlayerStateManager : NetworkBehaviour
     // 폭탄 전달시 약간의 딜레이 부여
     private IEnumerator _TransitionDone(){
         isTransferable = false;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         isTransferable = true;
     }
 
@@ -208,21 +212,26 @@ public class PlayerStateManager : NetworkBehaviour
         }
 
         if (target != null){
+            Debug.Log("CmdBombTransition Called!!");
             hasBomb = false;
             target.GetBomb(dir);
         }
     }
 
     public void GetBomb(Vector2 dir){
+        StartCoroutine(_TransitionDone());
         hasBomb = true;
-        rigid2d.AddForce(dir);
-        RpcGetStunned(10f);
+        RpcGetBomb(dir, 10f);
     }
 
     [ClientRpc]
-    public void RpcGetStunned(float duration){
-        Debug.Log("Stunned");
-        StartCoroutine(Stunned(duration));
+    public void RpcGetBomb(Vector2 dir, float duration){
+        if (hasAuthority){
+            Debug.Log("Stunned");
+            Debug.Log(dir);
+            rigid2d.AddForce(dir);
+            StartCoroutine(Stunned(duration));
+        }
     }
 
     //획득된 아이템의 collider와 renderer의 비활성화 상태 동기화

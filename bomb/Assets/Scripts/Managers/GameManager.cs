@@ -68,7 +68,7 @@ public class GameManager : NetworkBehaviour
             }
         }
         
-        while (bombGlobalTime > 0){
+        while (true){
             yield return new WaitForSeconds(1f);
             bombGlobalTime--;
             for (int i = 0; i < players.Count; i++){
