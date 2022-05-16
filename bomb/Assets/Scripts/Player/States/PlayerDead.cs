@@ -16,7 +16,7 @@ public class PlayerDead : IState
         player.spriteRenderer.material.color = new Color(player.spriteRenderer.material.color.r,player.spriteRenderer.material.color.g,player.spriteRenderer.material.color.b, 0.5f);
     }
     public void OperateExit(){
-        player.gameObject.layer = LayerMask.NameToLayer("Plyaer");
+        player.gameObject.layer = LayerMask.NameToLayer("Player");
         player.rigid2d.gravityScale = 1f;
         player.spriteRenderer.material.color = new Color(player.spriteRenderer.material.color.r,player.spriteRenderer.material.color.g,player.spriteRenderer.material.color.b, 1f);
     }

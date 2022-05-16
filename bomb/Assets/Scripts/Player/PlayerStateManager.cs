@@ -262,6 +262,7 @@ public class PlayerStateManager : NetworkBehaviour
         }else{
             // 죽으면 모습 안보이게 (임시)
             spriteRenderer.color = new Color(1f, 1f, 1f, 0.1f);
+            this.gameObject.layer = LayerMask.NameToLayer("GhostPlayer");    
         }
     }
 
