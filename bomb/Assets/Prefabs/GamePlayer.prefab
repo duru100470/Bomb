@@ -122,6 +122,10 @@ MonoBehaviour:
   moveSpeed: 5
   jumpForce: 5
   power: 300
+  maxSpeed: 10
+  minSpeed: 2
+  accelaration: 10
+  ghostSpeed: 10
   isGround: 0
   hasBomb: 0
 --- !u!114 &3965615835837010556

@@ -17,4 +17,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PlayScene_DM.unity
     guid: e9bef8581ef6a5245b27b451d372cdf9
+  - enabled: 1
+    path: Assets/Scenes/DM_MainMenu.unity
+    guid: c2d418ce30ecce44eb21ef4c41ef3173
+  - enabled: 1
+    path: Assets/Scenes/DM.unity
+    guid: cba078d50cd52454f84c138873b090bf
   m_configObjects: {}

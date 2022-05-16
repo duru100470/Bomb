@@ -11,12 +11,18 @@ public class PlayerDead : IState
     }
     
     public void OperateEnter(){
-
+        player.gameObject.layer = LayerMask.NameToLayer("GhostPlayer");    
+        player.rigid2d.gravityScale = 0;
+        player.spriteRenderer.material.color = new Color(player.spriteRenderer.material.color.r,player.spriteRenderer.material.color.g,player.spriteRenderer.material.color.b, 0.5f);
     }
     public void OperateExit(){
-
+        player.gameObject.layer = LayerMask.NameToLayer("Plyaer");
+        player.rigid2d.gravityScale = 1f;
+        player.spriteRenderer.material.color = new Color(player.spriteRenderer.material.color.r,player.spriteRenderer.material.color.g,player.spriteRenderer.material.color.b, 1f);
     }
     public void OperateUpdate(){
-
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
+        player.transform.position += new Vector3(horizontal, vertical,0) * Time.deltaTime * player.GhostSpeed;
     }
 }
