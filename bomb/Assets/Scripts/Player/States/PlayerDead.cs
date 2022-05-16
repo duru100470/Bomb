@@ -13,6 +13,7 @@ public class PlayerDead : IState
     public void OperateEnter(){
         player.gameObject.layer = LayerMask.NameToLayer("GhostPlayer");    
         player.rigid2d.gravityScale = 0;
+        player.rigid2d.velocity = Vector2.zero;
         player.spriteRenderer.material.color = new Color(player.spriteRenderer.material.color.r,player.spriteRenderer.material.color.g,player.spriteRenderer.material.color.b, 0.5f);
     }
     public void OperateExit(){
