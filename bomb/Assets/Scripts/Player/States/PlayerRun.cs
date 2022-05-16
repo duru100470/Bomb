@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class PlayerRun : IState 
 {
-    private Player player;
+    private PlayerStateManager player;
 
-    public PlayerRun(Player player){
+    public PlayerRun(PlayerStateManager player){
         this.player = player;
     }
     

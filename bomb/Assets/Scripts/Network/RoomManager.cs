@@ -3,6 +3,6 @@ using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
-public class RoomManager : NetworkRoomManager  
+public class RoomManager : NetworkRoomManager
 {
 }

@@ -11,7 +11,7 @@ public enum ItemType{
 public abstract class Item : NetworkBehaviour
 {
     [SyncVar]
-    public Player player;
+    public PlayerStateManager player;
     public GameObject itemObj;
     public ItemType type;
     public Sprite itemSprite;
