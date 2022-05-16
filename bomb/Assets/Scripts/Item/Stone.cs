@@ -7,14 +7,12 @@ public class Stone : Item
 {
     public override void _OnUse()
     {
-        //Debug.Log("Stone");
         CmdStoneSpawn();
     }
 
-    
-    [Command(requiresAuthority = false)]
+    [Command]
     public void CmdStoneSpawn(){
-        GameObject projectile = Instantiate(player.curItemObj, player.transform.position + (player.isHeadingRight ? new Vector3(1,0,0) : new Vector3(-1,0,0)), Quaternion.identity);
+        GameObject projectile = Instantiate(player.curItemObj, player.transform.position + 5 * (player.coll.bounds.size.x + 0.1f) * (player.isHeadingRight ? Vector3.right : Vector3.left), Quaternion.identity);
         projectile.GetComponent<StoneProjectile>().dir = player.isHeadingRight;
         NetworkServer.Spawn(projectile);
     }

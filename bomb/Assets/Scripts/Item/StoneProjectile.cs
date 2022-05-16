@@ -6,11 +6,12 @@ using Mirror;
 public class StoneProjectile : NetworkBehaviour
 {
     public float stunTime = 1f;
+    [SyncVar]
     public bool dir;
     [SerializeField]
     float projectileSpeed = 10f;
     public void Update(){
-        transform.position += (dir? new Vector3(1,0,0):new Vector3(-1,0,0)) * Time.deltaTime * projectileSpeed;
+        transform.position += (dir ? Vector3.right : Vector3.left ) * Time.deltaTime * projectileSpeed;
     }
 
     private void OnTriggerEnter2D(Collider2D other) {

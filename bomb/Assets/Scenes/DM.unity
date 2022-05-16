@@ -134,6 +134,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: ItemSpawner (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
+      propertyPath: itemList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
+      propertyPath: itemList.Array.data[0]
+      value: 
+      objectReference: {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
     - target: {fileID: 2073150324138236528, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: sceneId
       value: 532858872
@@ -297,6 +305,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: ItemSpawner (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
+      propertyPath: itemList.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
+      propertyPath: itemList.Array.data[0]
+      value: 
+      objectReference: {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
     - target: {fileID: 2073150324138236528, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: sceneId
       value: 3344337836
@@ -580,6 +596,10 @@ PrefabInstance:
       propertyPath: itemList.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
+      propertyPath: itemList.Array.data[0]
+      value: 
+      objectReference: {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
     - target: {fileID: 2073150324138236528, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: sceneId
       value: 2990606825
@@ -791,6 +811,10 @@ PrefabInstance:
       propertyPath: itemList.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
+      propertyPath: itemList.Array.data[0]
+      value: 
+      objectReference: {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
     - target: {fileID: 2073150324138236528, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: sceneId
       value: 3929717476

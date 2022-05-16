@@ -18,11 +18,11 @@ public abstract class Item : NetworkBehaviour
     public ItemSpawner spawner;
     public void OnUse(){
         _OnUse();
-        CmdDestroy(GetComponent<NetworkIdentity>().netId);
+        CmdDestroy(netId);
     }
     public abstract void _OnUse();
 
-    [Command(requiresAuthority = false)]
+    [Command]
     protected void CmdDestroy(uint netId){
         player.RpcItemDestroy(netId);
     }

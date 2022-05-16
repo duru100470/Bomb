@@ -52,13 +52,12 @@ public class PlayerStateManager : NetworkBehaviour
     public float GhostSpeed => ghostSpeed;
     private float refVelocity = 0f;
     private float dashTime = 0f;
-    private float stunBounciness = 1f;
-    public float StunBounciness => stunBounciness;
 
     ///
     [SerializeField]
     private bool isGround = false;
-    public bool isHeadingRight {set; get;} = false;
+    [SyncVar]
+    public bool isHeadingRight = false;
     public bool isCasting {set; get;} = false;
     [SyncVar]
     private bool isTransferable = true;
@@ -103,14 +102,13 @@ public class PlayerStateManager : NetworkBehaviour
         stateMachine.DoOperateUpdate();
         // dash 속도 감소
         if(isCasting) rigid2d.velocity = new Vector2(Mathf.SmoothDamp(rigid2d.velocity.x, 0f, ref refVelocity, dashTime), rigid2d.velocity.y);
-
     }
 
     private void FixedUpdate(){
         RaycastHit2D raycastHit = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.02f, LayerMask.GetMask("Ground"));
         if(raycastHit.collider != null) isGround = true;
         else isGround = false;
-        spriteRenderer.flipX = isHeadingRight;
+        spriteRenderer.flipX = !isHeadingRight;
     }
     // 키보드 입력 제어
     private void KeyboardInput()
@@ -175,15 +173,18 @@ public class PlayerStateManager : NetworkBehaviour
 
     // 다른 아이템 충돌
     private void OnTriggerEnter2D(Collider2D other) {
+
         // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
-        if(other.transform.CompareTag("Item") && curItem == null){
+        if(other.transform.CompareTag("Item") && curItem == null && hasAuthority){
             Item _item = other.GetComponent<Item>();
+            _item.player = this;
             curItemObj = _item.itemObj;
             CmdAddItem(_item);
         }
         // Stone에 맞았을 때
         if(other.transform.CompareTag("Projectile")){
-            StartCoroutine(Stunned(other.GetComponent<StoneProjectile>().stunTime));
+            Debug.Log(netId);
+            CmdHitStone(netId, other.GetComponent<StoneProjectile>().stunTime);
             NetworkServer.Destroy(other.gameObject);
         }
         // 서버에 로그 전송
@@ -192,11 +193,12 @@ public class PlayerStateManager : NetworkBehaviour
     // 아이템 획득 상태 동기화
     [Command]
     private void CmdAddItem(Item item){
-        item.player = this;
         curItem = item;
         curItemObj = item.itemObj;
+        item.player = this;
         item.spawner.isSpawnable = true;
-        RpcItemSync(item.GetComponent<NetworkIdentity>().netId);
+        item.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
+        RpcItemSync(item.netId);
     }
 
     //Dash후 감속
@@ -232,25 +234,45 @@ public class PlayerStateManager : NetworkBehaviour
 
         if (target != null){
             Debug.Log("CmdBombTransition Called!!");
-            GameManager.Instance.bombLocalTime =Mathf.Max( Mathf.Round( GameManager.Instance.bombGlobalTime / 5 ), 2f);
+            GameManager.Instance.bombLocalTime = Mathf.Max( Mathf.Round( GameManager.Instance.bombGlobalTime / 5 ), 2f);
             hasBomb = false;
             target.GetBomb(dir);
         }
     }
 
+    [Command (requiresAuthority = false)]
+    public void CmdHitStone(uint targetNetId, float time){
+        PlayerStateManager target = null;
+        foreach (var player in GameManager.Instance.GetPlayerList()){
+            if (player.netId == targetNetId){
+                target = player;
+                Debug.Log("Setted by target : " + target.netId);
+                target.RpcStunSync(time);
+            }
+        }
+    }
+    
     public void GetBomb(Vector2 dir){
         StartCoroutine(_TransitionDone());
         hasBomb = true;
-        RpcGetBomb(dir, 10f);
+        RpcGetBomb(dir);
+        RpcStunSync(10f);
     }
 
     [ClientRpc]
-    public void RpcGetBomb(Vector2 dir, float duration){
+    public void RpcGetBomb(Vector2 dir){
         if (hasAuthority){
             Debug.Log("Stunned");
             Debug.Log(dir);
             rigid2d.AddForce(dir);
-            StartCoroutine(Stunned(duration));
+        }
+    }
+
+    //Stun상태 sync용 ClientRpc
+    [ClientRpc]
+    public void RpcStunSync(float time){
+        if(hasAuthority){
+            StartCoroutine(Stunned(time));
         }
     }
 
