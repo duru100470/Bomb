@@ -81,6 +81,12 @@ public class GameManager : NetworkBehaviour
                 }
             }
         }
+
+        for (int i = 0; i < players.Count; i++){
+            if (players[i].hasBomb == true){
+                players[i].RpcDead();
+            }
+        }
     }
 
     private void Awake() {

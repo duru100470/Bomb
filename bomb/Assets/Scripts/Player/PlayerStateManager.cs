@@ -276,6 +276,18 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
+    // 폭탄 폭발
+    [ClientRpc]
+    public void RpcDead(){
+        if (hasAuthority){
+            stateMachine.SetState(dicState[PlayerState.Dead]);
+        }else{
+            // 죽으면 모습 안보이게 (임시)
+            spriteRenderer.color = new Color(1f, 1f, 1f, 0.1f);
+            this.gameObject.layer = LayerMask.NameToLayer("GhostPlayer");    
+        }
+    }
+
     //획득된 아이템의 collider와 renderer의 비활성화 상태 동기화
     [ClientRpc]
     public void RpcItemSync(uint netId){
