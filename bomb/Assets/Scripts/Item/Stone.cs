@@ -14,6 +14,7 @@ public class Stone : Item
     public void CmdStoneSpawn(){
         GameObject projectile = Instantiate(player.curItemObj, player.transform.position + (player.coll.bounds.size.x + 0.1f) * (player.isHeadingRight ? Vector3.right : Vector3.left), Quaternion.identity);
         projectile.GetComponent<StoneProjectile>().dir = player.isHeadingRight;
+        projectile.GetComponent<StoneProjectile>().player = player;
         NetworkServer.Spawn(projectile);
     }
 }

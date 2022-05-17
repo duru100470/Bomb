@@ -183,7 +183,7 @@ public class PlayerStateManager : NetworkBehaviour
             CmdAddItem(_item);
         }
         // Stone에 맞았을 때
-        if(other.transform.CompareTag("Projectile")){
+        if(other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this){
             Debug.Log(netId);
             CmdHitStone(netId, other.GetComponent<StoneProjectile>().stunTime);
             NetworkServer.Destroy(other.gameObject);

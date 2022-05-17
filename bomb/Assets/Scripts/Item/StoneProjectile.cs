@@ -10,6 +10,7 @@ public class StoneProjectile : NetworkBehaviour
     public bool dir;
     [SerializeField]
     float projectileSpeed = 10f;
+    public PlayerStateManager player;
     public void Update(){
         transform.position += (dir ? Vector3.right : Vector3.left ) * Time.deltaTime * projectileSpeed;
     }
