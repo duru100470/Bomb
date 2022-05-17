@@ -23,8 +23,8 @@ public class PlayerStateManager : NetworkBehaviour
     public Rigidbody2D rigid2d {set; get;}
     public Collider2D coll {set; get;}
     public GameObject curItemObj {set; get;}
-    public PhysicsMaterial2D idlePhysicsMat {set; get;}
-    public PhysicsMaterial2D stunPhysicsMat {set; get;}
+    public PhysicsMaterial2D idlePhysicsMat;
+    public PhysicsMaterial2D stunPhysicsMat;
     // 폭탄 글로벌 타이머 (For Debugging)
     [SerializeField]
     private Text timer;
@@ -50,9 +50,10 @@ public class PlayerStateManager : NetworkBehaviour
     public float MinSpeed => minSpeed;
     public float Accelaration => accelaration;
     public float GhostSpeed => ghostSpeed;
-    private float refVelocity = 0f;
     private float dashTime = 0f;
-
+    public float dashVel {get; set;}
+    private float curDashTime = 0f;
+    private float lerpT = 0f;
     ///
     [SerializeField]
     private bool isGround = false;
@@ -101,7 +102,11 @@ public class PlayerStateManager : NetworkBehaviour
         KeyboardInput();
         stateMachine.DoOperateUpdate();
         // dash 속도 감소
-        if(isCasting) rigid2d.velocity = new Vector2(Mathf.SmoothDamp(rigid2d.velocity.x, 0f, ref refVelocity, dashTime), rigid2d.velocity.y);
+        if(isCasting) {
+            rigid2d.velocity = new Vector2(Mathf.Lerp(0,dashVel,lerpT),rigid2d.velocity.y);
+            curDashTime -= Time.deltaTime;
+            lerpT = curDashTime / dashTime;
+        }
 
     }
 
@@ -164,9 +169,9 @@ public class PlayerStateManager : NetworkBehaviour
             if (targetPSM.hasBomb == false && hasAuthority){
                 StartCoroutine(_TransitionDone());
                 StartCoroutine(Stunned(2f));
-                Vector2 dir = ( transform.position - other.transform.position ).normalized * power;
-
-                rigid2d.AddForce(dir);
+                Vector2 dir = (transform.position - other.transform.position + new Vector3(0, Random.Range(-0.2f, 0.2f),0)).normalized * Random.Range(power,power/2);
+                rigid2d.velocity = dir;
+                //rigid2d.AddForce(dir);
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
         }
@@ -205,6 +210,8 @@ public class PlayerStateManager : NetworkBehaviour
     //Dash후 감속
     public void DashDone(float time){
         dashTime = time;
+        curDashTime = time;
+        lerpT = 1f;
         StartCoroutine(_DashDone());
     }
 
@@ -212,7 +219,7 @@ public class PlayerStateManager : NetworkBehaviour
     private IEnumerator _DashDone(){
         yield return new WaitForSeconds(dashTime);
         isCasting = false;
-        rigid2d.velocity = Vector2.zero;
+        //rigid2d.velocity = Vector2.zero;
         rigid2d.gravityScale = 1f;
     }
 
@@ -257,7 +264,7 @@ public class PlayerStateManager : NetworkBehaviour
     public void CmdisHeadingUpdate(bool isHeading){
         isHeadingRight = isHeading;
     }
-    
+
     public void GetBomb(Vector2 dir){
         StartCoroutine(_TransitionDone());
         hasBomb = true;
@@ -270,7 +277,8 @@ public class PlayerStateManager : NetworkBehaviour
         if (hasAuthority){
             Debug.Log("Stunned");
             Debug.Log(dir);
-            rigid2d.AddForce(dir);
+            rigid2d.velocity = dir;
+            //rigid2d.AddForce(dir);
         }
     }
 

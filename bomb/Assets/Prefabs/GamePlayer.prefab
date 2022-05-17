@@ -118,6 +118,8 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   curItem: {fileID: 0}
+  idlePhysicsMat: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
+  stunPhysicsMat: {fileID: 6200000, guid: fe24cf6f6cd398b49aecc32f16d4e8be, type: 2}
   timer: {fileID: 2210880777623232470}
   moveSpeed: 5
   jumpForce: 7
@@ -125,8 +127,9 @@ MonoBehaviour:
   minSpeed: 2
   accelaration: 10
   ghostSpeed: 5
-  power: 300
+  power: 15
   isGround: 0
+  isHeadingRight: 0
   hasBomb: 0
 --- !u!114 &3965615835837010556
 MonoBehaviour:
@@ -209,7 +212,7 @@ CapsuleCollider2D:
   m_GameObject: {fileID: 2556292238141432243}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0

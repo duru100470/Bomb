@@ -11,7 +11,6 @@ public class PlayerStun : IState
     }
     
     public void OperateEnter(){
-        //Debug.Log("stunned" + player.name);
         player.spriteRenderer.color = new Color(1, 1, 1, 0.5f);
         player.coll.sharedMaterial = player.stunPhysicsMat;
     }

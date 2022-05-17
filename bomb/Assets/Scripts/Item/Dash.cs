@@ -19,6 +19,7 @@ public class Dash : Item
         player.isCasting = true;
         rbody.velocity = Vector2.zero;
         rbody.velocity += new Vector2((player.isHeadingRight? 1 : -1) * force , 0);
+        player.dashVel = force;
         player.DashDone(dashTime);
     }
 }
