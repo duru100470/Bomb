@@ -102,6 +102,7 @@ public class PlayerStateManager : NetworkBehaviour
         stateMachine.DoOperateUpdate();
         // dash 속도 감소
         if(isCasting) rigid2d.velocity = new Vector2(Mathf.SmoothDamp(rigid2d.velocity.x, 0f, ref refVelocity, dashTime), rigid2d.velocity.y);
+
     }
 
     private void FixedUpdate(){
@@ -250,6 +251,11 @@ public class PlayerStateManager : NetworkBehaviour
                 target.RpcStunSync(time);
             }
         }
+    }
+
+    [Command]
+    public void CmdisHeadingUpdate(bool isHeading){
+        isHeadingRight = isHeading;
     }
     
     public void GetBomb(Vector2 dir){
