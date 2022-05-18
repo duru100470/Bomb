@@ -12,10 +12,8 @@ public class GameManager : NetworkBehaviour
 
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
 
-    [SerializeField]
-    private float maxBombGlobalTime = 80f;
-    [SerializeField]
-    private float minBombGlobalTime = 60f;
+    private float maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
+    private float minBombGlobalTime = GameRuleStore.Instance.CurGameRule.minBombTime;
     [SyncVar]
     public float bombGlobalTime;
     [SyncVar]
@@ -42,7 +40,7 @@ public class GameManager : NetworkBehaviour
         }
 
         // 랜덤 플레이어에게 폭탄줌
-        for (int i = 0; i < 1; i++){
+        for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++){
             var player = players[Random.Range(0, players.Count)];
             if (player.hasBomb == false){
                 player.hasBomb = true;
