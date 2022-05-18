@@ -16,6 +16,7 @@ public class PlayerStun : IState
     }
     public void OperateExit(){
         player.coll.sharedMaterial = player.idlePhysicsMat;
+        player.rigid2d.velocity = new Vector2(Mathf.Clamp(player.rigid2d.velocity.x, -player.MaxSpeed, player.MaxSpeed),player.rigid2d.velocity.y);
         player.spriteRenderer.color = new Color(1, 1, 1, 1f);
     }
     public void OperateUpdate(){
