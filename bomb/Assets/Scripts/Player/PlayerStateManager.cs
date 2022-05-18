@@ -103,7 +103,7 @@ public class PlayerStateManager : NetworkBehaviour
         stateMachine.DoOperateUpdate();
         // dash 속도 감소
         if(isCasting) {
-            rigid2d.velocity = new Vector2(Mathf.Lerp(0,dashVel,lerpT),rigid2d.velocity.y);
+            rigid2d.velocity = new Vector2((isHeadingRight? 1 : -1) *Mathf.Lerp(0,dashVel,lerpT), rigid2d.velocity.y);
             curDashTime -= Time.deltaTime;
             lerpT = curDashTime / dashTime;
         }
@@ -171,7 +171,6 @@ public class PlayerStateManager : NetworkBehaviour
                 StartCoroutine(Stunned(2f));
                 Vector2 dir = (transform.position - other.transform.position + new Vector3(0, Random.Range(-0.2f, 0.2f),0)).normalized * Random.Range(power,power/2);
                 rigid2d.velocity = dir;
-                //rigid2d.AddForce(dir);
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
         }
@@ -189,7 +188,6 @@ public class PlayerStateManager : NetworkBehaviour
         }
         // Stone에 맞았을 때
         if(other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this){
-            Debug.Log(netId);
             CmdHitStone(netId, other.GetComponent<StoneProjectile>().stunTime);
             NetworkServer.Destroy(other.gameObject);
         }
@@ -219,7 +217,6 @@ public class PlayerStateManager : NetworkBehaviour
     private IEnumerator _DashDone(){
         yield return new WaitForSeconds(dashTime);
         isCasting = false;
-        //rigid2d.velocity = Vector2.zero;
         rigid2d.gravityScale = 1f;
     }
 
@@ -254,7 +251,6 @@ public class PlayerStateManager : NetworkBehaviour
         foreach (var player in GameManager.Instance.GetPlayerList()){
             if (player.netId == targetNetId){
                 target = player;
-                Debug.Log("Setted by target : " + target.netId);
                 target.RpcStunSync(time);
             }
         }
@@ -275,10 +271,7 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcGetBomb(Vector2 dir){
         if (hasAuthority){
-            Debug.Log("Stunned");
-            Debug.Log(dir);
             rigid2d.velocity = dir;
-            //rigid2d.AddForce(dir);
         }
     }
 
