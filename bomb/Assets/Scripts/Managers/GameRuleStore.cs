@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class GameRuleStore : MonoBehaviour
 {
-    public struct GameRule{
+    public struct GameRule
+    {
         public int maxPlayer;
         public int minPlayer;
         public bool isPlayerEliminated;
@@ -19,31 +20,40 @@ public class GameRuleStore : MonoBehaviour
 
     [SerializeField]
     private GameRule curGameRule;
-    public GameRule CurGameRule {get{return curGameRule;}}
+    public GameRule CurGameRule { get { return curGameRule; } }
 
-    private void Awake() {
-        if (_instance == null){
+    private void Awake()
+    {
+        if (_instance == null)
+        {
             _instance = this;
 
             DontDestroyOnLoad(this.gameObject);
-        }else{
+        }
+        else
+        {
             Destroy(this.gameObject);
         }
     }
 
-    public static GameRuleStore Instance{
-        get{
-            if (_instance == null){
+    public static GameRuleStore Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
                 return null;
             }
             return _instance;
         }
     }
-    private void Start() {
+    private void Start()
+    {
         SetRuleDefault();
     }
 
-    private void SetRuleDefault(){
+    private void SetRuleDefault()
+    {
         curGameRule.maxPlayer = 6;
         curGameRule.minPlayer = 3;
         curGameRule.isPlayerEliminated = true;

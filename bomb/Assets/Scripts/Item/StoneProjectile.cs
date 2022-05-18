@@ -11,12 +11,15 @@ public class StoneProjectile : NetworkBehaviour
     [SerializeField]
     float projectileSpeed = 10f;
     public PlayerStateManager player;
-    public void Update(){
-        transform.position += (dir ? Vector3.right : Vector3.left ) * Time.deltaTime * projectileSpeed;
+    public void Update()
+    {
+        transform.position += (dir ? Vector3.right : Vector3.left) * Time.deltaTime * projectileSpeed;
     }
 
-    private void OnTriggerEnter2D(Collider2D other) {
-        if(other.transform.CompareTag("Ground")){
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.transform.CompareTag("Ground"))
+        {
             NetworkServer.Destroy(gameObject);
         }
     }
