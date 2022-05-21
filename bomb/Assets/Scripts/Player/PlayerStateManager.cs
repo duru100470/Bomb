@@ -56,6 +56,10 @@ public class PlayerStateManager : NetworkBehaviour
     public float dashVel { get; set; }
     private float curDashTime = 0f;
     private float lerpT = 0f;
+    private float jumpBufferTime = 0.2f;
+    private float jumpBufferTimeCnt;
+    private float hangTime = 0.1f;
+    private float hangTimeCnt;
     ///
     [SerializeField]
     private bool isGround = false;
@@ -143,10 +147,29 @@ public class PlayerStateManager : NetworkBehaviour
             }
 
             // Jump State
-            if (Input.GetKeyDown(KeyCode.Space) && this.isGround)
+            if(isGround) 
+            {
+                hangTimeCnt = hangTime;
+            }
+            else
+            {
+                hangTimeCnt -= Time.deltaTime;
+            }
+            
+            if(Input.GetKeyDown(KeyCode.Space))
+            {
+                jumpBufferTimeCnt = jumpBufferTime;
+            }
+            else
+            {
+                jumpBufferTimeCnt -= Time.deltaTime;
+            }
+
+            if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f)
             {
                 stateMachine.SetState(dicState[PlayerState.Jump]);
-            }
+                jumpBufferTimeCnt = 0f;
+            }   
 
             // Cast State
             if (Input.GetKeyDown(KeyCode.Q) && stateMachine.CurruentState != dicState[PlayerState.Cast])
@@ -279,6 +302,10 @@ public class PlayerStateManager : NetworkBehaviour
         {
             yield return new WaitForSeconds(1f);
             CmdLocalTimeReduced(1f);
+            if(playerLocalBombTime <= 0f)
+            {
+                CmdPlayerDead();
+            }
         }
         yield break;
     }
@@ -339,6 +366,13 @@ public class PlayerStateManager : NetworkBehaviour
     public void CmdIsHeadingSync(bool isHeading)
     {
         isHeadingRight = isHeading;
+    }
+
+    [Command]
+    private void CmdPlayerDead()
+    {
+        hasBomb = !hasBomb;
+        RpcDead();
     }
 
     [ClientRpc]
