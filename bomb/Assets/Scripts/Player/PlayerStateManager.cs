@@ -65,8 +65,10 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar]
     private bool isTransferable = true;
     public bool IsTransferable => isTransferable;
-    [SyncVar]
+    [SyncVar(hook = nameof(OnChangeHasBomb))]
     public bool hasBomb = false;
+    [SyncVar(hook = nameof(OnChangePlayerLocalBombTime))]
+    public float playerLocalBombTime;
 
     // Initialize states
     private void Start()
@@ -75,7 +77,7 @@ public class PlayerStateManager : NetworkBehaviour
         GameManager.Instance.AddPlayer(this);
 
         // 타이머 초기화 (For Debugging)
-        timer.text = GameManager.Instance.bombGlobalTime.ToString();
+        //timer.text = GameManager.Instance.bombGlobalTime.ToString();
 
         IState idle = new PlayerIdle(this);
         IState run = new PlayerRun(this);
@@ -98,6 +100,7 @@ public class PlayerStateManager : NetworkBehaviour
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
     }
+
     // 키보드 입력 받기 및 State 갱신
     private void Update()
     {
@@ -122,6 +125,7 @@ public class PlayerStateManager : NetworkBehaviour
         else isGround = false;
         spriteRenderer.flipX = !isHeadingRight;
     }
+
     // 키보드 입력 제어
     private void KeyboardInput()
     {
@@ -154,25 +158,7 @@ public class PlayerStateManager : NetworkBehaviour
         {
             //고스트 상태에서 하는 무언가
 
-
         }
-    }
-    // 아이템 사용
-    public void UseItem()
-    {
-        // 아이템이 없으면 작동 안함
-        if (curItem != null)
-        {
-            curItem.OnUse();
-            curItem = null;
-        }
-    }
-
-    private IEnumerator Stunned(float stunTime)
-    {
-        stateMachine.SetState(dicState[PlayerState.Stun]);
-        yield return new WaitForSeconds(stunTime);
-        stateMachine.SetState(dicState[PlayerState.Idle]);
     }
 
     // 다른 플레이어 충돌
@@ -183,12 +169,12 @@ public class PlayerStateManager : NetworkBehaviour
         if (other.transform.CompareTag("Player") && hasBomb == true && isTransferable == true)
         {
             var targetPSM = other.transform.GetComponent<PlayerStateManager>();
-
-            if (targetPSM.hasBomb == false && hasAuthority)
+            if (targetPSM.hasBomb == false)
             {
                 StartCoroutine(_TransitionDone());
                 StartCoroutine(Stunned(2f));
-                Vector2 dir = (transform.position - other.transform.position + new Vector3(0, Random.Range(-0.2f, 0.2f), 0)).normalized * Random.Range(power, power / 2);
+                Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
+                if(dir.y == 0) dir.y = 0.1f * power;
                 rigid2d.velocity = dir;
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
@@ -216,16 +202,43 @@ public class PlayerStateManager : NetworkBehaviour
         // 서버에 로그 전송
     }
 
-    // 아이템 획득 상태 동기화
-    [Command]
-    private void CmdAddItem(Item item)
+    //hasBomb hook함수
+    void OnChangeHasBomb(bool oldBool, bool newbool)
     {
-        curItem = item;
-        curItemObj = item.itemObj;
-        item.player = this;
-        item.spawner.isSpawnable = true;
-        item.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
-        RpcItemSync(item.netId);
+        if(!hasAuthority) return;
+        if(newbool)
+        {
+            Debug.Log("GetBomb : " + netId);
+            StartCoroutine(TimeDescend());
+        }
+        else
+        {
+            CmdSetTimer(0);
+        }
+    }
+
+    //playerLocalbombTime hook함수
+    void OnChangePlayerLocalBombTime(float oldfloat, float newfloat)
+    {
+        if(hasAuthority) CmdSetTimer(newfloat);
+    }
+
+    // 아이템 사용
+    public void UseItem()
+    {
+        // 아이템이 없으면 작동 안함
+        if (curItem != null)
+        {
+            curItem.OnUse();
+            curItem = null;
+        }
+    }
+
+    public void GetBomb(Vector2 dir)
+    {
+        StartCoroutine(_TransitionDone());
+        RpcGetBomb(dir);
+        RpcStunSync(2f);
     }
 
     //Dash후 감속
@@ -245,6 +258,13 @@ public class PlayerStateManager : NetworkBehaviour
         rigid2d.gravityScale = 1f;
     }
 
+    private IEnumerator Stunned(float stunTime)
+    {
+        stateMachine.SetState(dicState[PlayerState.Stun]);
+        yield return new WaitForSeconds(stunTime);
+        stateMachine.SetState(dicState[PlayerState.Idle]);
+    }
+
     // 폭탄 전달시 약간의 딜레이 부여
     private IEnumerator _TransitionDone()
     {
@@ -252,27 +272,39 @@ public class PlayerStateManager : NetworkBehaviour
         yield return new WaitForSeconds(0.1f);
         isTransferable = true;
     }
+    
+    private IEnumerator TimeDescend()
+    {
+        while(hasBomb && hasAuthority)
+        {
+            yield return new WaitForSeconds(1f);
+            CmdLocalTimeReduced(1f);
+        }
+        yield break;
+    }
 
     [Command]
-    public void CmdBombTransition(uint targetNetId, Vector3 dir)
+    private void CmdLocalTimeReduced(float time)
     {
-        PlayerStateManager target = null;
+        playerLocalBombTime -= time;
+    }
 
-        foreach (var player in GameManager.Instance.GetPlayerList())
-        {
-            if (player.netId == targetNetId)
-            {
-                target = player;
-            }
-        }
+    [Command]
+    private void CmdSetTimer(float time)
+    {
+        RpcSetTimer(time);
+    }
 
-        if (target != null)
-        {
-            Debug.Log("CmdBombTransition Called!!");
-            GameManager.Instance.bombLocalTime = Mathf.Max(Mathf.Round(GameManager.Instance.bombGlobalTime / 5), 2f);
-            hasBomb = false;
-            target.GetBomb(dir);
-        }
+    // 아이템 획득 상태 동기화
+    [Command]
+    private void CmdAddItem(Item item)
+    {
+        curItem = item;
+        curItemObj = item.itemObj;
+        item.player = this;
+        item.spawner.isSpawnable = true;
+        item.GetComponent<NetworkIdentity>().AssignClientAuthority(connectionToClient);
+        RpcItemSync(item.netId);
     }
 
     [Command(requiresAuthority = false)]
@@ -290,23 +322,29 @@ public class PlayerStateManager : NetworkBehaviour
     }
 
     [Command]
-    public void CmdisHeadingUpdate(bool isHeading)
+    public void CmdBombTransition(uint targetNetId, Vector3 dir)
     {
-        isHeadingRight = isHeading;
+        PlayerStateManager target = null;
+        target = NetworkServer.spawned[targetNetId].GetComponent<PlayerStateManager>();
+        if (target != null)
+        {
+            target.playerLocalBombTime = Mathf.Round(GameManager.Instance.bombGlobalTime / 5);
+            target.GetBomb(dir);
+        }
+        hasBomb = !hasBomb;
+        target.hasBomb = !target.hasBomb;
     }
 
-    public void GetBomb(Vector2 dir)
+    [Command]
+    public void CmdIsHeadingSync(bool isHeading)
     {
-        StartCoroutine(_TransitionDone());
-        hasBomb = true;
-        RpcGetBomb(dir);
-        RpcStunSync(2f);
+        isHeadingRight = isHeading;
     }
 
     [ClientRpc]
     public void RpcGetBomb(Vector2 dir)
     {
-        if (hasAuthority)
+        if(hasAuthority)
         {
             rigid2d.velocity = dir;
         }
@@ -352,7 +390,7 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcItemDestroy(uint netId)
     {
-        NetworkServer.Destroy(NetworkClient.spawned[netId].gameObject);
+        Destroy(NetworkClient.spawned[netId].gameObject);
     }
 
     [ClientRpc]
@@ -364,6 +402,14 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcSetTimer(float time)
     {
-        timer.text = time.ToString();
+        Debug.Log("SetTime : " + netId);
+        if(hasBomb)
+        {
+            timer.text = time.ToString();
+        }
+        else
+        {
+            timer.text = "";
+        }
     }
 }

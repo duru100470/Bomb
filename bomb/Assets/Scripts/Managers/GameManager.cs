@@ -12,12 +12,11 @@ public class GameManager : NetworkBehaviour
 
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
 
-    private float maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
-    private float minBombGlobalTime = GameRuleStore.Instance.CurGameRule.minBombTime;
+    private float maxBombGlobalTime;
+    private float minBombGlobalTime;
     [SyncVar]
     public float bombGlobalTime;
-    [SyncVar]
-    public float bombLocalTime;
+    
 
     // 플레이어 리스트에 플레이어 추가
     public void AddPlayer(PlayerStateManager player)
@@ -44,13 +43,17 @@ public class GameManager : NetworkBehaviour
             yield return null;
         }
 
+        //기본 시간설정
+        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+
         // 랜덤 플레이어에게 폭탄줌
         for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
         {
             var player = players[Random.Range(0, players.Count)];
-            if (player.hasBomb == false)
+            if (!player.hasBomb)
             {
-                player.hasBomb = true;
+                player.hasBomb = !player.hasBomb;
+                player.playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
             }
             else
             {
@@ -65,50 +68,6 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    private IEnumerator StartBombTimer()
-    {
-        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
-        bombLocalTime = Mathf.Round(bombGlobalTime / 5);
-
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].hasBomb == true)
-            {
-                players[i].RpcSetTimer(bombLocalTime);
-            }
-            else
-            {
-                players[i].RpcSetTimer(0);
-            }
-        }
-
-        while (bombLocalTime > 0)
-        {
-            yield return new WaitForSeconds(1f);
-            bombGlobalTime--;
-            bombLocalTime--;
-            for (int i = 0; i < players.Count; i++)
-            {
-                if (players[i].hasBomb == true)
-                {
-                    players[i].RpcSetTimer(bombLocalTime);
-                }
-                else
-                {
-                    players[i].RpcSetTimer(0);
-                }
-            }
-        }
-
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].hasBomb == true)
-            {
-                players[i].RpcDead();
-            }
-        }
-    }
-
     private void Awake()
     {
         Instance = this;
@@ -118,8 +77,9 @@ public class GameManager : NetworkBehaviour
     {
         if (isServer)
         {
+            maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
+            minBombGlobalTime = GameRuleStore.Instance.CurGameRule.minBombTime;
             StartCoroutine(GameReady());
-            StartCoroutine(StartBombTimer());
         }
     }
 }

@@ -34,6 +34,7 @@ public class GameRuleStore : MonoBehaviour
         {
             Destroy(this.gameObject);
         }
+        SetRuleDefault();
     }
 
     public static GameRuleStore Instance
@@ -46,10 +47,6 @@ public class GameRuleStore : MonoBehaviour
             }
             return _instance;
         }
-    }
-    private void Start()
-    {
-        SetRuleDefault();
     }
 
     private void SetRuleDefault()
