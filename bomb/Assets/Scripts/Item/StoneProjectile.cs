@@ -6,6 +6,7 @@ using Mirror;
 public class StoneProjectile : NetworkBehaviour
 {
     public float stunTime = 1f;
+    public float force;
     [SyncVar]
     public bool dir;
     [SerializeField]

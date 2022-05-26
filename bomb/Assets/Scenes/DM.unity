@@ -263,10 +263,7 @@ MonoBehaviour:
   - {fileID: 373183798}
   - {fileID: 1613430153}
   - {fileID: 922343920}
-  maxBombGlobalTime: 80
-  minBombGlobalTime: 60
   bombGlobalTime: 0
-  bombLocalTime: 0
 --- !u!114 &383716497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -827,12 +824,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: itemList.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: itemList.Array.data[0]
       value: 
-      objectReference: {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
+      objectReference: {fileID: 558901428346621358, guid: 4ff98e4505727744ba80f700287a65a6, type: 3}
     - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: itemList.Array.data[1]
       value: 

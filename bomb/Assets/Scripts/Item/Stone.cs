@@ -5,6 +5,8 @@ using Mirror;
 
 public class Stone : Item
 {
+    [SerializeField]
+    private float force = 20f;
     public override void _OnUse()
     {
         CmdStoneSpawn();
@@ -14,8 +16,10 @@ public class Stone : Item
     public void CmdStoneSpawn()
     {
         GameObject projectile = Instantiate(player.curItemObj, player.transform.position + (player.coll.bounds.size.x + 0.1f) * (player.isHeadingRight ? Vector3.right : Vector3.left), Quaternion.identity);
-        projectile.GetComponent<StoneProjectile>().dir = player.isHeadingRight;
-        projectile.GetComponent<StoneProjectile>().player = player;
+        StoneProjectile sProj = projectile.GetComponent<StoneProjectile>();
+        sProj.dir = player.isHeadingRight;
+        sProj.player = player;
+        sProj.force = force;
         NetworkServer.Spawn(projectile);
     }
 }

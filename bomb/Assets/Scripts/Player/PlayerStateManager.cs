@@ -219,7 +219,8 @@ public class PlayerStateManager : NetworkBehaviour
         // Stone에 맞았을 때
         if (other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this)
         {
-            CmdHitStone(netId, other.GetComponent<StoneProjectile>().stunTime);
+            Vector2 dir = (transform.position - other.transform.position).normalized * other.GetComponent<StoneProjectile>().force;
+            CmdHitStone(netId, other.GetComponent<StoneProjectile>().stunTime, dir);
             NetworkServer.Destroy(other.gameObject);
         }
         // 서버에 로그 전송
@@ -231,7 +232,7 @@ public class PlayerStateManager : NetworkBehaviour
         if(!hasAuthority) return;
         if(newbool)
         {
-            Debug.Log("GetBomb : " + netId);
+            //Debug.Log("GetBomb : " + netId);
             StartCoroutine(TimeDescend());
         }
         else
@@ -260,7 +261,7 @@ public class PlayerStateManager : NetworkBehaviour
     public void GetBomb(Vector2 dir)
     {
         StartCoroutine(_TransitionDone());
-        RpcGetBomb(dir);
+        RpcAddDirVec(dir);
         RpcStunSync(2f);
     }
 
@@ -335,7 +336,7 @@ public class PlayerStateManager : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdHitStone(uint targetNetId, float time)
+    public void CmdHitStone(uint targetNetId, float time, Vector2 dir)
     {
         PlayerStateManager target = null;
         foreach (var player in GameManager.Instance.GetPlayerList())
@@ -344,6 +345,7 @@ public class PlayerStateManager : NetworkBehaviour
             {
                 target = player;
                 target.RpcStunSync(time);
+                target.RpcAddDirVec(dir);
             }
         }
     }
@@ -376,7 +378,7 @@ public class PlayerStateManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcGetBomb(Vector2 dir)
+    public void RpcAddDirVec(Vector2 dir)
     {
         if(hasAuthority)
         {

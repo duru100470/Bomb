@@ -6,7 +6,8 @@ using Mirror;
 public enum ItemType
 {
     Dash = 0,
-    Stone
+    Stone,
+    Jump
 }
 
 public abstract class Item : NetworkBehaviour
