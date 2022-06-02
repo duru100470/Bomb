@@ -12,8 +12,8 @@ public class GameManager : NetworkBehaviour
 
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
 
-    private float maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
-    private float minBombGlobalTime = GameRuleStore.Instance.CurGameRule.minBombTime;
+    private float maxBombGlobalTime;
+    private float minBombGlobalTime;
     [SyncVar]
     public float bombGlobalTime;
     [SyncVar]
@@ -67,7 +67,7 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator StartBombTimer()
     {
-        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+        bombGlobalTime = Mathf.Round(Random.Range(GameRuleStore.Instance.CurGameRule.minBombTime, GameRuleStore.Instance.CurGameRule.maxBombTime));
         bombLocalTime = Mathf.Round(bombGlobalTime / 5);
 
         for (int i = 0; i < players.Count; i++)
