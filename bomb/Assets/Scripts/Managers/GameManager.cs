@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
+using System.Linq;
 
 public class GameManager : NetworkBehaviour
 {
@@ -10,13 +11,20 @@ public class GameManager : NetworkBehaviour
     [SerializeField]
     private Transform[] spawnTransforms;
 
+    //전체 플레이어 인원 리스트
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
+    //생존 플레이어 인원 리스트
+    private List<PlayerStateManager> alivePlayers = new List<PlayerStateManager>();
 
     private float maxBombGlobalTime;
     private float minBombGlobalTime;
     [SyncVar]
     public float bombGlobalTime;
-    
+    [SyncVar]
+    private int curBombGlobalTime;
+    private int roundWinningPoint;
+    [SyncVar]
+    public bool isPlayerMovable = true;
 
     // 플레이어 리스트에 플레이어 추가
     public void AddPlayer(PlayerStateManager player)
@@ -42,6 +50,8 @@ public class GameManager : NetworkBehaviour
         {
             yield return null;
         }
+
+        alivePlayers = players.ToList();
 
         //기본 시간설정
         bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
@@ -79,7 +89,90 @@ public class GameManager : NetworkBehaviour
         {
             maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
             minBombGlobalTime = GameRuleStore.Instance.CurGameRule.minBombTime;
+            roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
             StartCoroutine(GameReady());
         }
+    }
+
+    public void bombExplode(PlayerStateManager deadPlayer){
+        if(!isServer) return;
+        alivePlayers.Remove(deadPlayer);
+
+        if(alivePlayers.Count <= GameRuleStore.Instance.CurGameRule.bombCount) {
+            PlayerStateManager winner = alivePlayers[0];
+            winner.roundScore += 1;
+            if(winner.roundScore >= roundWinningPoint)
+            {
+                //최종 라운드 승리자 생기는 경우
+                Debug.Log("winner : " + winner.netId);
+                Debug.Log("Round End!");
+            }
+            else
+            {
+                //점수는 얻었지만 라운드 승리자가 없는 경우
+                Debug.Log(alivePlayers[0].netId + " get point!");
+                StartCoroutine(RoundReset());
+            }
+        }
+        else
+        { 
+            //아직 두명이상이 생존해 있는 경우
+            StartCoroutine(BombRedistribution(deadPlayer.transform.position));
+        }
+    }
+
+    //생존자 수에 따른 시간과 폭탄 재분배
+    private IEnumerator BombRedistribution(Vector3 explosionPos)
+    {
+        isPlayerMovable = false;
+        curBombGlobalTime = (int)(bombGlobalTime * alivePlayers.Count / players.Count);
+
+        float max = 0;
+        PlayerStateManager maxPlayer = alivePlayers[0]; 
+        for(int i=0; i< alivePlayers.Count; i++){
+            float dist = Vector3.SqrMagnitude(alivePlayers[i].transform.position - explosionPos);
+            if(dist > max){
+                max = dist;
+                maxPlayer = alivePlayers[i];
+            }
+        }
+        maxPlayer.playerLocalBombTime = Mathf.Round(curBombGlobalTime / 5);
+        maxPlayer.hasBomb = true;
+
+        yield return new WaitForSeconds(1.0f);
+        isPlayerMovable = true;
+    }
+
+    private IEnumerator RoundReset()
+    {
+        isPlayerMovable = false;
+        alivePlayers = players.ToList();
+
+        for (int i=0; i< players.Count; i++)
+        {
+            players[i].RpcPlayerRoundReset();
+        }
+        yield return new WaitForSeconds(1f);
+        for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
+        {
+            var player = players[Random.Range(0, players.Count)];
+            if (!player.hasBomb)
+            {
+                player.playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
+                player.hasBomb = true;
+            }
+            else
+            {
+                i--;
+            }
+        }
+
+        // 플레이어들을 지정된 스폰위치에 생성
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].RpcTeleport(spawnTransforms[i].position);
+        }
+
+        isPlayerMovable = true;
     }
 }

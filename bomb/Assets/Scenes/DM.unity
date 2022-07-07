@@ -196,6 +196,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c457cd201c6465940b29ed205d786531, type: 3}
+--- !u!1 &323050740
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 323050741}
+  m_Layer: 0
+  m_Name: vent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &323050741
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 323050740}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 13
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &373183797
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,6 +294,7 @@ MonoBehaviour:
   - {fileID: 1613430153}
   - {fileID: 922343920}
   bombGlobalTime: 0
+  isPlayerMovable: 1
 --- !u!114 &383716497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -975,6 +1006,7 @@ MonoBehaviour:
   - {fileID: 4087488319536920985, guid: a151900f561a7c047965f80ba290c0b7, type: 3}
   - {fileID: 337956194928660003, guid: 68e9c04c16d1e8642aa05332ade374d1, type: 3}
   - {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
+  - {fileID: 558901428346621358, guid: 4ff98e4505727744ba80f700287a65a6, type: 3}
 --- !u!4 &1309887631
 Transform:
   m_ObjectHideFlags: 0

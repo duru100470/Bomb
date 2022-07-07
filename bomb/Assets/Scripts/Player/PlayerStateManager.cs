@@ -73,6 +73,8 @@ public class PlayerStateManager : NetworkBehaviour
     public bool hasBomb = false;
     [SyncVar(hook = nameof(OnChangePlayerLocalBombTime))]
     public float playerLocalBombTime;
+    [SyncVar]
+    public int roundScore;
 
     // Initialize states
     private void Start()
@@ -110,6 +112,8 @@ public class PlayerStateManager : NetworkBehaviour
     {
         // 로컬 플레이어가 아닐 경우 작동 X
         if (!isLocalPlayer) return;
+        //게임매니저의 이동가능 플래그가 true일때만 이동 가능
+        if(!GameManager.Instance.isPlayerMovable) return;
         KeyboardInput();
         stateMachine.DoOperateUpdate();
         // dash 속도 감소
@@ -119,7 +123,6 @@ public class PlayerStateManager : NetworkBehaviour
             curDashTime -= Time.deltaTime;
             lerpT = curDashTime / dashTime;
         }
-
     }
 
     private void FixedUpdate()
@@ -303,7 +306,7 @@ public class PlayerStateManager : NetworkBehaviour
         {
             yield return new WaitForSeconds(1f);
             CmdLocalTimeReduced(1f);
-            if(playerLocalBombTime <= 0f)
+            if(playerLocalBombTime <= 0f && hasBomb)
             {
                 CmdPlayerDead();
             }
@@ -373,8 +376,9 @@ public class PlayerStateManager : NetworkBehaviour
     [Command]
     private void CmdPlayerDead()
     {
-        hasBomb = !hasBomb;
         RpcDead();
+        GameManager.Instance.bombExplode(this);
+        hasBomb = !hasBomb;
     }
 
     [ClientRpc]
@@ -402,13 +406,13 @@ public class PlayerStateManager : NetworkBehaviour
     {
         if (hasAuthority)
         {
-            StopAllCoroutines();
+            //StopAllCoroutines();
             stateMachine.SetState(dicState[PlayerState.Dead]);
         }
         else
         {
             // 죽으면 모습 안보이게 (임시)
-            spriteRenderer.color = new Color(1f, 1f, 1f, 0.1f);
+            spriteRenderer.color = new Color(1f, 1f, 1f, 0.5f);
             this.gameObject.layer = LayerMask.NameToLayer("GhostPlayer");
         }
     }
@@ -438,7 +442,6 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcSetTimer(float time)
     {
-        Debug.Log("SetTime : " + netId);
         if(hasBomb)
         {
             timer.text = time.ToString();
@@ -447,5 +450,13 @@ public class PlayerStateManager : NetworkBehaviour
         {
             timer.text = "";
         }
+    }
+
+    [ClientRpc]
+    public void RpcPlayerRoundReset(){
+        rigid2d.velocity = Vector2.zero;
+        stateMachine.SetState(dicState[PlayerState.Idle]);
+        spriteRenderer.color = new Color(1f,1f,1f,1f);
+        this.gameObject.layer = LayerMask.NameToLayer("Player");
     }
 }

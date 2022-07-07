@@ -15,6 +15,7 @@ public class GameRuleStore : MonoBehaviour
         public int setCount;
         public int roundCount;
         public int ghostSkillCount;
+        public int roundWinningPoint;
     }
     private static GameRuleStore _instance = null;
 
@@ -60,5 +61,6 @@ public class GameRuleStore : MonoBehaviour
         curGameRule.setCount = 3;
         curGameRule.roundCount = curGameRule.maxPlayer - 1;
         curGameRule.ghostSkillCount = 1;
+        curGameRule.roundWinningPoint = 3;
     }
 }
