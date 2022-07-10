@@ -132,6 +132,7 @@ MonoBehaviour:
   isHeadingRight: 0
   hasBomb: 0
   playerLocalBombTime: 0
+  roundScore: 0
 --- !u!114 &3965615835837010556
 MonoBehaviour:
   m_ObjectHideFlags: 0
