@@ -33,6 +33,7 @@ public abstract class Item : NetworkBehaviour
     [Command]
     protected void CmdDestroy(uint netId)
     {
+        if(!isLocalPlayer) return;
         player.RpcItemDestroy(netId);
     }
 }

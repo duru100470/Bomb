@@ -151,6 +151,7 @@ public class GameManager : NetworkBehaviour
         for (int i=0; i< players.Count; i++)
         {
             players[i].RpcPlayerRoundReset();
+            players[i].DiscardItem();
         }
         for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
         {

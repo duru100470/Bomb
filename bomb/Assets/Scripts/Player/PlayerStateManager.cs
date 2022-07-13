@@ -277,6 +277,16 @@ public class PlayerStateManager : NetworkBehaviour
         StartCoroutine(_DashDone());
     }
 
+    public void DiscardItem()
+    {
+        if(curItem != null)
+        {
+            curItem.DiscardItem();
+            curItem = null;
+        }
+    }
+
+
     //감속 종료 후 gravityScale 정상화, Casting 종료
     private IEnumerator _DashDone()
     {
@@ -406,7 +416,6 @@ public class PlayerStateManager : NetworkBehaviour
     {
         if (hasAuthority)
         {
-            //StopAllCoroutines();
             stateMachine.SetState(dicState[PlayerState.Dead]);
         }
         else
@@ -458,6 +467,5 @@ public class PlayerStateManager : NetworkBehaviour
         stateMachine.SetState(dicState[PlayerState.Idle]);
         spriteRenderer.color = new Color(1f,1f,1f,1f);
         this.gameObject.layer = LayerMask.NameToLayer("Player");
-        if(curItem != null) curItem.DiscardItem();
     }
 }
