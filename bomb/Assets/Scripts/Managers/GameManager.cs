@@ -7,7 +7,7 @@ using System.Linq;
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
-
+    private RoomManager manager;
     [SerializeField]
     private List<Transform> spawnTransforms = new List<Transform>();
     //전체 플레이어 인원 리스트
@@ -43,7 +43,7 @@ public class GameManager : NetworkBehaviour
     // 게임이 시작될 시 실행되는 코루틴
     private IEnumerator GameReady()
     {
-        var manager = NetworkManager.singleton as RoomManager;
+        manager = NetworkManager.singleton as RoomManager;
         // 플레이어들이 모두 접속 시 까지 대기
         while (manager.roomSlots.Count != players.Count)
         {
@@ -105,7 +105,7 @@ public class GameManager : NetworkBehaviour
                 //최종 라운드 승리자 생기는 경우
                 Debug.Log("winner : " + winner.netId);
                 Debug.Log("Round End!");
-                NetworkManager.singleton.ServerChangeScene(NetworkManager.singleton.offlineScene);
+                manager.ServerChangeScene(manager.RoomScene);
             }
             else
             {

@@ -25,6 +25,11 @@ public abstract class Item : NetworkBehaviour
     }
     public abstract void _OnUse();
 
+    public void DiscardItem()
+    {
+        CmdDestroy(netId);
+    }
+
     [Command]
     protected void CmdDestroy(uint netId)
     {

@@ -9,7 +9,6 @@ public class UI_MainScene : MonoBehaviour
 {
     RoomManager manager;
 
-    [Header("Main")]
     [SerializeField] Button playButton;
     [SerializeField] Button tutorialButton;
     [SerializeField] Button optionButton;
@@ -71,6 +70,7 @@ public class UI_MainScene : MonoBehaviour
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                     PlayerSetting.hostIP = ip.ToString();
             }
+            
             PlayerSetting.playerNickname = playerNickname.text;
             NetworkManager.singleton.StartHost();
         }

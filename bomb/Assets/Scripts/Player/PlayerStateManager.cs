@@ -458,5 +458,6 @@ public class PlayerStateManager : NetworkBehaviour
         stateMachine.SetState(dicState[PlayerState.Idle]);
         spriteRenderer.color = new Color(1f,1f,1f,1f);
         this.gameObject.layer = LayerMask.NameToLayer("Player");
+        if(curItem != null) curItem.DiscardItem();
     }
 }
