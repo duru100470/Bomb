@@ -61,6 +61,6 @@ public class GameRuleStore : MonoBehaviour
         curGameRule.setCount = 3;
         curGameRule.roundCount = curGameRule.maxPlayer - 1;
         curGameRule.ghostSkillCount = 1;
-        curGameRule.roundWinningPoint = 3;
+        curGameRule.roundWinningPoint = 1;
     }
 }

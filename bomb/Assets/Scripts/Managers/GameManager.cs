@@ -9,8 +9,7 @@ public class GameManager : NetworkBehaviour
     public static GameManager Instance;
 
     [SerializeField]
-    private Transform[] spawnTransforms;
-
+    private List<Transform> spawnTransforms = new List<Transform>();
     //전체 플레이어 인원 리스트
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
     //생존 플레이어 인원 리스트
@@ -106,6 +105,7 @@ public class GameManager : NetworkBehaviour
                 //최종 라운드 승리자 생기는 경우
                 Debug.Log("winner : " + winner.netId);
                 Debug.Log("Round End!");
+                NetworkManager.singleton.ServerChangeScene(NetworkManager.singleton.offlineScene);
             }
             else
             {
@@ -124,7 +124,8 @@ public class GameManager : NetworkBehaviour
     //생존자 수에 따른 시간과 폭탄 재분배
     private IEnumerator BombRedistribution(Vector3 explosionPos)
     {
-        isPlayerMovable = false;
+        StartCoroutine(StopPlayer(1f));
+
         curBombGlobalTime = (int)(bombGlobalTime * alivePlayers.Count / players.Count);
 
         float max = 0;
@@ -139,20 +140,18 @@ public class GameManager : NetworkBehaviour
         maxPlayer.playerLocalBombTime = Mathf.Round(curBombGlobalTime / 5);
         maxPlayer.hasBomb = true;
 
-        yield return new WaitForSeconds(1.0f);
-        isPlayerMovable = true;
+        yield return null;
     }
 
     private IEnumerator RoundReset()
     {
-        isPlayerMovable = false;
+        StartCoroutine(StopPlayer(1f));
+        
         alivePlayers = players.ToList();
-
         for (int i=0; i< players.Count; i++)
         {
             players[i].RpcPlayerRoundReset();
         }
-        yield return new WaitForSeconds(1f);
         for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
         {
             var player = players[Random.Range(0, players.Count)];
@@ -167,12 +166,26 @@ public class GameManager : NetworkBehaviour
             }
         }
 
-        // 플레이어들을 지정된 스폰위치에 생성
-        for (int i = 0; i < players.Count; i++)
-        {
-            players[i].RpcTeleport(spawnTransforms[i].position);
+        // 플레이어들을 랜덤한 스폰위치에 생성
+        List<Transform> temp = spawnTransforms.ToList();
+        List<Transform> rand = new List<Transform>();
+        while(temp.Count != 0){
+            int target = Random.Range(0, temp.Count);
+            rand.Add(temp[target]);
+            temp.Remove(temp[target]);
         }
 
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].RpcTeleport(rand[i].position);
+        }
+
+        yield return null;
+    }
+
+    private IEnumerator StopPlayer(float stopTime){
+        isPlayerMovable = false;
+        yield return new WaitForSeconds(stopTime);
         isPlayerMovable = true;
     }
 }
