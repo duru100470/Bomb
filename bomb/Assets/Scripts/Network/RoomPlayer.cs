@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class RoomPlayer : NetworkRoomPlayer
 {
-    [SyncVar] public string playerNickname = string.Empty;
+    [SyncVar(hook = nameof(OnSetNickName))] public string playerNickname = string.Empty;
     RoomManager manager = NetworkManager.singleton as RoomManager;
+    [SerializeField] Text nameText;
 
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
@@ -44,6 +46,10 @@ public class RoomPlayer : NetworkRoomPlayer
             rigid2d = GetComponent<Rigidbody2D>();
             coll = GetComponent<Collider2D>();
         }
+    }
+
+    public void OnSetNickName(string _, string value){
+        nameText.text = value;
     }
 
     // 키보드 입력 받기 및 State 갱신
