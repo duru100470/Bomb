@@ -23,4 +23,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/DM.unity
     guid: cba078d50cd52454f84c138873b090bf
+  - enabled: 1
+    path: Assets/Scenes/Stash/Main Scene.unity
+    guid: 7078c8da0b021834bb48622a2d407557
+  - enabled: 1
+    path: Assets/Scenes/Stash/Room Scene.unity
+    guid: aa993ac6309773749a6f121b28eb343d
   m_configObjects: {}
