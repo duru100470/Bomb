@@ -35,11 +35,15 @@ public class RoomPlayer : NetworkRoomPlayer
     private float hangTimeCnt;
     [SerializeField] private bool isGround = false;
     [SyncVar] public bool isHeadingRight = false;
+    public bool isReady = false;
+    UI_Lobby UI_Lobby;
 
     public override void OnStartClient()
     {   
         if(isLocalPlayer) 
         {
+            UI_Lobby = (UI_Lobby)FindObjectOfType(typeof(UI_Lobby));
+            UI_Lobby.player = this;
             manager.AddPlayer(this);
             CmdSetNickName(PlayerSetting.playerNickname);
             spriteRenderer = GetComponent<SpriteRenderer>();
