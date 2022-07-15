@@ -2832,7 +2832,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1384861476}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6442dc8070ceb41f094e44de0bf87274, type: 3}
   m_Name: 
@@ -2898,7 +2898,7 @@ MonoBehaviour:
   - {fileID: 337956194928660003, guid: 68e9c04c16d1e8642aa05332ade374d1, type: 3}
   - {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
   - {fileID: 558901428346621358, guid: 4ff98e4505727744ba80f700287a65a6, type: 3}
-  showRoomGUI: 0
+  showRoomGUI: 1
   minPlayers: 2
   roomPlayerPrefab: {fileID: 1158177511340733789, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
   RoomScene: Assets/Scenes/Stash/Room Scene.unity

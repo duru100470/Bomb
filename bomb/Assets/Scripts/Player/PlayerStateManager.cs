@@ -75,6 +75,15 @@ public class PlayerStateManager : NetworkBehaviour
     public float playerLocalBombTime;
     [SyncVar]
     public int roundScore;
+    [SyncVar(hook = nameof(OnSetNickName))]
+    public string playerNickname;
+    [SerializeField]
+    private Text nickNameText;
+
+    public void OnSetNickName(string _, string value)
+    {
+        nickNameText.text = value;
+    }
 
     // Initialize states
     private void Start()
@@ -105,6 +114,8 @@ public class PlayerStateManager : NetworkBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
+
+        if(isLocalPlayer) CmdSetNickName(PlayerSetting.playerNickname);
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -389,6 +400,12 @@ public class PlayerStateManager : NetworkBehaviour
         RpcDead();
         GameManager.Instance.bombExplode(this);
         hasBomb = !hasBomb;
+    }
+
+    [Command]
+    public void CmdSetNickName(string nick)
+    {
+        playerNickname = nick;
     }
 
     [ClientRpc]

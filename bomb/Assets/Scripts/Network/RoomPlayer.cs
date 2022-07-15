@@ -52,7 +52,8 @@ public class RoomPlayer : NetworkRoomPlayer
         }
     }
 
-    public void OnSetNickName(string _, string value){
+    public void OnSetNickName(string _, string value)
+    {
         nameText.text = value;
     }
 
@@ -60,6 +61,7 @@ public class RoomPlayer : NetworkRoomPlayer
     private void Update()
     {
         // 로컬 플레이어가 아닐 경우 작동 X
+        if(!manager.IsSceneActive(manager.RoomScene)) gameObject.SetActive(false);
         if (!isLocalPlayer) return;
         KeyboardInput();
     }

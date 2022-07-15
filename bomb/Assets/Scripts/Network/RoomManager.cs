@@ -22,16 +22,9 @@ public class RoomManager : NetworkRoomManager
         return roomPlayerList;
     } 
     
-    public override void OnStartHost(){
+    public override void OnStartHost()
+    {
         hostIP = PlayerSetting.hostIP;
     }
-    
-    public override void ServerChangeScene(string newSceneName)
-    {
-        base.ServerChangeScene(newSceneName);
-        foreach(var player in roomPlayerList)
-        {
-            player.gameObject.SetActive(false);
-        }
-    }
+
 }

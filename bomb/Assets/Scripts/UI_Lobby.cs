@@ -11,7 +11,7 @@ public class UI_Lobby : NetworkBehaviour
     [SerializeField] RectTransform GameRule;
     [SerializeField] Button button_Play;
     [SerializeField] Text buttonPlay_text;
-    NetworkRoomManager manager = NetworkManager.singleton as NetworkRoomManager;
+    RoomManager manager = NetworkManager.singleton as RoomManager;
     public RoomPlayer player;
 
     public void Start()
@@ -32,8 +32,16 @@ public class UI_Lobby : NetworkBehaviour
     {
         if(isServer)
         {
-            manager.CheckReadyToBegin();
-            player.CmdChangeReadyState(!player.isReady);
+            List<RoomPlayer> players = manager.GetPlayerList();
+            int cnt = 0;
+            for(int i = 0; i<players.Count; i++)
+            {
+                if(players[i].readyToBegin) cnt++;
+            }
+            if(cnt == players.Count-1)
+            {
+                manager.ServerChangeScene(manager.GameplayScene);
+            }
         }
         else
         {
