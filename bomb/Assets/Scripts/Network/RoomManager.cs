@@ -26,5 +26,4 @@ public class RoomManager : NetworkRoomManager
     {
         hostIP = PlayerSetting.hostIP;
     }
-
 }

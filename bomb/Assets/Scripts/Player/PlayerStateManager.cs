@@ -221,7 +221,6 @@ public class PlayerStateManager : NetworkBehaviour
     // 다른 아이템 충돌
     private void OnTriggerEnter2D(Collider2D other)
     {
-
         // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
         if (other.transform.CompareTag("Item") && curItem == null && hasAuthority)
         {
@@ -381,7 +380,7 @@ public class PlayerStateManager : NetworkBehaviour
         target = NetworkServer.spawned[targetNetId].GetComponent<PlayerStateManager>();
         if (target != null)
         {
-            target.playerLocalBombTime = Mathf.Round(GameManager.Instance.bombGlobalTime / 5);
+            //target.playerLocalBombTime = Mathf.Round(GameManager.Instance.bombGlobalTime / 5);
             target.GetBomb(dir);
         }
         hasBomb = !hasBomb;

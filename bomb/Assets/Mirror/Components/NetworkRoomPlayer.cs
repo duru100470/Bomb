@@ -45,6 +45,8 @@ namespace Mirror
         {
             if (NetworkManager.singleton is NetworkRoomManager room)
             {
+
+                Debug.Log("networkroomplayer start");
                 // NetworkRoomPlayer object must be set to DontDestroyOnLoad along with NetworkRoomManager
                 // in server and all clients, otherwise it will be respawned in the game scene which would
                 // have undesirable effects.
@@ -111,8 +113,8 @@ namespace Mirror
         #region Room Client Virtuals
 
         /// <summary>
-        /// This is a hook that is invoked on clients for all room player objects when entering the room.
-        /// <para>Note: isLocalPlayer is not guaranteed to be set until OnStartLocalPlayer is called.</para>
+        /// Thit is invoked on clients for all room player objects when entering the room.
+        /// <para>Note: isLocas is a hook thalPlayer is not guaranteed to be set until OnStartLocalPlayer is called.</para>
         /// </summary>
         public virtual void OnClientEnterRoom() {}
 

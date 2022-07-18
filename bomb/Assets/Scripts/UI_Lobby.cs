@@ -30,22 +30,13 @@ public class UI_Lobby : NetworkBehaviour
 
     public void OnClickButtonPlay()
     {
-        if(isServer)
+        if(player.readyToBegin)
         {
-            List<RoomPlayer> players = manager.GetPlayerList();
-            int cnt = 0;
-            for(int i = 0; i<players.Count; i++)
-            {
-                if(players[i].readyToBegin) cnt++;
-            }
-            if(cnt == players.Count-1)
-            {
-                manager.ServerChangeScene(manager.GameplayScene);
-            }
+            player.CmdChangeReadyState(false);
         }
         else
         {
-            player.CmdChangeReadyState(!player.isReady);
+            player.CmdChangeReadyState(true);
         }
     }
 }

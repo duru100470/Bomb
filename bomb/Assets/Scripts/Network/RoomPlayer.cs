@@ -44,12 +44,19 @@ public class RoomPlayer : NetworkRoomPlayer
         {
             UI_Lobby = (UI_Lobby)FindObjectOfType(typeof(UI_Lobby));
             UI_Lobby.player = this;
-            manager.AddPlayer(this);
+            CmdAddPlayer();
+            //manager.AddPlayer(this);
             CmdSetNickName(PlayerSetting.playerNickname);
             spriteRenderer = GetComponent<SpriteRenderer>();
             rigid2d = GetComponent<Rigidbody2D>();
             coll = GetComponent<Collider2D>();
         }
+    }
+
+    [Command]
+    public void CmdAddPlayer()
+    {
+        manager.AddPlayer(this);
     }
 
     public void OnSetNickName(string _, string value)
@@ -61,7 +68,7 @@ public class RoomPlayer : NetworkRoomPlayer
     private void Update()
     {
         // 로컬 플레이어가 아닐 경우 작동 X
-        if(!manager.IsSceneActive(manager.RoomScene)) gameObject.SetActive(false);
+        if(!RoomManager.IsSceneActive(manager.RoomScene)) gameObject.SetActive(false);
         if (!isLocalPlayer) return;
         KeyboardInput();
     }

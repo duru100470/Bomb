@@ -17,13 +17,26 @@ public class GameManager : NetworkBehaviour
 
     private float maxBombGlobalTime;
     private float minBombGlobalTime;
-    [SyncVar]
-    public float bombGlobalTime;
-    [SyncVar]
-    private int curBombGlobalTime;
+    [SyncVar][SerializeField] public float bombGlobalTime;
+    [SyncVar] private int curBombGlobalTime;
     private int roundWinningPoint;
-    [SyncVar]
-    public bool isPlayerMovable = true;
+    [SyncVar] public bool isPlayerMovable = true;
+ 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        if (isServer)
+        {   
+            maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
+            minBombGlobalTime = GameRuleStore.Instance.CurGameRule.minBombTime;
+            roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
+            StartCoroutine(GameReady());
+        }
+    }
 
     // 플레이어 리스트에 플레이어 추가
     public void AddPlayer(PlayerStateManager player)
@@ -45,8 +58,10 @@ public class GameManager : NetworkBehaviour
     {
         manager = NetworkManager.singleton as RoomManager;
         // 플레이어들이 모두 접속 시 까지 대기
+        Debug.Log(manager.roomSlots.Count);
         while (manager.roomSlots.Count != players.Count)
         {
+            Debug.Log(manager.roomSlots.Count);
             yield return null;
         }
 
@@ -55,6 +70,13 @@ public class GameManager : NetworkBehaviour
         //기본 시간설정
         bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
+        // 플레이어들을 지정된 스폰위치에 생성
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
+            players[i].RpcTeleport(spawnTransforms[i].position);
+        }
+
         // 랜덤 플레이어에게 폭탄줌
         for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
         {
@@ -62,34 +84,11 @@ public class GameManager : NetworkBehaviour
             if (!player.hasBomb)
             {
                 player.hasBomb = !player.hasBomb;
-                player.playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
             }
             else
             {
                 i--;
             }
-        }
-
-        // 플레이어들을 지정된 스폰위치에 생성
-        for (int i = 0; i < players.Count; i++)
-        {
-            players[i].RpcTeleport(spawnTransforms[i].position);
-        }
-    }
-
-    private void Awake()
-    {
-        Instance = this;
-    }
-
-    private void Start()
-    {
-        if (isServer)
-        {
-            maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
-            minBombGlobalTime = GameRuleStore.Instance.CurGameRule.minBombTime;
-            roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
-            StartCoroutine(GameReady());
         }
     }
 
@@ -131,13 +130,13 @@ public class GameManager : NetworkBehaviour
         float max = 0;
         PlayerStateManager maxPlayer = alivePlayers[0]; 
         for(int i=0; i< alivePlayers.Count; i++){
+            alivePlayers[i].playerLocalBombTime = Mathf.Round(curBombGlobalTime / 5);
             float dist = Vector3.SqrMagnitude(alivePlayers[i].transform.position - explosionPos);
             if(dist > max){
                 max = dist;
                 maxPlayer = alivePlayers[i];
             }
         }
-        maxPlayer.playerLocalBombTime = Mathf.Round(curBombGlobalTime / 5);
         maxPlayer.hasBomb = true;
 
         yield return null;
@@ -150,6 +149,7 @@ public class GameManager : NetworkBehaviour
         alivePlayers = players.ToList();
         for (int i=0; i< players.Count; i++)
         {
+            players[i].playerLocalBombTime = Mathf.Round(curBombGlobalTime / 5);
             players[i].RpcPlayerRoundReset();
             players[i].DiscardItem();
         }
@@ -158,7 +158,6 @@ public class GameManager : NetworkBehaviour
             var player = players[Random.Range(0, players.Count)];
             if (!player.hasBomb)
             {
-                player.playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
                 player.hasBomb = true;
             }
             else
