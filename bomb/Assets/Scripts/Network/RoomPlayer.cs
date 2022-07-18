@@ -44,19 +44,11 @@ public class RoomPlayer : NetworkRoomPlayer
         {
             UI_Lobby = (UI_Lobby)FindObjectOfType(typeof(UI_Lobby));
             UI_Lobby.player = this;
-            CmdAddPlayer();
-            //manager.AddPlayer(this);
             CmdSetNickName(PlayerSetting.playerNickname);
             spriteRenderer = GetComponent<SpriteRenderer>();
             rigid2d = GetComponent<Rigidbody2D>();
             coll = GetComponent<Collider2D>();
         }
-    }
-
-    [Command]
-    public void CmdAddPlayer()
-    {
-        manager.AddPlayer(this);
     }
 
     public void OnSetNickName(string _, string value)

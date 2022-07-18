@@ -8,8 +8,7 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
     private RoomManager manager;
-    [SerializeField]
-    private List<Transform> spawnTransforms = new List<Transform>();
+    [SerializeField] private List<Transform> spawnTransforms = new List<Transform>();
     //전체 플레이어 인원 리스트
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
     //생존 플레이어 인원 리스트
@@ -58,10 +57,8 @@ public class GameManager : NetworkBehaviour
     {
         manager = NetworkManager.singleton as RoomManager;
         // 플레이어들이 모두 접속 시 까지 대기
-        Debug.Log(manager.roomSlots.Count);
-        while (manager.roomSlots.Count != players.Count)
+        while(manager.clientIndex != players.Count)
         {
-            Debug.Log(manager.roomSlots.Count);
             yield return null;
         }
 
@@ -149,21 +146,9 @@ public class GameManager : NetworkBehaviour
         alivePlayers = players.ToList();
         for (int i=0; i< players.Count; i++)
         {
-            players[i].playerLocalBombTime = Mathf.Round(curBombGlobalTime / 5);
+            players[i].playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
             players[i].RpcPlayerRoundReset();
             players[i].DiscardItem();
-        }
-        for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
-        {
-            var player = players[Random.Range(0, players.Count)];
-            if (!player.hasBomb)
-            {
-                player.hasBomb = true;
-            }
-            else
-            {
-                i--;
-            }
         }
 
         // 플레이어들을 랜덤한 스폰위치에 생성
@@ -178,6 +163,19 @@ public class GameManager : NetworkBehaviour
         for (int i = 0; i < players.Count; i++)
         {
             players[i].RpcTeleport(rand[i].position);
+        }
+
+        for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
+        {
+            var player = players[Random.Range(0, players.Count)];
+            if (!player.hasBomb)
+            {
+                player.hasBomb = true;
+            }
+            else
+            {
+                i--;
+            }
         }
 
         yield return null;
