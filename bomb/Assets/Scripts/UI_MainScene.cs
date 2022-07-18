@@ -28,41 +28,58 @@ public class UI_MainScene : MonoBehaviour
     [SerializeField] Button optionQuitButton;
     [SerializeField] private List<Sprite> tutorialList = new List<Sprite>();
     [SerializeField] RectTransform nicknameEmptyCaution;
-
+    [SerializeField] Image transitionPanel;
+    [SerializeField] GameObject MainButtons;
+    [SerializeField] private float transitionTime = 1f;
     private int tutorialIdx = 0;
+    private bool transitionFlag = true;
 
-    void Start(){
+    void Start()
+    {
         manager = NetworkManager.singleton as RoomManager;
         joinMatchInput.text = "localhost";
     }
 
     #region Main
 
-    public void Play(){
+    public void Play()
+    {
+        StartCoroutine(Transition());
         playPanel.gameObject.SetActive(true);
+        MainButtons.SetActive(false);
     }
 
-    public void Tutorial(){
+    public void Tutorial()
+    {
+        StartCoroutine(Transition());
         tutorialPanel.gameObject.SetActive(true);
-        if(tutorialList.Count > 0){
+        MainButtons.SetActive(false);
+        if(tutorialList.Count > 0)
+        {
             tutorialIdx = 0;
             tutorialImage.sprite = tutorialList[tutorialIdx];
         }
     }
 
-    public void Option(){
+    public void Option()
+    {
+        StartCoroutine(Transition());
         optionPanel.gameObject.SetActive(true);
+        MainButtons.SetActive(false);
     }
 
-    public void Exit(){
+    public void Exit()
+    {
         Application.Quit();
     }
 
     #endregion Main
 
     #region Panel_Play
-    public void Host(){
-        if(!playerNickname.text.Equals(string.Empty)){
+    public void Host()
+    {
+        if(!playerNickname.text.Equals(string.Empty))
+        {
 
             var host = Dns.GetHostEntry(Dns.GetHostName());
             foreach (var ip in host.AddressList)
@@ -74,42 +91,54 @@ public class UI_MainScene : MonoBehaviour
             PlayerSetting.playerNickname = playerNickname.text;
             NetworkManager.singleton.StartHost();
         }
-        else{
+        else
+        {
             StartCoroutine(EmptyNicknameCaution());
         }
     }
 
-    public void Join(){
-        if(!playerNickname.text.Equals(string.Empty)){
+    public void Join()
+    {
+        if(!playerNickname.text.Equals(string.Empty))
+        {
             PlayerSetting.playerNickname = playerNickname.text;
             NetworkManager.singleton.networkAddress = joinMatchInput.text;
             NetworkManager.singleton.StartClient();
         }
-        else{
+        else
+        {
             StartCoroutine(EmptyNicknameCaution());
         }
     }
 
 
-    public void PlayQuit(){
+    public void PlayQuit()
+    {
+        StartCoroutine(Transition());
         playPanel.gameObject.SetActive(false);
+        MainButtons.SetActive(true);
     }
     #endregion Panel_Play
 
     #region Panel_Tutorial
 
-    public void TutoQuit(){
+    public void TutoQuit()
+    {
+        StartCoroutine(Transition());
         tutorialPanel.gameObject.SetActive(false);
+        MainButtons.SetActive(true);
     }
 
-    public void Tuto_Before(){
+    public void Tuto_Before()
+    {
         if(tutorialIdx > 0){
             tutorialIdx--;
             tutorialImage.sprite = tutorialList[tutorialIdx];
         }
     }
 
-    public void Tuto_After(){
+    public void Tuto_After()
+    {
         if(tutorialIdx < tutorialList.Count-1){
             tutorialIdx++;
             tutorialImage.sprite = tutorialList[tutorialIdx];
@@ -120,15 +149,19 @@ public class UI_MainScene : MonoBehaviour
 
     #region Panel_Option
 
-    public void optionQuit(){
+    public void optionQuit()
+    {
+        StartCoroutine(Transition());
         optionPanel.gameObject.SetActive(false);
+        MainButtons.SetActive(true);
     }
 
     #endregion Panel_Option
 
     #region Caution
 
-    private IEnumerator EmptyNicknameCaution(){
+    private IEnumerator EmptyNicknameCaution()
+    {
         nicknameEmptyCaution.gameObject.SetActive(true);
         Text cautionText = nicknameEmptyCaution.GetComponentInChildren<Text>();
         Image cautionImage = nicknameEmptyCaution.GetComponent<Image>();
@@ -146,4 +179,20 @@ public class UI_MainScene : MonoBehaviour
     }
 
     #endregion Caution
+
+    private IEnumerator Transition()
+    {
+        transitionFlag = false;
+        yield return null;
+        transitionFlag = true;
+        float curTime = 0f;
+        transitionPanel.color = new Color(0f, 0f, 0f, 1f);
+        while(curTime < transitionTime && transitionFlag)
+        {
+            transitionPanel.color = new Color(0f, 0f, 0f, 1 - curTime/transitionTime);
+            curTime += Time.deltaTime;
+            yield return null;
+        }
+        yield break;
+    }
 }
