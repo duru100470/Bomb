@@ -6,5 +6,5 @@ public class PlayerSetting
 {
     public static string playerNickname;
     public static string hostIP;
-
+    public static int playerNum;
 }

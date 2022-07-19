@@ -493,7 +493,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &221963348
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3013,6 +3013,8 @@ MonoBehaviour:
   - {fileID: 337956194928660003, guid: 68e9c04c16d1e8642aa05332ade374d1, type: 3}
   - {fileID: 337956194928660003, guid: 2ee8cb38518b9914f9b38c28495ca579, type: 3}
   - {fileID: 558901428346621358, guid: 4ff98e4505727744ba80f700287a65a6, type: 3}
+  - {fileID: 7802509286842065159, guid: b2d3cd33c60cd8d43b05b31252216537, type: 3}
+  - {fileID: 7802509286842065159, guid: 168c63b891475d14eb05c960381177b0, type: 3}
   showRoomGUI: 1
   minPlayers: 2
   roomPlayerPrefab: {fileID: 1158177511340733789, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
@@ -3022,6 +3024,7 @@ MonoBehaviour:
   roomSlots: []
   clientIndex: 0
   hostIP: 
+  roomPlayerList: []
 --- !u!4 &1384861481
 Transform:
   m_ObjectHideFlags: 0

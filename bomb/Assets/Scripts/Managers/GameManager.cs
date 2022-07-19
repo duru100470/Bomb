@@ -7,11 +7,14 @@ using System.Linq;
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance;
-    private RoomManager manager;
+    private RoomManager manager = NetworkManager.singleton as RoomManager;
+    public UI_PlayScene UI_Play;
     [SerializeField] private List<Transform> spawnTransforms = new List<Transform>();
     //전체 플레이어 인원 리스트
+    [SerializeField]
     private List<PlayerStateManager> players = new List<PlayerStateManager>();
     //생존 플레이어 인원 리스트
+    [SerializeField]
     private List<PlayerStateManager> alivePlayers = new List<PlayerStateManager>();
 
     private float maxBombGlobalTime;
@@ -20,6 +23,7 @@ public class GameManager : NetworkBehaviour
     [SyncVar] private int curBombGlobalTime;
     private int roundWinningPoint;
     [SyncVar] public bool isPlayerMovable = true;
+    [SyncVar] public bool isBombDecreasable = true;
  
     private void Awake()
     {
@@ -35,6 +39,7 @@ public class GameManager : NetworkBehaviour
             roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
             StartCoroutine(GameReady());
         }
+        UI_Play = (UI_PlayScene)FindObjectOfType(typeof(UI_PlayScene));
     }
 
     // 플레이어 리스트에 플레이어 추가
@@ -55,9 +60,9 @@ public class GameManager : NetworkBehaviour
     // 게임이 시작될 시 실행되는 코루틴
     private IEnumerator GameReady()
     {
-        manager = NetworkManager.singleton as RoomManager;
+        if(!isServer) yield break;
         // 플레이어들이 모두 접속 시 까지 대기
-        while(manager.clientIndex != players.Count)
+        while(PlayerSetting.playerNum != players.Count)
         {
             yield return null;
         }
@@ -89,13 +94,15 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    public void bombExplode(PlayerStateManager deadPlayer){
-        if(!isServer) return;
+    public void bombExplode(PlayerStateManager deadPlayer)
+    {
         alivePlayers.Remove(deadPlayer);
+        UI_Play.CmdAddLogExplode(deadPlayer);
 
         if(alivePlayers.Count <= GameRuleStore.Instance.CurGameRule.bombCount) {
             PlayerStateManager winner = alivePlayers[0];
             winner.roundScore += 1;
+            Debug.Log(winner.netId + ", " + winner.roundScore);
             if(winner.roundScore >= roundWinningPoint)
             {
                 //최종 라운드 승리자 생기는 경우
@@ -106,7 +113,7 @@ public class GameManager : NetworkBehaviour
             else
             {
                 //점수는 얻었지만 라운드 승리자가 없는 경우
-                Debug.Log(alivePlayers[0].netId + " get point!");
+                Debug.Log(winner.netId + " get point!");
                 StartCoroutine(RoundReset());
             }
         }
@@ -142,7 +149,8 @@ public class GameManager : NetworkBehaviour
     private IEnumerator RoundReset()
     {
         StartCoroutine(StopPlayer(1f));
-        
+        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+
         alivePlayers = players.ToList();
         for (int i=0; i< players.Count; i++)
         {

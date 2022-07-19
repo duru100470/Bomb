@@ -6,7 +6,7 @@ using UnityEngine;
 public class RoomManager : NetworkRoomManager
 {
     public string hostIP;
-    private List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
+    [SerializeField] private List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
 
     public void AddPlayer(RoomPlayer player)
     {
@@ -26,4 +26,11 @@ public class RoomManager : NetworkRoomManager
     {
         hostIP = PlayerSetting.hostIP;
     }
+
+    public override void OnRoomServerPlayersReady()
+    {
+        PlayerSetting.playerNum = roomSlots.Count;
+        base.OnRoomServerPlayersReady();
+    }
+
 }

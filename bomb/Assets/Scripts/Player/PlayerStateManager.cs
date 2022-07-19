@@ -18,9 +18,7 @@ public class PlayerStateManager : NetworkBehaviour
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-    [SyncVar]
-    [SerializeField]
-    private Item curItem;
+    [SyncVar][SerializeField] private Item curItem;
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
     public Collider2D coll { set; get; }
@@ -28,26 +26,18 @@ public class PlayerStateManager : NetworkBehaviour
     public PhysicsMaterial2D idlePhysicsMat;
     public PhysicsMaterial2D stunPhysicsMat;
     // 폭탄 글로벌 타이머 (For Debugging)
-    [SerializeField]
-    private Text timer;
+    [SerializeField] private Text timer;
 
-    [SerializeField]
-    private float moveSpeed = 0f;
-    [SerializeField]
-    private float jumpForce = 5.0f;
-    [SerializeField]
-    private float maxSpeed = 10f;
-    [SerializeField]
-    private float minSpeed = 2f;
-    [SerializeField]
-    private float accelaration = 10f;
-    [SerializeField]
-    private float ghostSpeed = 10f;
+    [SerializeField] private float moveSpeed = 0f;
+    [SerializeField] private float jumpForce = 5.0f;
+    [SerializeField] private float maxSpeed = 10f;
+    [SerializeField] private float minSpeed = 2f;
+    [SerializeField] private float accelaration = 10f;
+    [SerializeField] private float ghostSpeed = 10f;
 
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
-    [SerializeField]
-    private float power = 30f;
+    [SerializeField] private float power = 30f;
     public float MaxSpeed => maxSpeed;
     public float MinSpeed => minSpeed;
     public float Accelaration => accelaration;
@@ -61,24 +51,19 @@ public class PlayerStateManager : NetworkBehaviour
     private float hangTime = 0.1f;
     private float hangTimeCnt;
     ///
-    [SerializeField]
-    private bool isGround = false;
-    [SyncVar]
-    public bool isHeadingRight = false;
+    [SerializeField] private bool isGround = false;
+    [SyncVar] public bool isHeadingRight = false;
     public bool isCasting { set; get; } = false;
-    [SyncVar]
-    private bool isTransferable = true;
+    [SyncVar] private bool isTransferable = true;
     public bool IsTransferable => isTransferable;
     [SyncVar(hook = nameof(OnChangeHasBomb))]
     public bool hasBomb = false;
     [SyncVar(hook = nameof(OnChangePlayerLocalBombTime))]
     public float playerLocalBombTime;
-    [SyncVar]
-    public int roundScore;
+    [SyncVar] public int roundScore;
     [SyncVar(hook = nameof(OnSetNickName))]
     public string playerNickname;
-    [SerializeField]
-    private Text nickNameText;
+    [SerializeField] private Text nickNameText;
 
     public void OnSetNickName(string _, string value)
     {
@@ -207,7 +192,8 @@ public class PlayerStateManager : NetworkBehaviour
         {
             var targetPSM = other.transform.GetComponent<PlayerStateManager>();
             if (targetPSM.hasBomb == false)
-            {
+            {   
+                GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
                 StartCoroutine(_TransitionDone());
                 StartCoroutine(Stunned(2f));
                 Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
@@ -245,7 +231,6 @@ public class PlayerStateManager : NetworkBehaviour
         if(!hasAuthority) return;
         if(newbool)
         {
-            //Debug.Log("GetBomb : " + netId);
             StartCoroutine(TimeDescend());
         }
         else
@@ -322,28 +307,29 @@ public class PlayerStateManager : NetworkBehaviour
     
     private IEnumerator TimeDescend()
     {
-        while(hasBomb && hasAuthority)
+        while(hasBomb && hasAuthority && GameManager.Instance.isBombDecreasable)
         {
-            yield return new WaitForSeconds(1f);
-            CmdLocalTimeReduced(1f);
+            yield return null;
+            CmdLocalTimeReduced(Time.deltaTime);
             if(playerLocalBombTime <= 0f && hasBomb)
             {
                 CmdPlayerDead();
+                yield break;
             }
         }
-        yield break;
     }
 
     [Command]
     private void CmdLocalTimeReduced(float time)
     {
         playerLocalBombTime -= time;
+        GameManager.Instance.bombGlobalTime -= Time.deltaTime;
     }
 
     [Command]
     private void CmdSetTimer(float time)
     {
-        RpcSetTimer(time);
+        RpcSetTimer((int)time);
     }
 
     // 아이템 획득 상태 동기화
@@ -381,6 +367,7 @@ public class PlayerStateManager : NetworkBehaviour
         if (target != null)
         {
             //target.playerLocalBombTime = Mathf.Round(GameManager.Instance.bombGlobalTime / 5);
+            target.playerLocalBombTime = Mathf.Max(2f, target.playerLocalBombTime);
             target.GetBomb(dir);
         }
         hasBomb = !hasBomb;
@@ -396,9 +383,9 @@ public class PlayerStateManager : NetworkBehaviour
     [Command]
     private void CmdPlayerDead()
     {
+        hasBomb = false;
         RpcDead();
         GameManager.Instance.bombExplode(this);
-        hasBomb = !hasBomb;
     }
 
     [Command]
