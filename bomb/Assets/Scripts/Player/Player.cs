@@ -5,7 +5,8 @@ using Mirror;
 
 public class Player : NetworkBehaviour
 {
-    private void Start() {
-        
+    private void Start()
+    {
+
     }
 }
