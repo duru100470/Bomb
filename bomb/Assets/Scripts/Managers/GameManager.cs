@@ -11,11 +11,10 @@ public class GameManager : NetworkBehaviour
     public UI_PlayScene UI_Play;
     [SerializeField] private List<Transform> spawnTransforms = new List<Transform>();
     //전체 플레이어 인원 리스트
-    [SerializeField]
-    private List<PlayerStateManager> players = new List<PlayerStateManager>();
+    [SerializeField] private List<PlayerStateManager> players = new List<PlayerStateManager>();
     //생존 플레이어 인원 리스트
-    [SerializeField]
-    private List<PlayerStateManager> alivePlayers = new List<PlayerStateManager>();
+    [SerializeField] private List<PlayerStateManager> alivePlayers = new List<PlayerStateManager>();
+    [SerializeField] public List<Sprite> itemSprites = new List<Sprite>();
 
     private float maxBombGlobalTime;
     private float minBombGlobalTime;

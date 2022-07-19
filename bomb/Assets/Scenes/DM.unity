@@ -396,6 +396,10 @@ MonoBehaviour:
   - {fileID: 922343920}
   players: []
   alivePlayers: []
+  itemSprites:
+  - {fileID: 21300000, guid: 06410ae03169fa8429601acbf0edf13e, type: 3}
+  - {fileID: 21300000, guid: efb7538b010f0724b973a36d17449a20, type: 3}
+  - {fileID: 21300000, guid: 19b6f96163c9470439312523f9caa70d, type: 3}
   bombGlobalTime: 0
   isPlayerMovable: 1
   isBombDecreasable: 1

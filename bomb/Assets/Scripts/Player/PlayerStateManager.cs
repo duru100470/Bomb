@@ -18,7 +18,10 @@ public class PlayerStateManager : NetworkBehaviour
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-    [SyncVar][SerializeField] private Item curItem;
+    [SyncVar(hook = nameof(OnChangeItem))][SerializeField] public Item curItem;
+    [SerializeField] private Image curItemImage;
+    [SerializeField] private Sprite defaultItemImage;
+
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
     public Collider2D coll { set; get; }
@@ -50,17 +53,18 @@ public class PlayerStateManager : NetworkBehaviour
     private float jumpBufferTimeCnt;
     private float hangTime = 0.1f;
     private float hangTimeCnt;
-    ///
-    [SerializeField] private bool isGround = false;
-    [SyncVar] public bool isHeadingRight = false;
-    public bool isCasting { set; get; } = false;
-    [SyncVar] private bool isTransferable = true;
-    public bool IsTransferable => isTransferable;
-    [SyncVar(hook = nameof(OnChangeHasBomb))]
-    public bool hasBomb = false;
     [SyncVar(hook = nameof(OnChangePlayerLocalBombTime))]
     public float playerLocalBombTime;
+    
+    [SerializeField] private bool isGround = false;
+    [SyncVar] public bool isHeadingRight = false;
+    [SyncVar] private bool isTransferable = true;
+    [SyncVar(hook = nameof(OnChangeHasBomb))]
+    public bool hasBomb = false;
+    public bool isCasting { set; get; } = false;
+    public bool IsTransferable => isTransferable;
     [SyncVar] public int roundScore;
+    
     [SyncVar(hook = nameof(OnSetNickName))]
     public string playerNickname;
     [SerializeField] private Text nickNameText;
@@ -68,6 +72,12 @@ public class PlayerStateManager : NetworkBehaviour
     public void OnSetNickName(string _, string value)
     {
         nickNameText.text = value;
+    }
+
+    public void OnChangeItem(Item _, Item value)
+    {
+        curItemImage.sprite = defaultItemImage;
+        if(value != null) curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.type];
     }
 
     // Initialize states
@@ -252,8 +262,21 @@ public class PlayerStateManager : NetworkBehaviour
         if (curItem != null)
         {
             curItem.OnUse();
-            curItem = null;
+            CmdSetItem();
         }
+    }
+
+    [Command]
+    public void CmdSetItem()
+    {
+        RpcSetItem();
+    }
+
+    [ClientRpc]
+    public void RpcSetItem()
+    {
+        curItem = null;
+        curItemImage.sprite = defaultItemImage;
     }
 
     public void GetBomb(Vector2 dir)

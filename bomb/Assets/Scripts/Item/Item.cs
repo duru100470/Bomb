@@ -12,12 +12,19 @@ public enum ItemType
 
 public abstract class Item : NetworkBehaviour
 {
-    [SyncVar]
-    public PlayerStateManager player;
+    [SyncVar] public PlayerStateManager player;
     public GameObject itemObj;
     public ItemType type;
     public Sprite itemSprite;
     public ItemSpawner spawner;
+    private SpriteRenderer spriteRenderer;
+
+    public void Start() 
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.sprite = itemSprite;
+    }
+
     public void OnUse()
     {
         _OnUse();
@@ -32,8 +39,8 @@ public abstract class Item : NetworkBehaviour
 
     [Command]
     protected void CmdDestroy(uint netId)
-    {
-        if(!isLocalPlayer) return;
-        player.RpcItemDestroy(netId);
+    {   
+        NetworkServer.Destroy(player.curItem.gameObject);
+        //NetworkServer.Destroy(NetworkServer.spawned[netId].gameObject);
     }
 }
