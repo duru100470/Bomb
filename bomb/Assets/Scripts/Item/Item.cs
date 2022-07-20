@@ -15,7 +15,7 @@ public abstract class Item : NetworkBehaviour
     [SyncVar] public PlayerStateManager player;
     public GameObject itemObj;
     public ItemType Type => type;
-    private ItemType type;
+    [SerializeField] private ItemType type;
     public Sprite itemSprite;
     public ItemSpawner spawner;
     private SpriteRenderer spriteRenderer;

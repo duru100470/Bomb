@@ -13,12 +13,12 @@ public class PlayerIdle : IState
 
     public void OperateEnter()
     {
-        //Debug.Log("Idle Enter");
+
     }
 
     public void OperateExit()
     {
-        //Debug.Log("Idle Exit");
+
     }
     public void OperateUpdate()
     {

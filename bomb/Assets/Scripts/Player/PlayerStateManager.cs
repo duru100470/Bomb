@@ -70,7 +70,7 @@ public class PlayerStateManager : NetworkBehaviour
     public bool IsTransferable => isTransferable;
     [SyncVar] public int roundScore;
     
-    [SyncVar(hook = nameof(OnSetNickName))]
+    [SyncVar(hook = nameof(OnChangeNickName))]
     public string playerNickname;
 
     #region UnityEventFunc
@@ -502,7 +502,7 @@ public class PlayerStateManager : NetworkBehaviour
         if(hasAuthority) CmdSetTimer(newfloat);
     }
 
-    public void OnSetNickName(string _, string value)
+    public void OnChangeNickName(string _, string value)
     {
         nickNameText.text = value;
     }
@@ -510,7 +510,11 @@ public class PlayerStateManager : NetworkBehaviour
     public void OnChangeItem(Item _, Item value)
     {
         curItemImage.sprite = defaultItemImage;
-        if(value != null) curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.Type];
+        if(value != null)
+        {
+            Debug.Log(value.Type);
+            curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.Type];
+        } 
     }
 
     #endregion SyncVarHookFunc

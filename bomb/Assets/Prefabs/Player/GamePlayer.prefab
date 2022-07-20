@@ -65,8 +65,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -177,9 +177,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  curItem: {fileID: 0}
   curItemImage: {fileID: 250434292312654323}
-  defaultItemImage: {fileID: 21300000, guid: 4b66f21097323d44ab40669b2fb9c53d, type: 3}
+  defaultItemImage: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  nickNameText: {fileID: 200745693374747365}
   idlePhysicsMat: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
   stunPhysicsMat: {fileID: 6200000, guid: fe24cf6f6cd398b49aecc32f16d4e8be, type: 2}
   timer: {fileID: 2210880777623232470}
@@ -190,13 +190,13 @@ MonoBehaviour:
   accelaration: 10
   ghostSpeed: 5
   power: 15
+  curItem: {fileID: 0}
   playerLocalBombTime: 0
   isGround: 0
   isHeadingRight: 0
   hasBomb: 0
   roundScore: 0
   playerNickname: 
-  nickNameText: {fileID: 200745693374747365}
 --- !u!114 &3965615835837010556
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -13,12 +13,11 @@ public class PlayerJump : IState
 
     public void OperateEnter()
     {
-        //Debug.Log("Enter jump");
         player.rigid2d.velocity = new Vector2(player.rigid2d.velocity.x, player.JumpForce);
     }
     public void OperateExit()
     {
-        //Debug.Log("Exit Jump");
+
     }
     public void OperateUpdate()
     {

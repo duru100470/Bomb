@@ -13,11 +13,11 @@ public class PlayerRun : IState
 
     public void OperateEnter()
     {
-        //Debug.Log("Run Enter");
+
     }
     public void OperateExit()
     {
-        //Debug.Log("Run Exit");
+        
     }
     public void OperateUpdate()
     {
