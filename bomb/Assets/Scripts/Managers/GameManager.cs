@@ -101,7 +101,7 @@ public class GameManager : NetworkBehaviour
         if(alivePlayers.Count <= GameRuleStore.Instance.CurGameRule.bombCount) {
             PlayerStateManager winner = alivePlayers[0];
             winner.roundScore += 1;
-            Debug.Log(winner.netId + ", " + winner.roundScore);
+            Debug.Log(winner.playerNickname + " now have " + winner.roundScore);
             if(winner.roundScore >= roundWinningPoint)
             {
                 //최종 라운드 승리자 생기는 경우
@@ -112,7 +112,7 @@ public class GameManager : NetworkBehaviour
             else
             {
                 //점수는 얻었지만 라운드 승리자가 없는 경우
-                Debug.Log(winner.netId + " get point!");
+                Debug.Log(winner.playerNickname + " get point!");
                 StartCoroutine(RoundReset());
             }
         }

@@ -6,7 +6,7 @@ using Mirror;
 
 public class UI_PlayScene : NetworkBehaviour
 {
-
+    [Header("Log")]
     [SerializeField] RectTransform Panel_Log;
     [SerializeField] GameObject Panel_TransitionLog;
     [SerializeField] GameObject Panel_ExplosionLog;

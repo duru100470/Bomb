@@ -5,8 +5,7 @@ using Mirror;
 
 public class Stone : Item
 {
-    [SerializeField]
-    private float force = 20f;
+    [SerializeField] private float force = 20f;
     public override void _OnUse()
     {
         CmdStoneSpawn();

@@ -27,6 +27,8 @@ public class UI_Lobby : NetworkBehaviour
             buttonPlay_text.text = "READY";
         }
         text.text = hostIP;
+
+        button_Play.onClick.AddListener(OnClickButtonPlay);
     }
 
     public void Update()

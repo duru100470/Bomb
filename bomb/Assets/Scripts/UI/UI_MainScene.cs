@@ -9,28 +9,38 @@ public class UI_MainScene : MonoBehaviour
 {
     RoomManager manager;
 
+    [Header("Main Buttons")]
+    [SerializeField] GameObject MainButtons;
     [SerializeField] Button playButton;
     [SerializeField] Button tutorialButton;
     [SerializeField] Button optionButton;
     [SerializeField] Button exitButton;
+
+    [Header ("Play")]
     [SerializeField] RectTransform playPanel;
-    [SerializeField] RectTransform tutorialPanel;
-    [SerializeField] RectTransform optionPanel;
-    [SerializeField] InputField joinMatchInput;
-    [SerializeField] InputField playerNickname;
     [SerializeField] Button joinButton;
     [SerializeField] Button hostButton;
     [SerializeField] Button playQuitButton;
+    [SerializeField] InputField joinMatchInput;
+    [SerializeField] InputField playerNickname;
+
+    [Header("Tutorial")]
+    [SerializeField] RectTransform tutorialPanel;
     [SerializeField] Button tutorialBeforeButton;
     [SerializeField] Button tutorialAfterButton;
     [SerializeField] Button tutorialQuitButton;
     [SerializeField] Image tutorialImage;
-    [SerializeField] Button optionQuitButton;
     [SerializeField] private List<Sprite> tutorialList = new List<Sprite>();
+
+    [Header("Option")]
+    [SerializeField] RectTransform optionPanel;
+    [SerializeField] Button optionQuitButton;
+
+    [Header("ETC")]
     [SerializeField] RectTransform nicknameEmptyCaution;
     [SerializeField] Image transitionPanel;
-    [SerializeField] GameObject MainButtons;
     [SerializeField] private float transitionTime = 1f;
+    
     private int tutorialIdx = 0;
     private bool transitionFlag = true;
 
@@ -38,6 +48,19 @@ public class UI_MainScene : MonoBehaviour
     {
         manager = NetworkManager.singleton as RoomManager;
         joinMatchInput.text = "localhost";
+
+        playButton.onClick.AddListener(Play);
+        tutorialButton.onClick.AddListener(Tutorial);
+        optionButton.onClick.AddListener(Option);
+        exitButton.onClick.AddListener(Exit);
+
+        joinButton.onClick.AddListener(Join);
+        hostButton.onClick.AddListener(Host);
+        playQuitButton.onClick.AddListener(PlayQuit);
+        tutorialBeforeButton.onClick.AddListener(Tuto_Before);
+        tutorialAfterButton.onClick.AddListener(Tuto_After);
+        tutorialQuitButton.onClick.AddListener(TutoQuit);
+        optionQuitButton.onClick.AddListener(OptionQuit);
     }
 
     #region Main
@@ -149,7 +172,7 @@ public class UI_MainScene : MonoBehaviour
 
     #region Panel_Option
 
-    public void optionQuit()
+    public void OptionQuit()
     {
         StartCoroutine(Transition());
         optionPanel.gameObject.SetActive(false);

@@ -14,7 +14,8 @@ public abstract class Item : NetworkBehaviour
 {
     [SyncVar] public PlayerStateManager player;
     public GameObject itemObj;
-    public ItemType type;
+    public ItemType Type => type;
+    private ItemType type;
     public Sprite itemSprite;
     public ItemSpawner spawner;
     private SpriteRenderer spriteRenderer;
@@ -41,6 +42,5 @@ public abstract class Item : NetworkBehaviour
     protected void CmdDestroy(uint netId)
     {   
         NetworkServer.Destroy(player.curItem.gameObject);
-        //NetworkServer.Destroy(NetworkServer.spawned[netId].gameObject);
     }
 }

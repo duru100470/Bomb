@@ -18,9 +18,9 @@ public class PlayerStateManager : NetworkBehaviour
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-    [SyncVar(hook = nameof(OnChangeItem))][SerializeField] public Item curItem;
     [SerializeField] private Image curItemImage;
     [SerializeField] private Sprite defaultItemImage;
+    [SerializeField] private Text nickNameText;
 
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
@@ -31,16 +31,18 @@ public class PlayerStateManager : NetworkBehaviour
     // 폭탄 글로벌 타이머 (For Debugging)
     [SerializeField] private Text timer;
 
+    [Header("Player Control Value")]
+
     [SerializeField] private float moveSpeed = 0f;
     [SerializeField] private float jumpForce = 5.0f;
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float minSpeed = 2f;
     [SerializeField] private float accelaration = 10f;
     [SerializeField] private float ghostSpeed = 10f;
+    [SerializeField] private float power = 30f;
 
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
-    [SerializeField] private float power = 30f;
     public float MaxSpeed => maxSpeed;
     public float MinSpeed => minSpeed;
     public float Accelaration => accelaration;
@@ -53,9 +55,12 @@ public class PlayerStateManager : NetworkBehaviour
     private float jumpBufferTimeCnt;
     private float hangTime = 0.1f;
     private float hangTimeCnt;
+
+    [Header("Player Current State Value")]
+
+    [SyncVar(hook = nameof(OnChangeItem))][SerializeField] public Item curItem;
     [SyncVar(hook = nameof(OnChangePlayerLocalBombTime))]
     public float playerLocalBombTime;
-    
     [SerializeField] private bool isGround = false;
     [SyncVar] public bool isHeadingRight = false;
     [SyncVar] private bool isTransferable = true;
@@ -67,27 +72,14 @@ public class PlayerStateManager : NetworkBehaviour
     
     [SyncVar(hook = nameof(OnSetNickName))]
     public string playerNickname;
-    [SerializeField] private Text nickNameText;
 
-    public void OnSetNickName(string _, string value)
-    {
-        nickNameText.text = value;
-    }
-
-    public void OnChangeItem(Item _, Item value)
-    {
-        curItemImage.sprite = defaultItemImage;
-        if(value != null) curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.type];
-    }
+    #region UnityEventFunc
 
     // Initialize states
     private void Start()
     {
         // 게임 매니저에 해당 플레이어 추가
         GameManager.Instance.AddPlayer(this);
-
-        // 타이머 초기화 (For Debugging)
-        //timer.text = GameManager.Instance.bombGlobalTime.ToString();
 
         IState idle = new PlayerIdle(this);
         IState run = new PlayerRun(this);
@@ -138,6 +130,50 @@ public class PlayerStateManager : NetworkBehaviour
         else isGround = false;
         spriteRenderer.flipX = !isHeadingRight;
     }
+
+    // 다른 플레이어 충돌
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (!hasAuthority) return;
+
+        if (other.transform.CompareTag("Player") && hasBomb == true && isTransferable == true)
+        {
+            var targetPSM = other.transform.GetComponent<PlayerStateManager>();
+            if (targetPSM.hasBomb == false)
+            {   
+                GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
+                StartCoroutine(_TransitionDone());
+                StartCoroutine(Stunned(2f));
+                Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
+                if(dir.y == 0) dir.y = 0.1f * power;
+                rigid2d.velocity = dir;
+                CmdBombTransition(targetPSM.netId, dir * (-1));
+            }
+        }
+    }
+
+    // 다른 아이템 충돌
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
+        if (other.transform.CompareTag("Item") && curItem == null && hasAuthority)
+        {
+            Item _item = other.GetComponent<Item>();
+            _item.player = this;
+            curItemObj = _item.itemObj;
+            CmdAddItem(_item);
+        }
+        // Stone에 맞았을 때
+        if (other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this)
+        {
+            Vector2 dir = (transform.position - other.transform.position).normalized * other.GetComponent<StoneProjectile>().force;
+            CmdHitStone(netId, other.GetComponent<StoneProjectile>().StunTime, dir);
+            NetworkServer.Destroy(other.gameObject);
+        }
+        // 서버에 로그 전송
+    }
+
+    #endregion UnityEventFunc
 
     // 키보드 입력 제어
     private void KeyboardInput()
@@ -193,68 +229,6 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
-    // 다른 플레이어 충돌
-    private void OnCollisionEnter2D(Collision2D other)
-    {
-        if (!hasAuthority) return;
-
-        if (other.transform.CompareTag("Player") && hasBomb == true && isTransferable == true)
-        {
-            var targetPSM = other.transform.GetComponent<PlayerStateManager>();
-            if (targetPSM.hasBomb == false)
-            {   
-                GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
-                StartCoroutine(_TransitionDone());
-                StartCoroutine(Stunned(2f));
-                Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
-                if(dir.y == 0) dir.y = 0.1f * power;
-                rigid2d.velocity = dir;
-                CmdBombTransition(targetPSM.netId, dir * (-1));
-            }
-        }
-    }
-
-    // 다른 아이템 충돌
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
-        if (other.transform.CompareTag("Item") && curItem == null && hasAuthority)
-        {
-            Item _item = other.GetComponent<Item>();
-            _item.player = this;
-            curItemObj = _item.itemObj;
-            CmdAddItem(_item);
-        }
-        // Stone에 맞았을 때
-        if (other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this)
-        {
-            Vector2 dir = (transform.position - other.transform.position).normalized * other.GetComponent<StoneProjectile>().force;
-            CmdHitStone(netId, other.GetComponent<StoneProjectile>().stunTime, dir);
-            NetworkServer.Destroy(other.gameObject);
-        }
-        // 서버에 로그 전송
-    }
-
-    //hasBomb hook함수
-    void OnChangeHasBomb(bool oldBool, bool newbool)
-    {
-        if(!hasAuthority) return;
-        if(newbool)
-        {
-            StartCoroutine(TimeDescend());
-        }
-        else
-        {
-            CmdSetTimer(0);
-        }
-    }
-
-    //playerLocalbombTime hook함수
-    void OnChangePlayerLocalBombTime(float oldfloat, float newfloat)
-    {
-        if(hasAuthority) CmdSetTimer(newfloat);
-    }
-
     // 아이템 사용
     public void UseItem()
     {
@@ -264,19 +238,6 @@ public class PlayerStateManager : NetworkBehaviour
             curItem.OnUse();
             CmdSetItem();
         }
-    }
-
-    [Command]
-    public void CmdSetItem()
-    {
-        RpcSetItem();
-    }
-
-    [ClientRpc]
-    public void RpcSetItem()
-    {
-        curItem = null;
-        curItemImage.sprite = defaultItemImage;
     }
 
     public void GetBomb(Vector2 dir)
@@ -304,6 +265,7 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
+    #region IEnumerators
 
     //감속 종료 후 gravityScale 정상화, Casting 종료
     private IEnumerator _DashDone()
@@ -341,6 +303,10 @@ public class PlayerStateManager : NetworkBehaviour
             }
         }
     }
+
+    #endregion IEnumerators
+
+    #region CommandFunc
 
     [Command]
     private void CmdLocalTimeReduced(float time)
@@ -416,6 +382,16 @@ public class PlayerStateManager : NetworkBehaviour
     {
         playerNickname = nick;
     }
+    
+    [Command]
+    public void CmdSetItem()
+    {
+        RpcSetItem();
+    }
+
+    #endregion CommandFunc
+    
+    #region ClientRpcFunc
 
     [ClientRpc]
     public void RpcAddDirVec(Vector2 dir)
@@ -494,4 +470,49 @@ public class PlayerStateManager : NetworkBehaviour
         spriteRenderer.color = new Color(1f,1f,1f,1f);
         this.gameObject.layer = LayerMask.NameToLayer("Player");
     }
+
+    [ClientRpc]
+    public void RpcSetItem()
+    {
+        curItem = null;
+        curItemImage.sprite = defaultItemImage;
+    }
+
+    #endregion ClientRpcFunc
+
+    #region SyncVarHookFunc
+
+    //hasBomb hook함수
+    void OnChangeHasBomb(bool oldBool, bool newbool)
+    {
+        if(!hasAuthority) return;
+        if(newbool)
+        {
+            StartCoroutine(TimeDescend());
+        }
+        else
+        {
+            CmdSetTimer(0);
+        }
+    }
+
+    //playerLocalbombTime hook함수
+    void OnChangePlayerLocalBombTime(float oldfloat, float newfloat)
+    {
+        if(hasAuthority) CmdSetTimer(newfloat);
+    }
+
+    public void OnSetNickName(string _, string value)
+    {
+        nickNameText.text = value;
+    }
+
+    public void OnChangeItem(Item _, Item value)
+    {
+        curItemImage.sprite = defaultItemImage;
+        if(value != null) curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.Type];
+    }
+
+    #endregion SyncVarHookFunc
+
 }

@@ -56,10 +56,8 @@ public class RoomPlayer : NetworkRoomPlayer
         nameText.text = value;
     }
 
-    // 키보드 입력 받기 및 State 갱신
     private void Update()
     {
-        // 로컬 플레이어가 아닐 경우 작동 X
         if(!RoomManager.IsSceneActive(manager.RoomScene)) gameObject.SetActive(false);
         if (!isLocalPlayer) return;
         KeyboardInput();
@@ -81,7 +79,6 @@ public class RoomPlayer : NetworkRoomPlayer
         if (Input.GetAxisRaw("Horizontal") != 0)
         {
             float direction = Input.GetAxisRaw("Horizontal");
-            //isHeadingRight는 현재 누르고 있는 방향을 가리킴, 중립 상태에서는 가장 마지막으로 눌렀던 방향을 가리킴
             if (direction != 0) isHeadingRight = direction > 0 ? true : false;
             float curAccel = Mathf.Abs(rigid2d.velocity.x) < minSpeed ? accelaration * 2 : accelaration;
             float xVelocity = rigid2d.velocity.x + direction * curAccel * Time.deltaTime;

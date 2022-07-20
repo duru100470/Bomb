@@ -5,15 +5,12 @@ using Mirror;
 
 public class Dash : Item
 {
-    [SerializeField]
-    private float force = 20f;
-    [SerializeField]
-    private float dashTime = 1f;
+    [SerializeField] private float force = 20f;
+    [SerializeField] private float dashTime = 1f;
     private Rigidbody2D rbody;
 
     public override void _OnUse()
     {
-        //Debug.Log("Dash");
         rbody = player.GetComponent<Rigidbody2D>();
         rbody.gravityScale = 0f;
         player.isCasting = true;
