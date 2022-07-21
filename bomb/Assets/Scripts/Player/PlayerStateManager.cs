@@ -21,6 +21,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private Image curItemImage;
     [SerializeField] private Sprite defaultItemImage;
     [SerializeField] private Text nickNameText;
+    [SerializeField] private Image bombStateImage;
 
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
@@ -72,6 +73,8 @@ public class PlayerStateManager : NetworkBehaviour
     
     [SyncVar(hook = nameof(OnChangeNickName))]
     public string playerNickname;
+    [SyncVar(hook = nameof(OnChangeBombState))] public int bombState;
+    [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
 
     #region UnityEventFunc
 
@@ -265,6 +268,28 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
+    public void CheckBombState()
+    {
+        if(!hasBomb)
+        {
+            bombState = 0;
+        }
+        float bombGlobalTime = GameManager.Instance.bombGlobalTime;
+        float bombGlobalTimeLeft = GameManager.Instance.bombGlobalTimeLeft;
+        if(Mathf.Min(bombGlobalTimeLeft, playerLocalBombTime) < 2f)
+        {
+            bombState = 3;
+        }
+        else if(playerLocalBombTime > Mathf.Round(bombGlobalTime/5)/2 && bombGlobalTimeLeft > bombGlobalTime/2)
+        {
+            bombState = 1;
+        }
+        else
+        {
+            bombState = 2;
+        }
+    }
+
     #region IEnumerators
 
     //감속 종료 후 gravityScale 정상화, Casting 종료
@@ -312,7 +337,8 @@ public class PlayerStateManager : NetworkBehaviour
     private void CmdLocalTimeReduced(float time)
     {
         playerLocalBombTime -= time;
-        GameManager.Instance.bombGlobalTime -= Time.deltaTime;
+        GameManager.Instance.bombGlobalTimeLeft -= Time.deltaTime;
+        CheckBombState();
     }
 
     [Command]
@@ -387,6 +413,12 @@ public class PlayerStateManager : NetworkBehaviour
     public void CmdSetItem()
     {
         RpcSetItem();
+    }
+
+    [Command]
+    public void CmdSetBombStete(int value)
+    {
+        bombState = value;
     }
 
     #endregion CommandFunc
@@ -492,6 +524,7 @@ public class PlayerStateManager : NetworkBehaviour
         }
         else
         {
+            CmdSetBombStete(0);
             CmdSetTimer(0);
         }
     }
@@ -512,9 +545,13 @@ public class PlayerStateManager : NetworkBehaviour
         curItemImage.sprite = defaultItemImage;
         if(value != null)
         {
-            Debug.Log(value.Type);
             curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.Type];
         } 
+    }
+
+    public void OnChangeBombState(int _, int value)
+    {
+        bombStateImage.sprite = bombSpriteList[value];
     }
 
     #endregion SyncVarHookFunc

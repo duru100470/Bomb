@@ -18,7 +18,8 @@ public class GameManager : NetworkBehaviour
 
     private float maxBombGlobalTime;
     private float minBombGlobalTime;
-    [SyncVar][SerializeField] public float bombGlobalTime;
+    [SyncVar][SerializeField] public float bombGlobalTimeLeft;
+    [SyncVar] public float bombGlobalTime;
     [SyncVar] private int curBombGlobalTime;
     private int roundWinningPoint;
     [SyncVar] public bool isPlayerMovable = true;
@@ -69,7 +70,7 @@ public class GameManager : NetworkBehaviour
         alivePlayers = players.ToList();
 
         //기본 시간설정
-        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+        bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
         // 플레이어들을 지정된 스폰위치에 생성
         for (int i = 0; i < players.Count; i++)
@@ -148,7 +149,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator RoundReset()
     {
         StartCoroutine(StopPlayer(1f));
-        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+        bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
         alivePlayers = players.ToList();
         for (int i=0; i< players.Count; i++)
