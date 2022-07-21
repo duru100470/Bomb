@@ -2905,7 +2905,7 @@ ScriptedImporter:
     androidETC2FallbackOverride: 0
   mosaicLayers: 1
   documentPivot: {x: -0.25, y: 0}
-  documentAlignment: 0
+  documentAlignment: 7
   importHiddenLayers: 0
   importedTextureWidth: 256
   importedTextureHeight: 512
@@ -2949,20 +2949,6 @@ ScriptedImporter:
     spriteID: ab6cfe1f960d1e74290336a9c3fbbd37
     layerID: 8
     mosaicPosition: {x: 4, y: 179}
-  - name: Right arm
-    spriteName: Right arm
-    isGroup: 0
-    parentIndex: 0
-    spriteID: 09c0bdfa44571f248a341ea1bb40c0cf
-    layerID: 7
-    mosaicPosition: {x: 145, y: 325}
-  - name: Right leg
-    spriteName: Right leg
-    isGroup: 0
-    parentIndex: 0
-    spriteID: ef9a105331fd9f74aa662f49385cd2f2
-    layerID: 6
-    mosaicPosition: {x: 62, y: 422}
   - name: Left leg
     spriteName: Left leg
     isGroup: 0
@@ -2970,6 +2956,20 @@ ScriptedImporter:
     spriteID: 2fc8142caa297464a9a269d00abecbd3
     layerID: 5
     mosaicPosition: {x: 4, y: 422}
+  - name: Right leg
+    spriteName: Right leg
+    isGroup: 0
+    parentIndex: 0
+    spriteID: ef9a105331fd9f74aa662f49385cd2f2
+    layerID: 6
+    mosaicPosition: {x: 62, y: 422}
+  - name: Right arm
+    spriteName: Right arm
+    isGroup: 0
+    parentIndex: 0
+    spriteID: 09c0bdfa44571f248a341ea1bb40c0cf
+    layerID: 7
+    mosaicPosition: {x: 145, y: 325}
   - name: Tail
     spriteName: Tail
     isGroup: 0
