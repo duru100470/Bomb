@@ -38,7 +38,7 @@ public abstract class Item : NetworkBehaviour
         CmdDestroy(netId);
     }
 
-    [Command]
+    [Command(requiresAuthority = false)]
     protected void CmdDestroy(uint netId)
     {   
         NetworkServer.Destroy(player.curItem.gameObject);

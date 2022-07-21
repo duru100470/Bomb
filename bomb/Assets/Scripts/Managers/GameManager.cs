@@ -106,7 +106,7 @@ public class GameManager : NetworkBehaviour
             if(winner.roundScore >= roundWinningPoint)
             {
                 //최종 라운드 승리자 생기는 경우
-                Debug.Log("winner : " + winner.netId);
+                Debug.Log("winner : " + winner.playerNickname);
                 Debug.Log("Round End!");
                 manager.ServerChangeScene(manager.RoomScene);
             }
@@ -179,6 +179,7 @@ public class GameManager : NetworkBehaviour
             if (!player.hasBomb)
             {
                 player.hasBomb = true;
+                player.CheckBombState();
             }
             else
             {
