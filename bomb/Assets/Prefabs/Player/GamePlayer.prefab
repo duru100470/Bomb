@@ -286,6 +286,7 @@ MonoBehaviour:
   nickNameText: {fileID: 200745693374747365}
   bombStateImage: {fileID: 2622793974509898973}
   explosionVFX: {fileID: 1248409992781558996}
+  LeaderBoardIcon: {fileID: 21300000, guid: b3096e8b2f290e4479183a74e5ad694d, type: 3}
   idlePhysicsMat: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
   stunPhysicsMat: {fileID: 6200000, guid: fe24cf6f6cd398b49aecc32f16d4e8be, type: 2}
   timer: {fileID: 2210880777623232470}

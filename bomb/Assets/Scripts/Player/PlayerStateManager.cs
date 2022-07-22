@@ -24,7 +24,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private Text nickNameText;
     [SerializeField] private Image bombStateImage;
     [SerializeField] private GameObject explosionVFX;
-    [SerializeField] private Sprite LeaderBoardIcon;
+    public Sprite LeaderBoardIcon;
 
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
@@ -553,6 +553,7 @@ public class PlayerStateManager : NetworkBehaviour
 
     public void OnChangeNickName(string _, string value)
     {
+        this.playerNickname = value;
         nickNameText.text = value;
     }
 

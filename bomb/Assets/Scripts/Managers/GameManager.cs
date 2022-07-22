@@ -24,7 +24,8 @@ public class GameManager : NetworkBehaviour
     private int roundWinningPoint;
     [SyncVar] public bool isPlayerMovable = true;
     [SyncVar] public bool isBombDecreasable = true;
- 
+    [SyncVar(hook = nameof(OnChangeReadyStatus))] public bool readyStatus = false;
+
     private void Awake()
     {
         Instance = this;
@@ -32,6 +33,7 @@ public class GameManager : NetworkBehaviour
 
     private void Start()
     {
+        UI_Play = (UI_PlayScene)FindObjectOfType(typeof(UI_PlayScene));
         if (isServer)
         {   
             maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
@@ -39,7 +41,6 @@ public class GameManager : NetworkBehaviour
             roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
             StartCoroutine(GameReady());
         }
-        UI_Play = (UI_PlayScene)FindObjectOfType(typeof(UI_PlayScene));
     }
 
     // 플레이어 리스트에 플레이어 추가
@@ -66,7 +67,7 @@ public class GameManager : NetworkBehaviour
         {
             yield return null;
         }
-        UI_Play.InitializeLeaderBoard();
+        readyStatus = true;
 
         alivePlayers = players.ToList();
 
@@ -103,17 +104,19 @@ public class GameManager : NetworkBehaviour
         if(alivePlayers.Count <= GameRuleStore.Instance.CurGameRule.bombCount) {
             PlayerStateManager winner = alivePlayers[0];
             winner.roundScore += 1;
-            UI_Play.SetLeaderBoard(winner);
             Debug.Log(winner.playerNickname + " now have " + winner.roundScore);
             if(winner.roundScore >= roundWinningPoint)
             {
                 //최종 라운드 승리자 생기는 경우
                 Debug.Log("Round End!");
-                StartCoroutine(RoundEnd(winner.playerNickname));
+                UI_Play.SetLeaderBoard(winner, 1);
+                //UI_Play.RpcSetWinnerBoard(winner.playerNickname);
+                StartCoroutine(RoundEnd());
             }
             else
             {
                 //점수는 얻었지만 라운드 승리자가 없는 경우
+                UI_Play.SetLeaderBoard(winner, 0);
                 Debug.Log(winner.playerNickname + " get point!");
                 StartCoroutine(RoundReset());
             }
@@ -192,10 +195,9 @@ public class GameManager : NetworkBehaviour
         yield return null;
     }
 
-    private IEnumerator RoundEnd(string winner)
+    private IEnumerator RoundEnd()
     {
-        UI_Play.SetWinnerPanel(winner);
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(7f);
         manager.ServerChangeScene(manager.RoomScene);
     }
 
@@ -203,5 +205,10 @@ public class GameManager : NetworkBehaviour
         isPlayerMovable = false;
         yield return new WaitForSeconds(stopTime);
         isPlayerMovable = true;
+    }
+
+    public void OnChangeReadyStatus(bool _, bool newbool)
+    {
+        UI_Play.InitializeLeaderBoard();
     }
 }
