@@ -66,6 +66,7 @@ public class GameManager : NetworkBehaviour
         {
             yield return null;
         }
+        UI_Play.InitializeLeaderBoard();
 
         alivePlayers = players.ToList();
 
@@ -102,13 +103,13 @@ public class GameManager : NetworkBehaviour
         if(alivePlayers.Count <= GameRuleStore.Instance.CurGameRule.bombCount) {
             PlayerStateManager winner = alivePlayers[0];
             winner.roundScore += 1;
+            UI_Play.SetLeaderBoard(winner);
             Debug.Log(winner.playerNickname + " now have " + winner.roundScore);
             if(winner.roundScore >= roundWinningPoint)
             {
                 //최종 라운드 승리자 생기는 경우
-                Debug.Log("winner : " + winner.playerNickname);
                 Debug.Log("Round End!");
-                manager.ServerChangeScene(manager.RoomScene);
+                StartCoroutine(RoundEnd(winner.playerNickname));
             }
             else
             {
@@ -148,7 +149,8 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator RoundReset()
     {
-        StartCoroutine(StopPlayer(1f));
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(StopPlayer(3f));
         bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
         alivePlayers = players.ToList();
@@ -188,6 +190,13 @@ public class GameManager : NetworkBehaviour
         }
 
         yield return null;
+    }
+
+    private IEnumerator RoundEnd(string winner)
+    {
+        UI_Play.SetWinnerPanel(winner);
+        yield return new WaitForSeconds(5f);
+        manager.ServerChangeScene(manager.RoomScene);
     }
 
     private IEnumerator StopPlayer(float stopTime){

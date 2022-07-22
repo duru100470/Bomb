@@ -6,10 +6,78 @@ using Mirror;
 
 public class UI_PlayScene : NetworkBehaviour
 {
+    [SerializeField] RectTransform Panel_Winner;
+    [SerializeField] RectTransform Panel_LeaderBoard;
+    [SerializeField] GameObject SeparatorPrefab;
+    [SerializeField] GameObject LeaderBoardIconPrefab;
     [Header("Log")]
     [SerializeField] RectTransform Panel_Log;
     [SerializeField] GameObject Panel_TransitionLog;
     [SerializeField] GameObject Panel_ExplosionLog;
+
+    int roundCount;
+    List<PlayerStateManager> players;
+    List<GameObject> leaderBoardIcon = new List<GameObject>();
+    public void Start() 
+    {
+        roundCount = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
+        players = GameManager.Instance.GetPlayerList();
+        if(!isServer) InitializeLeaderBoard();
+    }
+
+    public void InitializeLeaderBoard()
+    {
+        for(int i=0; i<roundCount; i++)
+        {
+            GameObject obj = Instantiate(SeparatorPrefab);
+            obj.transform.SetParent(Panel_LeaderBoard);
+            RectTransform rectT = obj.GetComponent<RectTransform>();
+            rectT.position = new Vector3(Screen.width/2, Screen.height-200-((Screen.height-200) / roundCount) * i, 0);
+        }
+
+        for(int i=1; i<=players.Count; i++)
+        {
+            GameObject obj = Instantiate(LeaderBoardIconPrefab);
+            obj.transform.SetParent(Panel_LeaderBoard);
+            leaderBoardIcon.Add(obj);
+            RectTransform rectT = obj.GetComponent<RectTransform>();
+            rectT.position = new Vector3(Screen.width * i / (players.Count+1), (Screen.height - 200) / roundCount / 2 ,0);
+        }
+    }
+
+    public void SetWinnerPanel(string name)
+    {
+        Panel_Winner.gameObject.SetActive(true);
+        Panel_Winner.GetComponentInChildren<Text>().text = name + "\nWin!";
+    }
+
+    public void SetLeaderBoard(PlayerStateManager winner)
+    {
+        Panel_LeaderBoard.gameObject.SetActive(true);
+        for(int i=0; i<players.Count; i++)
+        {
+            if(winner == players[i])
+            {
+                StartCoroutine(UpdateLeaderBoard(i));
+                break;
+            }
+        }
+    }
+
+    private IEnumerator UpdateLeaderBoard(int index)
+    {
+        float curTime = 0;
+        RectTransform rectT = leaderBoardIcon[index].GetComponent<RectTransform>();
+        while(curTime < 2f)
+        {
+            rectT.position = new Vector3(rectT.position.x, rectT.position.y + (Screen.height - 200) / roundCount * (Time.deltaTime / 2f) ,0);
+            curTime += Time.deltaTime;
+            yield return null;
+        }
+        rectT.position = new Vector3(rectT.position.x, (Screen.height - 200) / roundCount * (players[index].roundScore + 0.5f) ,0);
+        yield return new WaitForSeconds(1f);
+        Panel_LeaderBoard.gameObject.SetActive(false);
+    }
 
     [Command(requiresAuthority = false)]
     public void CmdAddLogTransition(PlayerStateManager from, PlayerStateManager to)

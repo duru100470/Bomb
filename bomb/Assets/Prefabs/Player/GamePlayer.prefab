@@ -167,8 +167,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: e01d2648067525941b3fb437df84f706, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -282,7 +282,7 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   curItemImage: {fileID: 250434292312654323}
-  defaultItemImage: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  defaultItemImage: {fileID: 21300000, guid: e01d2648067525941b3fb437df84f706, type: 3}
   nickNameText: {fileID: 200745693374747365}
   bombStateImage: {fileID: 2622793974509898973}
   explosionVFX: {fileID: 1248409992781558996}
@@ -305,7 +305,7 @@ MonoBehaviour:
   playerNickname: 
   bombState: 0
   bombSpriteList:
-  - {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 21300000, guid: e01d2648067525941b3fb437df84f706, type: 3}
   - {fileID: -2613247888821195678, guid: 7632151fe5ee3f946bc5d3e93496cc62, type: 3}
   - {fileID: -8469204400738329757, guid: 7632151fe5ee3f946bc5d3e93496cc62, type: 3}
   - {fileID: 8114985772114671235, guid: 7632151fe5ee3f946bc5d3e93496cc62, type: 3}
@@ -479,8 +479,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: e01d2648067525941b3fb437df84f706, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
