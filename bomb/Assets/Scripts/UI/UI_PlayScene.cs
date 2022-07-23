@@ -10,11 +10,13 @@ public class UI_PlayScene : NetworkBehaviour
     [SerializeField] RectTransform Panel_LeaderBoard;
     [SerializeField] GameObject SeparatorPrefab;
     [SerializeField] GameObject LeaderBoardIconPrefab;
+    [SerializeField] GameObject Panel_Loading;
 
     [Header("Log")]
     [SerializeField] RectTransform Panel_Log;
     [SerializeField] GameObject Panel_TransitionLog;
     [SerializeField] GameObject Panel_ExplosionLog;
+    [SerializeField] private float dippuseTime = 1f;
 
     int roundCount;
     List<PlayerStateManager> players;
@@ -26,7 +28,7 @@ public class UI_PlayScene : NetworkBehaviour
         players = GameManager.Instance.GetPlayerList();
     }
 
-    public void InitializeLeaderBoard()
+    public IEnumerator InitializeLeaderBoard()
     {
         players = GameManager.Instance.GetPlayerList();
         for(int i=0; i<roundCount; i++)
@@ -36,7 +38,6 @@ public class UI_PlayScene : NetworkBehaviour
             rectT.position = new Vector3(Screen.width/2, Screen.height * (i+1) / (roundCount+1), 0);
         }
 
-        Debug.Log(players.Count);
         for(int i=0; i< players.Count; i++)
         {
             GameObject obj = Instantiate(LeaderBoardIconPrefab, Panel_LeaderBoard);
@@ -45,6 +46,7 @@ public class UI_PlayScene : NetworkBehaviour
             RectTransform rectT = obj.GetComponent<RectTransform>();
             rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / (roundCount+1) / 2, 0);
         }
+        yield return null;
     }
 
     public void SetLeaderBoard(PlayerStateManager winner, int state)
@@ -57,6 +59,32 @@ public class UI_PlayScene : NetworkBehaviour
                 break;
             }
         }
+    }
+
+    public IEnumerator DisplayLoadingPanel(IEnumerator enume)
+    {
+        Panel_Loading.gameObject.SetActive(true);
+        
+        // 플레이어들이 모두 접속 시 까지 대기
+        while(PlayerSetting.playerNum != players.Count)
+        {
+            yield return null;
+        }
+        
+        yield return new WaitForSeconds(.5f);
+        yield return StartCoroutine(enume);
+        
+        Image back = Panel_Loading.transform.GetChild(0).GetComponent<Image>();
+        Image title = Panel_Loading.transform.GetChild(1).GetComponent<Image>();
+        float curTime = 1f;
+        while(curTime > 0f)
+        {
+            back.color = title.color = new Color(1f,1f,1f, curTime);
+            curTime -= Time.deltaTime;
+            yield return null;
+        }
+
+        Panel_Loading.gameObject.SetActive(false);
     }
 
     private IEnumerator UpdateLeaderBoard(int index, int state)
@@ -86,7 +114,6 @@ public class UI_PlayScene : NetworkBehaviour
     {
         yield return new WaitForSeconds(1f);
         float curTime = 0f;
-        float dippuseTime = 1f;
         var texts = obj.GetComponentsInChildren<Text>();
         var images = obj.GetComponentsInChildren<Image>();
         while(curTime < dippuseTime)

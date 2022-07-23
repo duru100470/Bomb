@@ -28,11 +28,11 @@ public class GameManager : NetworkBehaviour
     private void Awake()
     {
         Instance = this;
+        UI_Play = (UI_PlayScene)FindObjectOfType(typeof(UI_PlayScene));
     }
 
     private void Start()
     {
-        UI_Play = (UI_PlayScene)FindObjectOfType(typeof(UI_PlayScene));
         if (isServer)
         {   
             maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
@@ -91,16 +91,9 @@ public class GameManager : NetworkBehaviour
     // 게임이 시작될 시 실행되는 코루틴
     private IEnumerator GameReady()
     {
-        if(!isServer) yield break;
         isPlayerMovable = false;
 
-        // 플레이어들이 모두 접속 시 까지 대기
-        while(PlayerSetting.playerNum != players.Count)
-        {
-            yield return null;
-        }
         //레이턴시 감안 로딩 텀
-        yield return new WaitForSeconds(1f);
         RpcSetLeaderBoard();
 
         alivePlayers = players.ToList();
@@ -130,6 +123,8 @@ public class GameManager : NetworkBehaviour
         }
 
         isPlayerMovable = true;
+        
+        yield return null;
     }
 
     //생존자 수에 따른 시간과 폭탄 재분배
@@ -227,6 +222,6 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcSetLeaderBoard()
     {
-        UI_Play.InitializeLeaderBoard();
+        StartCoroutine(UI_Play.DisplayLoadingPanel(UI_Play.InitializeLeaderBoard()));
     }
 }
