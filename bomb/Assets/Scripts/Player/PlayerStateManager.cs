@@ -545,14 +545,17 @@ public class PlayerStateManager : NetworkBehaviour
         else
         {
             CmdSetBombStete(0);
-            CmdSetTimer(0);
+            //CmdSetTimer(0);
         }
     }
 
     //playerLocalbombTime hook함수
     void OnChangePlayerLocalBombTime(float oldfloat, float newfloat)
     {
-        if(hasAuthority) CmdSetTimer(newfloat);
+        if(hasAuthority)
+        {
+            //CmdSetTimer(newfloat);
+        } 
     }
 
     public void OnChangeNickName(string _, string value)

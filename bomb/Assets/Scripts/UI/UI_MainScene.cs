@@ -41,7 +41,7 @@ public class UI_MainScene : MonoBehaviour
     [SerializeField] Image transitionPanel;
     [SerializeField] private float transitionTime = 1f;
     
-    private int tutorialIdx = 0;
+    [SerializeField] private int tutorialIdx = 0;
     private bool transitionFlag = true;
 
     void Start()
