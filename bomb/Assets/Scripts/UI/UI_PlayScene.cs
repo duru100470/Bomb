@@ -33,7 +33,7 @@ public class UI_PlayScene : NetworkBehaviour
         {
             GameObject obj = Instantiate(SeparatorPrefab, Panel_LeaderBoard);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width/2, Screen.height-((Screen.height) / roundCount) * i, 0);
+            rectT.position = new Vector3(Screen.width/2, Screen.height * (i+1) / (roundCount+1), 0);
         }
 
         Debug.Log(players.Count);
@@ -43,7 +43,7 @@ public class UI_PlayScene : NetworkBehaviour
             obj.GetComponent<Image>().sprite = players[i].LeaderBoardIcon;
             leaderBoardIcon.Add(obj);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / roundCount / 2, 0);
+            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / (roundCount+1) / 2, 0);
         }
     }
 
@@ -72,11 +72,11 @@ public class UI_PlayScene : NetworkBehaviour
         }
         while(curTime < 2f)
         {
-            rectT.position = new Vector3(rectT.position.x, rectT.position.y + (Screen.height - 200) / roundCount * (Time.deltaTime / 2f) ,0);
+            rectT.position = new Vector3(rectT.position.x, rectT.position.y + Screen.height / (roundCount+1) * (Time.deltaTime / 2f) ,0);
             curTime += Time.deltaTime;
             yield return null;
         }
-        rectT.position = new Vector3(rectT.position.x, Screen.height / roundCount * (players[index].roundScore + 0.5f) ,0);
+        rectT.position = new Vector3(rectT.position.x, Screen.height / (roundCount+1) * (players[index].roundScore + 0.5f) ,0);
         yield return new WaitForSeconds(1f);
         Panel_LeaderBoard.gameObject.SetActive(false);
         if(state == 1 && isServer) RpcSetWinnerBoard(players[index].playerNickname);
