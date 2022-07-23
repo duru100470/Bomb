@@ -693,7 +693,6 @@ MonoBehaviour:
   bombGlobalTime: 0
   isPlayerMovable: 1
   isBombDecreasable: 1
-  readyStatus: 0
 --- !u!114 &383716497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1711,7 +1710,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: itemList.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 1071371037807184606, guid: c457cd201c6465940b29ed205d786531, type: 3}
       propertyPath: itemList.Array.data[0]

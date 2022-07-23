@@ -33,17 +33,17 @@ public class UI_PlayScene : NetworkBehaviour
         {
             GameObject obj = Instantiate(SeparatorPrefab, Panel_LeaderBoard);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width/2, Screen.height-200-((Screen.height-200) / roundCount) * i, 0);
+            rectT.position = new Vector3(Screen.width/2, Screen.height-((Screen.height) / roundCount) * i, 0);
         }
 
+        Debug.Log(players.Count);
         for(int i=0; i< players.Count; i++)
         {
             GameObject obj = Instantiate(LeaderBoardIconPrefab, Panel_LeaderBoard);
             obj.GetComponent<Image>().sprite = players[i].LeaderBoardIcon;
-            //obj.GetComponentInChildren<Text>().text = players[i].playerNickname;
             leaderBoardIcon.Add(obj);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), (Screen.height - 200) / roundCount / 2, 0);
+            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / roundCount / 2, 0);
         }
     }
 

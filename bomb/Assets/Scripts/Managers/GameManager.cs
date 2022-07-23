@@ -24,7 +24,6 @@ public class GameManager : NetworkBehaviour
     private int roundWinningPoint;
     [SyncVar] public bool isPlayerMovable = true;
     [SyncVar] public bool isBombDecreasable = true;
-    [SyncVar(hook = nameof(OnChangeReadyStatus))] public bool readyStatus = false;
 
     private void Awake()
     {
@@ -57,46 +56,7 @@ public class GameManager : NetworkBehaviour
     {
         return players;
     }
-
-    // 게임이 시작될 시 실행되는 코루틴
-    private IEnumerator GameReady()
-    {
-        if(!isServer) yield break;
-
-        // 플레이어들이 모두 접속 시 까지 대기
-        while(PlayerSetting.playerNum != players.Count)
-        {
-            yield return null;
-        }
-        readyStatus = true;
-
-        alivePlayers = players.ToList();
-
-        //기본 시간설정
-        bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
-
-        // 플레이어들을 지정된 스폰위치에 생성
-        for (int i = 0; i < players.Count; i++)
-        {
-            players[i].playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
-            players[i].RpcTeleport(spawnTransforms[i].position);
-        }
-
-        // 랜덤 플레이어에게 폭탄줌
-        for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
-        {
-            var player = players[Random.Range(0, players.Count)];
-            if (!player.hasBomb)
-            {
-                player.hasBomb = !player.hasBomb;
-            }
-            else
-            {
-                i--;
-            }
-        }
-    }
-
+    
     public void bombExplode(PlayerStateManager deadPlayer)
     {
         alivePlayers.Remove(deadPlayer);
@@ -127,6 +87,50 @@ public class GameManager : NetworkBehaviour
             StartCoroutine(BombRedistribution(deadPlayer.transform.position));
         }
     }
+    
+    // 게임이 시작될 시 실행되는 코루틴
+    private IEnumerator GameReady()
+    {
+        if(!isServer) yield break;
+        isPlayerMovable = false;
+
+        // 플레이어들이 모두 접속 시 까지 대기
+        while(PlayerSetting.playerNum != players.Count)
+        {
+            yield return null;
+        }
+        //레이턴시 감안 로딩 텀
+        yield return new WaitForSeconds(1f);
+        RpcSetLeaderBoard();
+
+        alivePlayers = players.ToList();
+
+        //기본 시간설정
+        bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+
+        // 플레이어들을 지정된 스폰위치에 생성
+        for (int i = 0; i < players.Count; i++)
+        {
+            players[i].playerLocalBombTime = Mathf.Round(bombGlobalTime / 5);
+            players[i].RpcTeleport(spawnTransforms[i].position);
+        }
+
+        // 랜덤 플레이어에게 폭탄줌
+        for (int i = 0; i < GameRuleStore.Instance.CurGameRule.bombCount; i++)
+        {
+            var player = players[Random.Range(0, players.Count)];
+            if (!player.hasBomb)
+            {
+                player.hasBomb = !player.hasBomb;
+            }
+            else
+            {
+                i--;
+            }
+        }
+
+        isPlayerMovable = true;
+    }
 
     //생존자 수에 따른 시간과 폭탄 재분배
     private IEnumerator BombRedistribution(Vector3 explosionPos)
@@ -146,8 +150,28 @@ public class GameManager : NetworkBehaviour
             }
         }
         maxPlayer.hasBomb = true;
+        CmdUpdateBombState(maxPlayer);
 
         yield return null;
+    }
+
+    private IEnumerator RoundEnd()
+    {
+        yield return new WaitForSeconds(7f);
+        manager.ServerChangeScene(manager.RoomScene);
+    }
+
+    private IEnumerator StopPlayer(float stopTime){
+        isPlayerMovable = false;
+        yield return new WaitForSeconds(stopTime);
+        isPlayerMovable = true;
+    }
+
+    private IEnumerator StopBombTimer(float stopTime)
+    {
+        isBombDecreasable = false;
+        yield return new WaitForSeconds(stopTime);
+        isBombDecreasable = true;
     }
 
     private IEnumerator RoundReset()
@@ -194,27 +218,15 @@ public class GameManager : NetworkBehaviour
         yield return null;
     }
 
-    private IEnumerator RoundEnd()
+    [Command]
+    public void CmdUpdateBombState(PlayerStateManager player)
     {
-        yield return new WaitForSeconds(7f);
-        manager.ServerChangeScene(manager.RoomScene);
+        player.CheckBombState();
     }
 
-    private IEnumerator StopPlayer(float stopTime){
-        isPlayerMovable = false;
-        yield return new WaitForSeconds(stopTime);
-        isPlayerMovable = true;
-    }
-
-    public void OnChangeReadyStatus(bool _, bool newbool)
+    [ClientRpc]
+    public void RpcSetLeaderBoard()
     {
         UI_Play.InitializeLeaderBoard();
-    }
-
-    private IEnumerator StopBombTimer(float stopTime)
-    {
-        isBombDecreasable = false;
-        yield return new WaitForSeconds(stopTime);
-        isBombDecreasable = true;
     }
 }
