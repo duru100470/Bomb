@@ -62,6 +62,7 @@ public class GameManager : NetworkBehaviour
     private IEnumerator GameReady()
     {
         if(!isServer) yield break;
+
         // 플레이어들이 모두 접속 시 까지 대기
         while(PlayerSetting.playerNum != players.Count)
         {
@@ -100,7 +101,7 @@ public class GameManager : NetworkBehaviour
     {
         alivePlayers.Remove(deadPlayer);
         UI_Play.CmdAddLogExplode(deadPlayer);
-
+        StartCoroutine(StopBombTimer(4f));
         if(alivePlayers.Count <= GameRuleStore.Instance.CurGameRule.bombCount) {
             PlayerStateManager winner = alivePlayers[0];
             winner.roundScore += 1;
@@ -110,7 +111,6 @@ public class GameManager : NetworkBehaviour
                 //최종 라운드 승리자 생기는 경우
                 Debug.Log("Round End!");
                 UI_Play.SetLeaderBoard(winner, 1);
-                //UI_Play.RpcSetWinnerBoard(winner.playerNickname);
                 StartCoroutine(RoundEnd());
             }
             else
@@ -191,7 +191,6 @@ public class GameManager : NetworkBehaviour
                 i--;
             }
         }
-
         yield return null;
     }
 
@@ -210,5 +209,12 @@ public class GameManager : NetworkBehaviour
     public void OnChangeReadyStatus(bool _, bool newbool)
     {
         UI_Play.InitializeLeaderBoard();
+    }
+
+    private IEnumerator StopBombTimer(float stopTime)
+    {
+        isBombDecreasable = false;
+        yield return new WaitForSeconds(stopTime);
+        isBombDecreasable = true;
     }
 }

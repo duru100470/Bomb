@@ -31,21 +31,19 @@ public class UI_PlayScene : NetworkBehaviour
         players = GameManager.Instance.GetPlayerList();
         for(int i=0; i<roundCount; i++)
         {
-            GameObject obj = Instantiate(SeparatorPrefab);
-            obj.transform.SetParent(Panel_LeaderBoard);
+            GameObject obj = Instantiate(SeparatorPrefab, Panel_LeaderBoard);
             RectTransform rectT = obj.GetComponent<RectTransform>();
             rectT.position = new Vector3(Screen.width/2, Screen.height-200-((Screen.height-200) / roundCount) * i, 0);
         }
 
-        for(int i=1; i<= players.Count; i++)
+        for(int i=0; i< players.Count; i++)
         {
-            GameObject obj = Instantiate(LeaderBoardIconPrefab);
-            obj.transform.SetParent(Panel_LeaderBoard);
-            obj.GetComponent<Image>().sprite = players[i-1].LeaderBoardIcon;
-            obj.GetComponentInChildren<Text>().text = players[i-1].playerNickname;
+            GameObject obj = Instantiate(LeaderBoardIconPrefab, Panel_LeaderBoard);
+            obj.GetComponent<Image>().sprite = players[i].LeaderBoardIcon;
+            //obj.GetComponentInChildren<Text>().text = players[i].playerNickname;
             leaderBoardIcon.Add(obj);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width * i / (players.Count+1), (Screen.height - 200) / roundCount / 2, 0);
+            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), (Screen.height - 200) / roundCount / 2, 0);
         }
     }
 
@@ -67,6 +65,11 @@ public class UI_PlayScene : NetworkBehaviour
         Panel_LeaderBoard.gameObject.SetActive(true);
         float curTime = 0;
         RectTransform rectT = leaderBoardIcon[index].GetComponent<RectTransform>();
+        players = GameManager.Instance.GetPlayerList();
+        for(int i=0; i<leaderBoardIcon.Count; i++)
+        {
+            leaderBoardIcon[i].GetComponentInChildren<Text>().text = players[i].playerNickname;
+        }
         while(curTime < 2f)
         {
             rectT.position = new Vector3(rectT.position.x, rectT.position.y + (Screen.height - 200) / roundCount * (Time.deltaTime / 2f) ,0);

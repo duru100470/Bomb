@@ -34,12 +34,11 @@ public class UI_Lobby : NetworkBehaviour
     public void Update()
     {
         int cnt = 0;
-        var players = manager.GetPlayerList();
-        foreach(var player in players) 
+        foreach(var player in manager.roomSlots) 
         {
             if(player.readyToBegin) cnt++;
         }
-        playerStatus_text.text = cnt+ " / " + players.Count;
+        playerStatus_text.text = cnt + " / " + (manager.roomSlots.Count-1);
     }
 
     public void OnClickButtonPlay()

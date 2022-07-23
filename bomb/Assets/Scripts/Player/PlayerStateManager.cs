@@ -85,6 +85,7 @@ public class PlayerStateManager : NetworkBehaviour
     // Initialize states
     private void Start()
     {
+        
         // 게임 매니저에 해당 플레이어 추가
         GameManager.Instance.AddPlayer(this);
 
@@ -110,7 +111,7 @@ public class PlayerStateManager : NetworkBehaviour
         coll = GetComponent<Collider2D>();
         anim = explosionVFX.GetComponent<Animator>();
 
-        if(isLocalPlayer) CmdSetNickName(PlayerSetting.playerNickname);
+        if(isLocalPlayer) CmdSetNickName(PlayerSetting.playerNickname);        
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -325,15 +326,15 @@ public class PlayerStateManager : NetworkBehaviour
     private IEnumerator TimeDescend()
     {
         if(!hasAuthority) yield break;
-        while(hasBomb && GameManager.Instance.isBombDecreasable)
+        while(hasBomb)
         {
             if(playerLocalBombTime <= 0f && hasBomb)
             {
                 CmdPlayerDead();
                 yield break;
             }
-            yield return null;
             CmdLocalTimeReduced(Time.deltaTime);
+            yield return null;
         }
     }
 
@@ -357,9 +358,12 @@ public class PlayerStateManager : NetworkBehaviour
     [Command]
     private void CmdLocalTimeReduced(float time)
     {
-        playerLocalBombTime -= time;
-        GameManager.Instance.bombGlobalTimeLeft -= Time.deltaTime;
-        CheckBombState();
+        if(GameManager.Instance.isBombDecreasable)
+        {
+            playerLocalBombTime -= time;
+            GameManager.Instance.bombGlobalTimeLeft -= Time.deltaTime;
+            CheckBombState();
+        }
     }
 
     [Command]
