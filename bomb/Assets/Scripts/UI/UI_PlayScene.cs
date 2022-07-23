@@ -10,11 +10,13 @@ public class UI_PlayScene : NetworkBehaviour
     [SerializeField] RectTransform Panel_LeaderBoard;
     [SerializeField] GameObject SeparatorPrefab;
     [SerializeField] GameObject LeaderBoardIconPrefab;
+    [SerializeField] GameObject Panel_Loading;
 
     [Header("Log")]
     [SerializeField] RectTransform Panel_Log;
     [SerializeField] GameObject Panel_TransitionLog;
     [SerializeField] GameObject Panel_ExplosionLog;
+    [SerializeField] private float dippuseTime = 1f;
 
     int roundCount;
     List<PlayerStateManager> players;
@@ -26,25 +28,25 @@ public class UI_PlayScene : NetworkBehaviour
         players = GameManager.Instance.GetPlayerList();
     }
 
-    public void InitializeLeaderBoard()
+    public IEnumerator InitializeLeaderBoard()
     {
         players = GameManager.Instance.GetPlayerList();
         for(int i=0; i<roundCount; i++)
         {
             GameObject obj = Instantiate(SeparatorPrefab, Panel_LeaderBoard);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width/2, Screen.height-200-((Screen.height-200) / roundCount) * i, 0);
+            rectT.position = new Vector3(Screen.width/2, Screen.height * (i+1) / (roundCount+1), 0);
         }
 
         for(int i=0; i< players.Count; i++)
         {
             GameObject obj = Instantiate(LeaderBoardIconPrefab, Panel_LeaderBoard);
             obj.GetComponent<Image>().sprite = players[i].LeaderBoardIcon;
-            //obj.GetComponentInChildren<Text>().text = players[i].playerNickname;
             leaderBoardIcon.Add(obj);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), (Screen.height - 200) / roundCount / 2, 0);
+            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / (roundCount+1) / 2, 0);
         }
+        yield return null;
     }
 
     public void SetLeaderBoard(PlayerStateManager winner, int state)
@@ -57,6 +59,32 @@ public class UI_PlayScene : NetworkBehaviour
                 break;
             }
         }
+    }
+
+    public IEnumerator DisplayLoadingPanel(IEnumerator enume)
+    {
+        Panel_Loading.gameObject.SetActive(true);
+        
+        // 플레이어들이 모두 접속 시 까지 대기
+        while(PlayerSetting.playerNum != players.Count)
+        {
+            yield return null;
+        }
+        
+        yield return new WaitForSeconds(.5f);
+        yield return StartCoroutine(enume);
+        
+        Image back = Panel_Loading.transform.GetChild(0).GetComponent<Image>();
+        Image title = Panel_Loading.transform.GetChild(1).GetComponent<Image>();
+        float curTime = 1f;
+        while(curTime > 0f)
+        {
+            back.color = title.color = new Color(1f,1f,1f, curTime);
+            curTime -= Time.deltaTime;
+            yield return null;
+        }
+
+        Panel_Loading.gameObject.SetActive(false);
     }
 
     private IEnumerator UpdateLeaderBoard(int index, int state)
@@ -72,11 +100,11 @@ public class UI_PlayScene : NetworkBehaviour
         }
         while(curTime < 2f)
         {
-            rectT.position = new Vector3(rectT.position.x, rectT.position.y + (Screen.height - 200) / roundCount * (Time.deltaTime / 2f) ,0);
+            rectT.position = new Vector3(rectT.position.x, rectT.position.y + Screen.height / (roundCount+1) * (Time.deltaTime / 2f) ,0);
             curTime += Time.deltaTime;
             yield return null;
         }
-        rectT.position = new Vector3(rectT.position.x, (Screen.height - 200) / roundCount * (players[index].roundScore + 0.5f) ,0);
+        rectT.position = new Vector3(rectT.position.x, Screen.height / (roundCount+1) * (players[index].roundScore + 0.5f) ,0);
         yield return new WaitForSeconds(1f);
         Panel_LeaderBoard.gameObject.SetActive(false);
         if(state == 1 && isServer) RpcSetWinnerBoard(players[index].playerNickname);
@@ -86,7 +114,6 @@ public class UI_PlayScene : NetworkBehaviour
     {
         yield return new WaitForSeconds(1f);
         float curTime = 0f;
-        float dippuseTime = 1f;
         var texts = obj.GetComponentsInChildren<Text>();
         var images = obj.GetComponentsInChildren<Image>();
         while(curTime < dippuseTime)

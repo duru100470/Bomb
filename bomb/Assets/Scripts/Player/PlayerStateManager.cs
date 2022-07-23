@@ -86,6 +86,15 @@ public class PlayerStateManager : NetworkBehaviour
     private void Start()
     {
         
+        if(isLocalPlayer) 
+        {
+            CmdSetNickName(PlayerSetting.playerNickname);        
+        }
+        else
+        {
+            GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
+        }
+        
         // 게임 매니저에 해당 플레이어 추가
         GameManager.Instance.AddPlayer(this);
 
@@ -110,15 +119,6 @@ public class PlayerStateManager : NetworkBehaviour
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
         anim = explosionVFX.GetComponent<Animator>();
-
-        if(isLocalPlayer) 
-        {
-            CmdSetNickName(PlayerSetting.playerNickname);        
-        }
-        else
-        {
-            GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
-        }
     }
 
     // 키보드 입력 받기 및 State 갱신

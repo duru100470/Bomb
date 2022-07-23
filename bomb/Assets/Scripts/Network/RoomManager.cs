@@ -8,7 +8,6 @@ public class RoomManager : NetworkRoomManager
     public string hostIP;
     [SerializeField] private List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
     
-
     public void AddPlayer(RoomPlayer player)
     {
         if (!roomPlayerList.Contains(player))
