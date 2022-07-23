@@ -76,7 +76,7 @@ public class UI_PlayScene : NetworkBehaviour
             curTime += Time.deltaTime;
             yield return null;
         }
-        rectT.position = new Vector3(rectT.position.x, (Screen.height - 200) / roundCount * (players[index].roundScore + 0.5f) ,0);
+        rectT.position = new Vector3(rectT.position.x, Screen.height / roundCount * (players[index].roundScore + 0.5f) ,0);
         yield return new WaitForSeconds(1f);
         Panel_LeaderBoard.gameObject.SetActive(false);
         if(state == 1 && isServer) RpcSetWinnerBoard(players[index].playerNickname);

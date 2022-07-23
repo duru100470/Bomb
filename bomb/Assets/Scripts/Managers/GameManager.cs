@@ -56,7 +56,7 @@ public class GameManager : NetworkBehaviour
     {
         return players;
     }
-    
+
     public void bombExplode(PlayerStateManager deadPlayer)
     {
         alivePlayers.Remove(deadPlayer);
@@ -135,7 +135,7 @@ public class GameManager : NetworkBehaviour
     //생존자 수에 따른 시간과 폭탄 재분배
     private IEnumerator BombRedistribution(Vector3 explosionPos)
     {
-        StartCoroutine(StopPlayer(1f));
+        StartCoroutine(StopPlayer(3f));
 
         curBombGlobalTime = (int)(bombGlobalTime * alivePlayers.Count / players.Count);
 

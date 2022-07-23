@@ -42,13 +42,31 @@ public class UI_Lobby : NetworkBehaviour
 
     public void OnClickButtonPlay()
     {
-        if(player.readyToBegin)
+        if(isServer)
         {
-            player.CmdChangeReadyState(false);
+            int cnt = 0;
+            foreach(var cur in manager.roomSlots)
+            {
+                if(cur.readyToBegin)
+                {
+                    cnt++;
+                }
+            }
+            if(cnt == manager.roomSlots.Count-1)
+            {
+                player.CmdChangeReadyState(true);
+            }
         }
         else
         {
-            player.CmdChangeReadyState(true);
+            if(player.readyToBegin)
+            {
+                player.CmdChangeReadyState(false);
+            }
+            else
+            {
+                player.CmdChangeReadyState(true);
+            }
         }
     }
 
