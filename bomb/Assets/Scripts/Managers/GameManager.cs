@@ -18,12 +18,14 @@ public class GameManager : NetworkBehaviour
 
     private float maxBombGlobalTime;
     private float minBombGlobalTime;
-    [SyncVar][SerializeField] public float bombGlobalTime;
+    [SyncVar][SerializeField] public float bombGlobalTimeLeft;
+    [SyncVar] public float bombGlobalTime;
     [SyncVar] private int curBombGlobalTime;
     private int roundWinningPoint;
     [SyncVar] public bool isPlayerMovable = true;
     [SyncVar] public bool isBombDecreasable = true;
- 
+    [SyncVar(hook = nameof(OnChangeReadyStatus))] public bool readyStatus = false;
+
     private void Awake()
     {
         Instance = this;
@@ -31,6 +33,7 @@ public class GameManager : NetworkBehaviour
 
     private void Start()
     {
+        UI_Play = (UI_PlayScene)FindObjectOfType(typeof(UI_PlayScene));
         if (isServer)
         {   
             maxBombGlobalTime = GameRuleStore.Instance.CurGameRule.maxBombTime;
@@ -38,7 +41,6 @@ public class GameManager : NetworkBehaviour
             roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
             StartCoroutine(GameReady());
         }
-        UI_Play = (UI_PlayScene)FindObjectOfType(typeof(UI_PlayScene));
     }
 
     // 플레이어 리스트에 플레이어 추가
@@ -60,16 +62,18 @@ public class GameManager : NetworkBehaviour
     private IEnumerator GameReady()
     {
         if(!isServer) yield break;
+
         // 플레이어들이 모두 접속 시 까지 대기
         while(PlayerSetting.playerNum != players.Count)
         {
             yield return null;
         }
+        readyStatus = true;
 
         alivePlayers = players.ToList();
 
         //기본 시간설정
-        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+        bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
         // 플레이어들을 지정된 스폰위치에 생성
         for (int i = 0; i < players.Count; i++)
@@ -97,7 +101,7 @@ public class GameManager : NetworkBehaviour
     {
         alivePlayers.Remove(deadPlayer);
         UI_Play.CmdAddLogExplode(deadPlayer);
-
+        StartCoroutine(StopBombTimer(4f));
         if(alivePlayers.Count <= GameRuleStore.Instance.CurGameRule.bombCount) {
             PlayerStateManager winner = alivePlayers[0];
             winner.roundScore += 1;
@@ -105,13 +109,14 @@ public class GameManager : NetworkBehaviour
             if(winner.roundScore >= roundWinningPoint)
             {
                 //최종 라운드 승리자 생기는 경우
-                Debug.Log("winner : " + winner.netId);
                 Debug.Log("Round End!");
-                manager.ServerChangeScene(manager.RoomScene);
+                UI_Play.SetLeaderBoard(winner, 1);
+                StartCoroutine(RoundEnd());
             }
             else
             {
                 //점수는 얻었지만 라운드 승리자가 없는 경우
+                UI_Play.SetLeaderBoard(winner, 0);
                 Debug.Log(winner.playerNickname + " get point!");
                 StartCoroutine(RoundReset());
             }
@@ -147,8 +152,9 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator RoundReset()
     {
-        StartCoroutine(StopPlayer(1f));
-        bombGlobalTime = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(StopPlayer(3f));
+        bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
         alivePlayers = players.ToList();
         for (int i=0; i< players.Count; i++)
@@ -178,19 +184,37 @@ public class GameManager : NetworkBehaviour
             if (!player.hasBomb)
             {
                 player.hasBomb = true;
+                player.CheckBombState();
             }
             else
             {
                 i--;
             }
         }
-
         yield return null;
+    }
+
+    private IEnumerator RoundEnd()
+    {
+        yield return new WaitForSeconds(7f);
+        manager.ServerChangeScene(manager.RoomScene);
     }
 
     private IEnumerator StopPlayer(float stopTime){
         isPlayerMovable = false;
         yield return new WaitForSeconds(stopTime);
         isPlayerMovable = true;
+    }
+
+    public void OnChangeReadyStatus(bool _, bool newbool)
+    {
+        UI_Play.InitializeLeaderBoard();
+    }
+
+    private IEnumerator StopBombTimer(float stopTime)
+    {
+        isBombDecreasable = false;
+        yield return new WaitForSeconds(stopTime);
+        isBombDecreasable = true;
     }
 }

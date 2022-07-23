@@ -49,6 +49,11 @@ public class RoomPlayer : NetworkRoomPlayer
             rigid2d = GetComponent<Rigidbody2D>();
             coll = GetComponent<Collider2D>();
         }
+        else
+        {
+            //임시
+            GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
+        }
     }
 
     public void OnSetNickName(string _, string value)

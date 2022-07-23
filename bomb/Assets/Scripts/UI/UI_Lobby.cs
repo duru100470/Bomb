@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
+using UnityEngine.EventSystems;
 
 public class UI_Lobby : NetworkBehaviour
 {
@@ -27,19 +28,16 @@ public class UI_Lobby : NetworkBehaviour
             buttonPlay_text.text = "READY";
         }
         text.text = hostIP;
-
-        button_Play.onClick.AddListener(OnClickButtonPlay);
     }
 
     public void Update()
     {
         int cnt = 0;
-        var players = manager.GetPlayerList();
-        foreach(var player in players) 
+        foreach(var player in manager.roomSlots) 
         {
             if(player.readyToBegin) cnt++;
         }
-        playerStatus_text.text = cnt+ " / " + players.Count;
+        playerStatus_text.text = cnt + " / " + (manager.roomSlots.Count-1);
     }
 
     public void OnClickButtonPlay()

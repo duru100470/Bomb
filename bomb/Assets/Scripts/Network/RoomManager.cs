@@ -7,6 +7,7 @@ public class RoomManager : NetworkRoomManager
 {
     public string hostIP;
     [SerializeField] private List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
+    
 
     public void AddPlayer(RoomPlayer player)
     {
@@ -32,5 +33,4 @@ public class RoomManager : NetworkRoomManager
         PlayerSetting.playerNum = roomSlots.Count;
         base.OnRoomServerPlayersReady();
     }
-
 }

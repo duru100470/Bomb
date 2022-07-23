@@ -27,7 +27,8 @@ public class ItemSpawner : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdSpawnRandomItem()
     {
-        GameObject obj = Instantiate(itemList[Random.Range(0, itemList.Count)], transform.position, Quaternion.identity);
+        GameObject toSpawn = itemList[Random.Range(0, itemList.Count)];
+        GameObject obj = Instantiate(toSpawn, transform.position + new Vector3(0, 0.35f,0), Quaternion.identity);
         if (obj != null)
         {
             isSpawnable = false;
