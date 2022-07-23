@@ -111,7 +111,14 @@ public class PlayerStateManager : NetworkBehaviour
         coll = GetComponent<Collider2D>();
         anim = explosionVFX.GetComponent<Animator>();
 
-        if(isLocalPlayer) CmdSetNickName(PlayerSetting.playerNickname);        
+        if(isLocalPlayer) 
+        {
+            CmdSetNickName(PlayerSetting.playerNickname);        
+        }
+        else
+        {
+            GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
+        }
     }
 
     // 키보드 입력 받기 및 State 갱신

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Mirror;
+using UnityEngine.EventSystems;
 
 public class UI_Lobby : NetworkBehaviour
 {
@@ -27,8 +28,6 @@ public class UI_Lobby : NetworkBehaviour
             buttonPlay_text.text = "READY";
         }
         text.text = hostIP;
-
-        button_Play.onClick.AddListener(OnClickButtonPlay);
     }
 
     public void Update()
