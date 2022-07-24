@@ -93,7 +93,10 @@ public class GameManager : NetworkBehaviour
     {
         isPlayerMovable = false;
 
-        //레이턴시 감안 로딩 텀
+        while(PlayerSetting.playerNum != players.Count)
+        {
+            yield return null;
+        }
         RpcSetLeaderBoard();
 
         alivePlayers = players.ToList();
