@@ -118,6 +118,7 @@ public class UI_PlayScene : NetworkBehaviour
             foreach(var image in images) image.color = new Color(1f, 1f, 1f, 1 - curTime/dippuseTime);
             curTime += Time.deltaTime;
             yield return null;
+
         }
         if(obj != null) Destroy(obj);
     }
