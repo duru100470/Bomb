@@ -192,7 +192,6 @@ GameObject:
   - component: {fileID: 7722025156765796187}
   - component: {fileID: 1415960573302611292}
   - component: {fileID: 1694221179461787977}
-  - component: {fileID: 1133576862945291269}
   m_Layer: 8
   m_Name: GamePlayer
   m_TagString: Player
@@ -281,6 +280,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
+  animator: {fileID: 0}
   curItemImage: {fileID: 250434292312654323}
   defaultItemImage: {fileID: 21300000, guid: e01d2648067525941b3fb437df84f706, type: 3}
   nickNameText: {fileID: 200745693374747365}
@@ -399,22 +399,6 @@ CapsuleCollider2D:
   m_Offset: {x: 0, y: 0}
   m_Size: {x: 0.45, y: 1}
   m_Direction: 0
---- !u!114 &1133576862945291269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2556292238141432243}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f6f3bf89aa97405989c802ba270f815, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
-  clientAuthority: 0
-  animator: {fileID: 5720698386737745477}
 --- !u!1 &6917566147343509307
 GameObject:
   m_ObjectHideFlags: 0

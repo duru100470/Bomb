@@ -24,12 +24,14 @@ public class UI_PlayScene : NetworkBehaviour
 
     public void Start() 
     {
+        Panel_Loading.gameObject.SetActive(true);
         roundCount = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
         players = GameManager.Instance.GetPlayerList();
     }
 
     public IEnumerator InitializeLeaderBoard()
     {
+        yield return new WaitForSeconds(.5f);
         players = GameManager.Instance.GetPlayerList();
         for(int i=0; i<roundCount; i++)
         {
@@ -62,15 +64,8 @@ public class UI_PlayScene : NetworkBehaviour
     }
 
     public IEnumerator DisplayLoadingPanel(IEnumerator enume)
-    {
-        Panel_Loading.gameObject.SetActive(true);
-        
+    {   
         // 플레이어들이 모두 접속 시 까지 대기
-        while(PlayerSetting.playerNum != players.Count)
-        {
-            yield return null;
-        }
-        
         yield return new WaitForSeconds(.5f);
         yield return StartCoroutine(enume);
         
