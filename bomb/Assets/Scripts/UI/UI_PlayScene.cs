@@ -15,7 +15,7 @@ public class UI_PlayScene : NetworkBehaviour
     [SerializeField] RectTransform Panel_Log;
     [SerializeField] GameObject Panel_TransitionLog;
     [SerializeField] GameObject Panel_ExplosionLog;
-
+    public GameObject Panel_Loading;
     int roundCount;
     List<PlayerStateManager> players;
     List<GameObject> leaderBoardIcon = new List<GameObject>();

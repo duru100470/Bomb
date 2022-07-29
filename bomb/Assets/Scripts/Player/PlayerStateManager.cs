@@ -84,6 +84,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar(hook = nameof(OnChangeBombState))] public int bombState;
     [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
 
+    [SerializeField] private GameObject playerObject;
 
 
     #region UnityEventFunc
@@ -98,7 +99,11 @@ public class PlayerStateManager : NetworkBehaviour
         }
         else
         {
-            GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
+            SpriteRenderer[] rend = playerObject.GetComponentsInChildren<SpriteRenderer>();
+            foreach(var render in rend)
+            {
+                render.color = new Color(1f, 0f, 0f, 1f);
+            } 
         }
         
         // 게임 매니저에 해당 플레이어 추가
@@ -171,7 +176,9 @@ public class PlayerStateManager : NetworkBehaviour
         {
             isWallAttached = false;
         }
-        spriteRenderer.flipX = !isHeadingRight;
+
+        playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1, 1);
+        //spriteRenderer.flipX = !isHeadingRight;
     }
 
     // 다른 플레이어 충돌
@@ -236,7 +243,7 @@ public class PlayerStateManager : NetworkBehaviour
             }
 
             // Jump State
-            if(isGround || isWallJumpable) 
+            if(isGround || (isWallJumpable&&isWallAttached)) 
             {
                 hangTimeCnt = hangTime;
             }

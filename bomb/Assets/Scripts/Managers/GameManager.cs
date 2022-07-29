@@ -129,7 +129,15 @@ public class GameManager : NetworkBehaviour
             }
         }
 
+        RpcRemoveLoadingPanel();
+
         isPlayerMovable = true;
+    }
+
+    [ClientRpc]
+    public void RpcRemoveLoadingPanel()
+    {
+        UI_Play.Panel_Loading.gameObject.SetActive(false);
     }
 
     //생존자 수에 따른 시간과 폭탄 재분배

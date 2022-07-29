@@ -4306,7 +4306,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter Lobby IP
+  m_Text: Enter Lobby ID
 --- !u!222 &2147301436
 CanvasRenderer:
   m_ObjectHideFlags: 0
