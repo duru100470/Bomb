@@ -24,9 +24,11 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private Text nickNameText;
     [SerializeField] private Image bombStateImage;
     [SerializeField] private GameObject explosionVFX;
+    [SerializeField] private List<Animator> ItemVFX = new List<Animator>();
     public Sprite LeaderBoardIcon;
 
     public SpriteRenderer spriteRenderer { set; get; }
+    [SerializeField] SpriteRenderer ghostSprite;
     public Rigidbody2D rigid2d { set; get; }
     public Collider2D coll { set; get; }
     public GameObject curItemObj { set; get; }
@@ -178,6 +180,9 @@ public class PlayerStateManager : NetworkBehaviour
         }
 
         playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1, 1);
+        ItemVFX[0].transform.localScale = new Vector3((!isHeadingRight ? -1 : 1), 1, 1);
+        ItemVFX[0].transform.localPosition = new Vector3(0.44f * (isHeadingRight ? -1 : 1), 0, 0);
+        ghostSprite.flipX = isHeadingRight;
         //spriteRenderer.flipX = !isHeadingRight;
     }
 
@@ -480,6 +485,18 @@ public class PlayerStateManager : NetworkBehaviour
         bombState = value;
     }
 
+    [Command]
+    public void CmdSetGhostSprite(bool value)
+    {
+        RpcSetGhostSprite(value);
+    }
+
+    [Command]
+    public void CmdSetItemAnim(int idx)
+    {
+        RpcSetItemAnim(idx);
+    }
+
     #endregion CommandFunc
     
     #region ClientRpcFunc
@@ -569,6 +586,19 @@ public class PlayerStateManager : NetworkBehaviour
     {
         curItem = null;
         curItemImage.sprite = defaultItemImage;
+    }
+
+    [ClientRpc]
+    public void RpcSetGhostSprite(bool value)
+    {
+        ghostSprite.enabled = value;
+        playerObject.SetActive(!value);
+    }
+
+    [ClientRpc]
+    public void RpcSetItemAnim(int idx)
+    {
+        ItemVFX[idx].SetTrigger("Trigger");
     }
 
     #endregion ClientRpcFunc
