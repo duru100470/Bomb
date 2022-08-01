@@ -18,7 +18,8 @@ public class PlayerStateManager : NetworkBehaviour
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-    private Animator anim;
+    private Animator VFXanim;
+    [SerializeField] private Animator anim;
     [SerializeField] private Image curItemImage;
     [SerializeField] private Sprite defaultItemImage;
     [SerializeField] private Text nickNameText;
@@ -75,6 +76,8 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar] public bool isHeadingRight = false;
     [SyncVar] private bool isTransferable = true;
     [SyncVar] private bool isFlickering = false;
+    [SyncVar(hook = nameof(OnChangeAisRunning))] public bool AisRunning = false;
+    [SyncVar(hook = nameof(OnChangeAisStunned))] public bool AisStunned = false;
     [SyncVar(hook = nameof(OnChangeHasBomb))]
     public bool hasBomb = false;
     public bool isCasting { set; get; } = false;
@@ -87,7 +90,6 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
 
     [SerializeField] private GameObject playerObject;
-
 
     #region UnityEventFunc
 
@@ -131,7 +133,7 @@ public class PlayerStateManager : NetworkBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
-        anim = explosionVFX.GetComponent<Animator>();
+        VFXanim = explosionVFX.GetComponent<Animator>();
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -497,6 +499,24 @@ public class PlayerStateManager : NetworkBehaviour
         RpcSetItemAnim(idx);
     }
 
+    [Command]
+    public void CmdAnimSetBool(string boolName, bool value)
+    {
+        RpcAnimSetBool(boolName, value);
+    }
+
+    [Command]
+    public void CmdSetAisRunning(bool value)
+    {
+        AisRunning = value;
+    }
+
+    [Command]
+    public void CmdSetAisStunned(bool value)
+    {
+        AisStunned = value;
+    }
+
     #endregion CommandFunc
     
     #region ClientRpcFunc
@@ -525,7 +545,7 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcDead()
     {
-        anim.SetTrigger("Explode");
+        VFXanim.SetTrigger("Explode");
         if (hasAuthority)
         {
             stateMachine.SetState(dicState[PlayerState.Dead]);
@@ -601,6 +621,12 @@ public class PlayerStateManager : NetworkBehaviour
         ItemVFX[idx].SetTrigger("Trigger");
     }
 
+    [ClientRpc]
+    public void RpcAnimSetBool(string boolName, bool value)
+    {
+        anim.SetBool(boolName, value);
+    }
+
     #endregion ClientRpcFunc
 
     #region SyncVarHookFunc
@@ -658,6 +684,18 @@ public class PlayerStateManager : NetworkBehaviour
             bombStateImage.sprite = bombSpriteList[value];
         }
         
+    }
+
+    public void OnChangeAisRunning(bool _, bool value)
+    {
+        if(!isLocalPlayer) return;
+        CmdAnimSetBool("isRunning", value);
+    }
+
+    public void OnChangeAisStunned(bool _, bool value)
+    {
+        if(!isLocalPlayer) return;
+        CmdAnimSetBool("isStunned", value);
     }
 
     #endregion SyncVarHookFunc

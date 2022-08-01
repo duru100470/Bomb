@@ -13,11 +13,11 @@ public class PlayerRun : IState
 
     public void OperateEnter()
     {
-
+        player.CmdSetAisRunning(true);
     }
     public void OperateExit()
     {
-        
+        player.CmdSetAisRunning(false);
     }
     public void OperateUpdate()
     {

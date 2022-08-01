@@ -48,6 +48,7 @@ public class UI_MainScene : MonoBehaviour
 
     void Start()
     {
+        
         manager = NetworkManager.singleton as RoomManager;
         //joinMatchInput.text = "localhost";
 
