@@ -22,6 +22,6 @@ public class PlayerIdle : IState
     }
     public void OperateUpdate()
     {
-
+     
     }
 }

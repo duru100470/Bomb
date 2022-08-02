@@ -25,11 +25,12 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private Text nickNameText;
     [SerializeField] private Image bombStateImage;
     [SerializeField] private GameObject explosionVFX;
+    [SerializeField] private GameObject playerObject;
+    [SerializeField] SpriteRenderer ghostSprite;
     [SerializeField] private List<Animator> ItemVFX = new List<Animator>();
     public Sprite LeaderBoardIcon;
 
     public SpriteRenderer spriteRenderer { set; get; }
-    [SerializeField] SpriteRenderer ghostSprite;
     public Rigidbody2D rigid2d { set; get; }
     public Collider2D coll { set; get; }
     public GameObject curItemObj { set; get; }
@@ -80,6 +81,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar] private bool isFlickering = false;
     [SyncVar(hook = nameof(OnChangeAisRunning))] public bool AisRunning = false;
     [SyncVar(hook = nameof(OnChangeAisStunned))] public bool AisStunned = false;
+    [SyncVar(hook = nameof(OnChangeAisJumping))]public bool AisJumping = false;
     [SyncVar(hook = nameof(OnChangeHasBomb))]
     public bool hasBomb = false;
     public bool isCasting { set; get; } = false;
@@ -91,7 +93,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar(hook = nameof(OnChangeBombState))] public int bombState;
     [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
 
-    [SerializeField] private GameObject playerObject;
+    [SerializeField] private bool hasJumped = false;
 
     #region UnityEventFunc
 
@@ -180,6 +182,12 @@ public class PlayerStateManager : NetworkBehaviour
             isWallAttached = false;
         }
 
+        if(hasJumped && rigid2d.velocity.y < 0f)
+        {
+            CmdSetATriggerJump();  
+            hasJumped = false; 
+        }
+
         playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1, 1);
         ItemVFX[0].transform.localScale = new Vector3((!isHeadingRight ? -1 : 1), 1, 1);
         ItemVFX[0].transform.localPosition = new Vector3(0.44f * (isHeadingRight ? -1 : 1), 0, 0);
@@ -187,12 +195,12 @@ public class PlayerStateManager : NetworkBehaviour
         coll.offset = new Vector2(isHeadingRight ? 0.03f : -0.03f,0); 
     }
 
-    public void OnDrawGizmos()
-    {
-        Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
-        Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
-        Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
-    }
+    // public void OnDrawGizmos()
+    // {
+    //     Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+    //     Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+    //     Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
+    // }
 
     // 다른 플레이어 충돌
     private void OnCollisionEnter2D(Collision2D other)
@@ -246,15 +254,18 @@ public class PlayerStateManager : NetworkBehaviour
         if (stateMachine.CurruentState != dicState[PlayerState.Stun] && stateMachine.CurruentState != dicState[PlayerState.Dead] && !isCasting)
         {
             // Run State
-            if (Input.GetAxisRaw("Horizontal") != 0)
+            if(!hasJumped && isGround)
             {
-                stateMachine.SetState(dicState[PlayerState.Run]);
+                if (Input.GetAxisRaw("Horizontal") != 0)
+                {
+                    stateMachine.SetState(dicState[PlayerState.Run]);
+                }
+                else
+                {
+                    stateMachine.SetState(dicState[PlayerState.Idle]);
+                }
             }
-            else
-            {
-                stateMachine.SetState(dicState[PlayerState.Idle]);
-            }
-
+            
             // Jump State
             if(isGround || (isWallJumpable&&isWallAttached)) 
             {
@@ -276,6 +287,8 @@ public class PlayerStateManager : NetworkBehaviour
 
             if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f)
             {
+                rigid2d.velocity = new Vector2(rigid2d.velocity.x, jumpForce);
+                hasJumped = true;
                 stateMachine.SetState(dicState[PlayerState.Jump]);
                 isWallJumpable = false;
                 jumpBufferTimeCnt = 0f;
@@ -506,12 +519,6 @@ public class PlayerStateManager : NetworkBehaviour
     }
 
     [Command]
-    public void CmdAnimSetBool(string boolName, bool value)
-    {
-        RpcAnimSetBool(boolName, value);
-    }
-
-    [Command]
     public void CmdSetAisRunning(bool value)
     {
         AisRunning = value;
@@ -521,6 +528,24 @@ public class PlayerStateManager : NetworkBehaviour
     public void CmdSetAisStunned(bool value)
     {
         AisStunned = value;
+    }
+
+    [Command]
+    public void CmdSetAisJumping(bool value)
+    {
+        AisJumping = value;
+    }
+
+    [Command]
+    public void CmdSetATriggerJump()
+    {
+        RpcSetTriggerJump();
+    }
+
+    [ClientRpc]
+    public void RpcSetTriggerJump()
+    {
+        anim.SetTrigger("TriggerJump");
     }
 
     #endregion CommandFunc
@@ -627,12 +652,6 @@ public class PlayerStateManager : NetworkBehaviour
         ItemVFX[idx].SetTrigger("Trigger");
     }
 
-    [ClientRpc]
-    public void RpcAnimSetBool(string boolName, bool value)
-    {
-        anim.SetBool(boolName, value);
-    }
-
     #endregion ClientRpcFunc
 
     #region SyncVarHookFunc
@@ -694,14 +713,18 @@ public class PlayerStateManager : NetworkBehaviour
 
     public void OnChangeAisRunning(bool _, bool value)
     {
-        if(!isLocalPlayer) return;
-        CmdAnimSetBool("isRunning", value);
+        anim.SetBool("isRunning", value);
     }
 
     public void OnChangeAisStunned(bool _, bool value)
     {
-        if(!isLocalPlayer) return;
-        CmdAnimSetBool("isStunned", value);
+        anim.SetBool("isStunned", value);
+    }
+
+    public void OnChangeAisJumping(bool _, bool value)
+    {
+        anim.SetBool("isJumping", value);
+        anim.ResetTrigger("TriggerJump");
     }
 
     #endregion SyncVarHookFunc
