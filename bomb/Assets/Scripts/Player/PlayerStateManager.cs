@@ -158,12 +158,8 @@ public class PlayerStateManager : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.02f, LayerMask.GetMask("Ground"));
-        if (raycastHit.collider != null) isGround = true;
-        else isGround = false;
-
-        RaycastHit2D raycastHitLeft = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
-        RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHitLeft = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
         if(raycastHitLeft.collider != null && raycastHitRight.collider != null)
         {
             isGround = true;
@@ -173,6 +169,7 @@ public class PlayerStateManager : NetworkBehaviour
         {
             isGround = false;
         }
+
         RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0,0), Vector2.right * (isHeadingRight ? 1 : -1), .1f, LayerMask.GetMask("Ground"));
         if(raycastHitWall)
         {
@@ -187,7 +184,14 @@ public class PlayerStateManager : NetworkBehaviour
         ItemVFX[0].transform.localScale = new Vector3((!isHeadingRight ? -1 : 1), 1, 1);
         ItemVFX[0].transform.localPosition = new Vector3(0.44f * (isHeadingRight ? -1 : 1), 0, 0);
         ghostSprite.flipX = isHeadingRight;
-        //spriteRenderer.flipX = !isHeadingRight;
+        coll.offset = new Vector2(isHeadingRight ? 0.03f : -0.03f,0); 
+    }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+        Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+        Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
     }
 
     // 다른 플레이어 충돌

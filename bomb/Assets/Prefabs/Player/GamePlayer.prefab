@@ -434,6 +434,7 @@ MonoBehaviour:
   moveSpeed: 5
   jumpForce: 7
   maxSpeed: 5
+  berserkMaxSpeed: 15
   minSpeed: 2
   accelaration: 10
   ghostSpeed: 5
@@ -542,8 +543,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.45, y: 1}
+  m_Offset: {x: -0.03, y: 0}
+  m_Size: {x: 0.45, y: 0.8}
   m_Direction: 0
 --- !u!1 &2746032431232955696
 GameObject:
@@ -1005,6 +1006,10 @@ PrefabInstance:
     - target: {fileID: -5643701351989959376, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
       propertyPath: m_RootOrder
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5643701351989959376, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -5643701351989959376, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
       propertyPath: m_LocalPosition.x
