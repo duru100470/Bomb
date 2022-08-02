@@ -28,6 +28,7 @@ public class PlayerRun : IState
         Rigidbody2D rbody = player.rigid2d;
         float curAccel = Mathf.Abs(rbody.velocity.x) < player.MinSpeed ? player.Accelaration * 2 : player.Accelaration;
         float xVelocity = rbody.velocity.x + direction * curAccel * Time.deltaTime;
-        rbody.velocity = new Vector2(Mathf.Clamp(xVelocity, -player.MaxSpeed, player.MaxSpeed), rbody.velocity.y);
+        float curMaxSpeed = player.bombState == 3 ? player.BerserkMaxSpeed : player.MaxSpeed;
+        rbody.velocity = new Vector2(Mathf.Clamp(xVelocity, -curMaxSpeed, curMaxSpeed), rbody.velocity.y);
     }
 }

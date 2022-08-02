@@ -184,8 +184,8 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator RoundReset()
     {
+        StartCoroutine(StopPlayer(4f));
         yield return new WaitForSeconds(1f);
-        StartCoroutine(StopPlayer(3f));
         bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
         alivePlayers = players.ToList();

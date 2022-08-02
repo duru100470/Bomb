@@ -43,6 +43,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private float moveSpeed = 0f;
     [SerializeField] private float jumpForce = 5.0f;
     [SerializeField] private float maxSpeed = 10f;
+    [SerializeField] private float berserkMaxSpeed = 15f;
     [SerializeField] private float minSpeed = 2f;
     [SerializeField] private float accelaration = 10f;
     [SerializeField] private float ghostSpeed = 10f;
@@ -51,6 +52,7 @@ public class PlayerStateManager : NetworkBehaviour
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
     public float MaxSpeed => maxSpeed;
+    public float BerserkMaxSpeed => berserkMaxSpeed;
     public float MinSpeed => minSpeed;
     public float Accelaration => accelaration;
     public float GhostSpeed => ghostSpeed;
