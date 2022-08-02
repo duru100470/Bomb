@@ -9,7 +9,7 @@ public class RoomPlayer : NetworkRoomPlayer
     [SyncVar(hook = nameof(OnSetNickName))] public string playerNickname = string.Empty;
     RoomManager manager = NetworkManager.singleton as RoomManager;
     [SerializeField] Text nameText;
-
+    public static RoomPlayer MyPlayer;
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
     public Collider2D coll { set; get; }
@@ -54,6 +54,7 @@ public class RoomPlayer : NetworkRoomPlayer
             spriteRenderer = GetComponent<SpriteRenderer>();
             rigid2d = GetComponent<Rigidbody2D>();
             coll = GetComponent<Collider2D>();
+            MyPlayer = this;
         }
         else
         {
@@ -118,7 +119,12 @@ public class RoomPlayer : NetworkRoomPlayer
         {
             rigid2d.velocity = new Vector2(rigid2d.velocity.x, jumpForce);
             jumpBufferTimeCnt = 0f;
-        }   
+        }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            UI_Lobby.ActivateESC();
+        }
     }
 
     [Command]
