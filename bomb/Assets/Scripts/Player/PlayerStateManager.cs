@@ -65,6 +65,7 @@ public class PlayerStateManager : NetworkBehaviour
     private float jumpBufferTimeCnt;
     private float hangTime = 0.1f;
     private float hangTimeCnt;
+    [SerializeField] private int curGhostSkillCount;
 
     [Header("Player Current State Value")]
 
@@ -92,8 +93,16 @@ public class PlayerStateManager : NetworkBehaviour
     public string playerNickname;
     [SyncVar(hook = nameof(OnChangeBombState))] public int bombState;
     [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
-
     [SerializeField] private bool hasJumped = false;
+
+    [Header ("GhostSkill")]
+    [SerializeField] private GameObject ghostSkillEffect;
+    [SerializeField] private float ghostSkillCoolDown = 5f;
+    [SerializeField] private float curGhostSkillCoolDown;
+    [SerializeField] private float ghostSkillRadius = 3f;
+    [SerializeField] private float ghostSkillDelay = 3f;
+    [SerializeField] private float ghostSkillForce = 5f;
+    public bool isGhostSkllCasting = false;
 
     #region UnityEventFunc
 
@@ -138,6 +147,8 @@ public class PlayerStateManager : NetworkBehaviour
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
         VFXanim = explosionVFX.GetComponent<Animator>();
+        curGhostSkillCount = GameRuleStore.Instance.CurGameRule.ghostSkillCount;
+        curGhostSkillCoolDown = ghostSkillCoolDown;
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -195,12 +206,13 @@ public class PlayerStateManager : NetworkBehaviour
         coll.offset = new Vector2(isHeadingRight ? 0.03f : -0.03f,0); 
     }
 
-    // public void OnDrawGizmos()
-    // {
-    //     Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
-    //     Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
-    //     Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
-    // }
+    public void OnDrawGizmos()
+    {
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
+        Gizmos.DrawSphere(transform.position, 5f);
+    }
 
     // 다른 플레이어 충돌
     private void OnCollisionEnter2D(Collision2D other)
@@ -300,10 +312,19 @@ public class PlayerStateManager : NetworkBehaviour
                 stateMachine.SetState(dicState[PlayerState.Cast]);
             }
         }
+
         if (stateMachine.CurruentState == dicState[PlayerState.Dead])
         {
-            //고스트 상태에서 하는 무언가
-
+            if(Input.GetKeyDown(KeyCode.Q))
+            {
+                if(curGhostSkillCount > 0 && curGhostSkillCoolDown > ghostSkillCoolDown)
+                {
+                    curGhostSkillCoolDown = 0f;
+                    curGhostSkillCount--;
+                    CmdGhostSkill(netId);
+                }
+            }
+            curGhostSkillCoolDown += Time.deltaTime;
         }
     }
 
@@ -419,6 +440,33 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
+    private IEnumerator GhostSkillRoutine(uint netId)
+    {
+        NetworkServer.spawned[netId].GetComponent<PlayerStateManager>().isGhostSkllCasting = true;
+        yield return StartCoroutine(GhostSkillEffect());
+        Collider2D[] targets = Physics2D.OverlapCircleAll(transform.position, ghostSkillRadius, LayerMask.GetMask("Player"));
+        foreach(var target in targets)
+        {
+            if(target == this.coll) continue;
+            target.GetComponent<PlayerStateManager>().RpcAddDirVec((target.transform.position - transform.position).normalized * ghostSkillForce);
+            Debug.Log(target.GetComponent<PlayerStateManager>().playerNickname);
+        }
+        NetworkServer.spawned[netId].GetComponent<PlayerStateManager>().isGhostSkllCasting = false;
+    }
+
+    private IEnumerator GhostSkillEffect()
+    {
+        ghostSkillEffect.SetActive(true);
+        float curTime = 0f;
+        while(curTime < ghostSkillDelay)
+        {
+            ghostSkillEffect.transform.localScale = Vector3.one * (curTime / ghostSkillDelay) * ghostSkillRadius;
+            yield return null;
+            curTime += Time.deltaTime;
+        }
+        ghostSkillEffect.SetActive(false);
+    }
+
     #endregion IEnumerators
 
     #region CommandFunc
@@ -500,7 +548,7 @@ public class PlayerStateManager : NetworkBehaviour
         RpcSetItem();
     }
 
-    [Command]
+    [Command(requiresAuthority = false)]
     public void CmdSetBombStete(int value)
     {
         bombState = value;
@@ -541,11 +589,12 @@ public class PlayerStateManager : NetworkBehaviour
     {
         RpcSetTriggerJump();
     }
-
-    [ClientRpc]
-    public void RpcSetTriggerJump()
+    
+    [Command]
+    public void CmdGhostSkill(uint netId)
     {
-        anim.SetTrigger("TriggerJump");
+        StartCoroutine(GhostSkillRoutine(netId));
+        RpcGhostSKillRoutine();
     }
 
     #endregion CommandFunc
@@ -628,6 +677,8 @@ public class PlayerStateManager : NetworkBehaviour
     public void RpcPlayerRoundReset(){
         rigid2d.velocity = Vector2.zero;
         stateMachine.SetState(dicState[PlayerState.Idle]);
+        curGhostSkillCount = GameRuleStore.Instance.CurGameRule.ghostSkillCount;
+        curGhostSkillCoolDown = ghostSkillCoolDown;
         spriteRenderer.color = new Color(1f,1f,1f,1f);
         this.gameObject.layer = LayerMask.NameToLayer("Player");
     }
@@ -650,6 +701,18 @@ public class PlayerStateManager : NetworkBehaviour
     public void RpcSetItemAnim(int idx)
     {
         ItemVFX[idx].SetTrigger("Trigger");
+    }
+
+    [ClientRpc]
+    public void RpcSetTriggerJump()
+    {
+        anim.SetTrigger("TriggerJump");
+    }
+
+    [ClientRpc]
+    public void RpcGhostSKillRoutine()
+    {
+        if(!isServer) StartCoroutine(GhostSkillEffect());
     }
 
     #endregion ClientRpcFunc

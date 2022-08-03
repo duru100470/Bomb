@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
-public class GameRuleStore : NetworkBehaviour
+public class GameRuleStore : MonoBehaviour
 {
     public struct GameRule
     {
@@ -20,7 +19,7 @@ public class GameRuleStore : NetworkBehaviour
     }
     private static GameRuleStore _instance = null;
 
-    [SerializeField][SyncVar]
+    [SerializeField]
     private GameRule curGameRule;
     public GameRule CurGameRule { get { return curGameRule; } }
 
@@ -56,8 +55,8 @@ public class GameRuleStore : NetworkBehaviour
         curGameRule.maxPlayer = 6;
         curGameRule.minPlayer = 3;
         curGameRule.isPlayerEliminated = true;
-        curGameRule.maxBombTime = 80000;
-        curGameRule.minBombTime = 60000;
+        curGameRule.maxBombTime = 80;
+        curGameRule.minBombTime = 60;
         curGameRule.bombCount = 1;
         curGameRule.setCount = 3;
         curGameRule.roundCount = curGameRule.maxPlayer - 1;

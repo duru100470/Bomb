@@ -14,6 +14,8 @@ public class UI_Lobby : NetworkBehaviour
     [SerializeField] Text buttonPlay_text;
     [SerializeField] Text playerStatus_text;
     [SerializeField] RectTransform Panel_ESC;
+    [SerializeField] RectTransform Panel_setting;
+    [SerializeField] RectTransform Panel_option;
     [SerializeField] Button button_resume;
     [SerializeField] Button button_setting;
     [SerializeField] Button button_backtomain;
@@ -62,6 +64,7 @@ public class UI_Lobby : NetworkBehaviour
     
     public void ActivateESC()
     {
+        if(Panel_setting.gameObject.activeInHierarchy) return;
         Panel_ESC.gameObject.SetActive(true);
     }
 

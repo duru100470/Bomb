@@ -28,6 +28,7 @@ public class PlayerDead : IState
     }
     public void OperateUpdate()
     {
+        if(player.isGhostSkllCasting) return;
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         player.transform.position += new Vector3(horizontal, vertical, 0) * Time.deltaTime * player.GhostSpeed;

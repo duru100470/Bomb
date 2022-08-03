@@ -454,7 +454,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &102316752
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1328,7 +1328,6 @@ GameObject:
   m_Component:
   - component: {fileID: 367587599}
   - component: {fileID: 367587600}
-  - component: {fileID: 367587601}
   m_Layer: 0
   m_Name: GameRule
   m_TagString: Untagged
@@ -1362,25 +1361,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56c0d675ba08f55468c09a864d0f4dad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
---- !u!114 &367587601
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 367587598}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 3384129210
-  serverOnly: 0
-  visible: 0
-  m_AssetId: 
-  hasSpawned: 0
 --- !u!1 &369159436
 GameObject:
   m_ObjectHideFlags: 0
@@ -5069,7 +5049,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1937559295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5090,6 +5070,8 @@ MonoBehaviour:
   buttonPlay_text: {fileID: 1713282617}
   playerStatus_text: {fileID: 765752807}
   Panel_ESC: {fileID: 2119911308}
+  Panel_setting: {fileID: 102316752}
+  Panel_option: {fileID: 0}
   button_resume: {fileID: 1296544679}
   button_setting: {fileID: 157273394}
   button_backtomain: {fileID: 934032890}
