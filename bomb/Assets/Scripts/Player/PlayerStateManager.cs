@@ -211,7 +211,7 @@ public class PlayerStateManager : NetworkBehaviour
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
-        Gizmos.DrawSphere(transform.position, 5f);
+        // Gizmos.DrawSphere(transform.position, 5f);
     }
 
     // 다른 플레이어 충돌
@@ -226,7 +226,8 @@ public class PlayerStateManager : NetworkBehaviour
             {   
                 GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
                 StartCoroutine(_TransitionDone());
-                StartCoroutine(Stunned(2f));
+                float time = 3-((float)GameManager.Instance.bombGlobalTimeLeft / (GameManager.Instance.bombGlobalTime/3));
+                StartCoroutine(Stunned(Mathf.Max(time, .25f)));
                 Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
                 if(dir.y == 0) dir.y = 0.1f * power;
                 rigid2d.velocity = dir;
@@ -343,7 +344,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         StartCoroutine(_TransitionDone());
         RpcAddDirVec(dir);
-        RpcStunSync(2f);
+        RpcStunSync(Mathf.Max(3-((float)GameManager.Instance.bombGlobalTimeLeft / (GameManager.Instance.bombGlobalTime/3)), .25f));
     }
 
     //Dash후 감속
@@ -401,7 +402,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         stateMachine.SetState(dicState[PlayerState.Stun]);
         yield return new WaitForSeconds(stunTime);
-        stateMachine.SetState(dicState[PlayerState.Idle]);
+        stateMachine.SetState(dicState[PlayerState.Run]);
     }
 
     // 폭탄 전달시 약간의 딜레이 부여
