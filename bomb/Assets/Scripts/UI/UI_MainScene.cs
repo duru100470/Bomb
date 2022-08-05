@@ -192,17 +192,17 @@ public class UI_MainScene : MonoBehaviour
 
     public void OnChangeMasterVolume()
     {
-        //Debug.Log(MasterVolume.value);
+        SoundManager.Instance.SetMasterVolume(MasterVolume.value);
     }
 
     public void OnChangeBGMVolume()
     {
-        //Debug.Log(BGMVolume.value);
+        SoundManager.Instance.SetBGMVolume(BGMVolume.value);
     }
 
     public void OnChangeVFXVolume()
     {
-        //Debug.Log(VFXVolume.value);
+        SoundManager.Instance.SetVFXVolume(VFXVolume.value);
     }
 
     #endregion Panel_Option

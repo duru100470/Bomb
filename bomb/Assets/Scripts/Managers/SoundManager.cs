@@ -18,9 +18,9 @@ public class SoundManager : Singleton<SoundManager>
     public bool bgmPlaying = false;
     private bool loopPlaying = false;
 
-    public float MasterVolume = .5f;
-    public float BGMVolume  =.5f;
-    public float VFXVolume = .5f;
+    [SerializeField] private float MasterVolume = .5f;
+    [SerializeField] private float BGMVolume =.5f;
+    [SerializeField] private float VFXVolume = .5f;
 
     private void Awake()
     {
@@ -81,5 +81,20 @@ public class SoundManager : Singleton<SoundManager>
         source.loop = true;
         source.clip = audioDictionary[type];
         source.Play();
+    }
+
+    public void SetMasterVolume(float vol)
+    {
+
+    }
+
+    public void SetBGMVolume(float vol)
+    {
+
+    }
+
+    public void SetVFXVolume(float vol)
+    {
+
     }
 }
