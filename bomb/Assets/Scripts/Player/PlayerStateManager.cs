@@ -102,7 +102,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private float ghostSkillRadius = 3f;
     [SerializeField] private float ghostSkillDelay = 3f;
     [SerializeField] private float ghostSkillForce = 5f;
-    public bool isGhostSkllCasting = false;
+    [SyncVar] public bool isGhostSkllCasting = false;
 
     #region UnityEventFunc
 
@@ -322,7 +322,8 @@ public class PlayerStateManager : NetworkBehaviour
                 {
                     curGhostSkillCoolDown = 0f;
                     curGhostSkillCount--;
-                    CmdGhostSkill(netId);
+                    CmdGhostSkill();
+                    StartCoroutine(GhostSkillRoutine());
                 }
             }
             curGhostSkillCoolDown += Time.deltaTime;
@@ -441,18 +442,24 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
-    private IEnumerator GhostSkillRoutine(uint netId)
+    private IEnumerator GhostSkillRoutine()
     {
-        NetworkServer.spawned[netId].GetComponent<PlayerStateManager>().isGhostSkllCasting = true;
+        isGhostSkllCasting = true;
         yield return StartCoroutine(GhostSkillEffect());
         Collider2D[] targets = Physics2D.OverlapCircleAll(transform.position, ghostSkillRadius, LayerMask.GetMask("Player"));
         foreach(var target in targets)
         {
             if(target == this.coll) continue;
-            target.GetComponent<PlayerStateManager>().RpcAddDirVec((target.transform.position - transform.position).normalized * ghostSkillForce);
-            Debug.Log(target.GetComponent<PlayerStateManager>().playerNickname);
+            CmdGhostSkill((target.transform.position - transform.position).normalized * ghostSkillForce, target.GetComponent<PlayerStateManager>());
+            //Debug.Log(target.GetComponent<PlayerStateManager>().playerNickname);
         }
-        NetworkServer.spawned[netId].GetComponent<PlayerStateManager>().isGhostSkllCasting = false;
+        isGhostSkllCasting = false;
+    }
+
+    [Command]
+    public void CmdGhostSkill(Vector2 dir, PlayerStateManager target)
+    {
+        target.RpcAddDirVec(dir);
     }
 
     private IEnumerator GhostSkillEffect()
@@ -592,10 +599,15 @@ public class PlayerStateManager : NetworkBehaviour
     }
     
     [Command]
-    public void CmdGhostSkill(uint netId)
+    public void CmdGhostSkill()
     {
-        StartCoroutine(GhostSkillRoutine(netId));
         RpcGhostSKillRoutine();
+    }
+
+    [Command]
+    public void CmdSetIsGhostSkillCasting(bool value)
+    {
+        isGhostSkllCasting = value;
     }
 
     #endregion CommandFunc
@@ -713,7 +725,7 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcGhostSKillRoutine()
     {
-        if(!isServer) StartCoroutine(GhostSkillEffect());
+        StartCoroutine(GhostSkillEffect());
     }
 
     #endregion ClientRpcFunc
