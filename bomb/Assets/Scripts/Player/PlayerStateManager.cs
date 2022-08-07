@@ -177,7 +177,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         RaycastHit2D raycastHitLeft = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
         RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
-        if(raycastHitLeft.collider != null && raycastHitRight.collider != null)
+        if(raycastHitLeft.collider != null && raycastHitRight.collider != null && rigid2d.velocity.y < .2f)
         {
             isGround = true;
             isWallJumpable = true;

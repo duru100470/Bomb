@@ -119,10 +119,10 @@ public class UI_PlayScene : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdAddLogTransition(PlayerStateManager from, PlayerStateManager to)
     {
-        GameObject obj = Instantiate(Panel_TransitionLog);
+        GameObject obj = Instantiate(Panel_TransitionLog, Panel_Log);
         obj.transform.GetChild(0).GetComponent<Text>().text = from.playerNickname;
         obj.transform.GetChild(2).GetComponent<Text>().text = to.playerNickname;
-        obj.transform.SetParent(Panel_Log);
+        //obj.transform.SetParent(Panel_Log);
         NetworkServer.Spawn(obj);
         RpcSetLogTransition(obj.GetComponent<NetworkIdentity>().netId, from.playerNickname, to.playerNickname);
         StartCoroutine(SetLog(obj));
@@ -131,9 +131,9 @@ public class UI_PlayScene : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdAddLogExplode(PlayerStateManager explosion)
     {
-        GameObject obj = Instantiate(Panel_ExplosionLog);
+        GameObject obj = Instantiate(Panel_ExplosionLog, Panel_Log);
         obj.transform.GetChild(0).GetComponent<Text>().text = explosion.playerNickname;
-        obj.transform.SetParent(Panel_Log);
+        //obj.transform.SetParent(Panel_Log);
         NetworkServer.Spawn(obj);
         RpcSetLogExplosion(obj.GetComponent<NetworkIdentity>().netId, explosion.playerNickname);
         StartCoroutine(SetLog(obj));
