@@ -12,7 +12,8 @@ public class PlayerStateManager : NetworkBehaviour
         Jump,
         Stun,
         Dead,
-        Cast
+        Cast,
+        Drop
     }
 
     private StateMachine stateMachine;
@@ -133,6 +134,7 @@ public class PlayerStateManager : NetworkBehaviour
         IState stun = new PlayerStun(this);
         IState dead = new PlayerDead(this);
         IState cast = new PlayerCast(this);
+        IState drop = new PlayerDrop(this);
 
         dicState.Add(PlayerState.Idle, idle);
         dicState.Add(PlayerState.Run, run);
@@ -140,6 +142,7 @@ public class PlayerStateManager : NetworkBehaviour
         dicState.Add(PlayerState.Stun, stun);
         dicState.Add(PlayerState.Dead, dead);
         dicState.Add(PlayerState.Cast, cast);
+        dicState.Add(PlayerState.Drop, drop);
 
         // 시작 상태를 Idle로 설정
         stateMachine = new StateMachine(dicState[PlayerState.Idle]);
@@ -319,6 +322,13 @@ public class PlayerStateManager : NetworkBehaviour
             {
                 stateMachine.SetState(dicState[PlayerState.Cast]);
             }
+
+            // Drop State
+            if( Input.GetKeyDown(KeyCode.S) && !isGround)
+            {
+                stateMachine.SetState(dicState[PlayerState.Drop]);
+                StartCoroutine(DropRoutine());
+            }
         }
 
         if (stateMachine.CurruentState == dicState[PlayerState.Dead])
@@ -487,6 +497,15 @@ public class PlayerStateManager : NetworkBehaviour
         ghostSkillEffect.SetActive(false);
     }
 
+    private IEnumerator DropRoutine()
+    {
+        rigid2d.gravityScale = 0f;
+        rigid2d.velocity = Vector2.zero;
+        yield return new WaitForSeconds(.2f);
+        rigid2d.gravityScale = 1f;
+        rigid2d.velocity = Vector2.down * 15f;
+    }
+
     #endregion IEnumerators
 
     #region CommandFunc
@@ -637,18 +656,24 @@ public class PlayerStateManager : NetworkBehaviour
     {
         if(hasAuthority)
         {
-            Debug.Log("Hitted__" + playerNickname);
-            Debug.Log(dir);
+            //Debug.Log("Hitted__" + playerNickname);
             this.rigid2d.velocity = dir;
         }
     }
+
+    [Command]
+    public void CmdSetStun(float time)
+    {
+        RpcStunSync(time);
+    }
+
 
     [ClientRpc]
     public void RpcStunSync(float time)
     {
         if (hasAuthority)
         {
-            Debug.Log("Stunned__" + playerNickname);
+            //Debug.Log("Stunned__" + playerNickname);
             this.StartCoroutine(Stunned(time));
         }
     }
