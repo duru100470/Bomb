@@ -226,7 +226,7 @@ public class PlayerStateManager : NetworkBehaviour
             {   
                 GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
                 StartCoroutine(_TransitionDone());
-                float time = 3-((float)GameManager.Instance.bombGlobalTimeLeft / (GameManager.Instance.bombGlobalTime/3));
+                float time = 3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime);
                 StartCoroutine(Stunned(Mathf.Max(time, .25f)));
                 Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
                 if(dir.y == 0) dir.y = 0.1f * power;
@@ -252,10 +252,16 @@ public class PlayerStateManager : NetworkBehaviour
         if (other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this)
         {
             Vector2 dir = (transform.position - other.transform.position).normalized * other.GetComponent<StoneProjectile>().force;
-            CmdHitStone(other.GetComponent<StoneProjectile>().StunTime, dir);
-            NetworkServer.Destroy(other.gameObject);
+            CmdHitStone(other.GetComponent<StoneProjectile>().StunTime, dir, this);
+            CmdDestroy(other.GetComponent<StoneProjectile>().netId);
         }
         // 서버에 로그 전송
+    }
+
+    [Command]
+    public void CmdDestroy(uint netId)
+    {
+        NetworkServer.Destroy(NetworkServer.spawned[netId].gameObject);
     }
 
     #endregion UnityEventFunc
@@ -345,7 +351,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         StartCoroutine(_TransitionDone());
         RpcAddDirVec(dir);
-        RpcStunSync(Mathf.Max(3-((float)GameManager.Instance.bombGlobalTimeLeft / (GameManager.Instance.bombGlobalTime/3)), .25f));
+        RpcStunSync(Mathf.Max(3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime), .25f));
     }
 
     //Dash후 감속
@@ -509,10 +515,10 @@ public class PlayerStateManager : NetworkBehaviour
     }
 
     [Command]
-    public void CmdHitStone(float time, Vector2 dir)
+    public void CmdHitStone(float time, Vector2 dir, PlayerStateManager target)
     {
+        target.RpcAddDirVec(dir);
         RpcStunSync(time);
-        RpcAddDirVec(dir);
     }
 
     [Command]
@@ -620,6 +626,7 @@ public class PlayerStateManager : NetworkBehaviour
         if(hasAuthority)
         {
             Debug.Log("Hitted__" + playerNickname);
+            Debug.Log(dir);
             this.rigid2d.velocity = dir;
         }
     }
@@ -713,6 +720,7 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcSetItemAnim(int idx)
     {
+        if(idx == 1) return;
         ItemVFX[idx].SetTrigger("Trigger");
     }
 

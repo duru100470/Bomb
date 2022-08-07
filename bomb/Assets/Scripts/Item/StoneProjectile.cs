@@ -7,7 +7,7 @@ public class StoneProjectile : NetworkBehaviour
 {
     public float StunTime => stunTime;
     [SerializeField] private float stunTime = 1f;
-    public float force;
+    [SyncVar] public float force;
     [SyncVar] public bool dir;
     [SyncVar] public bool heading;
     [SerializeField] float projectileSpeed = 10f;
