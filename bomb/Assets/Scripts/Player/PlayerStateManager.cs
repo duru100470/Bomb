@@ -335,6 +335,11 @@ public class PlayerStateManager : NetworkBehaviour
             }
             curGhostSkillCoolDown += Time.deltaTime;
         }
+
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            GameManager.Instance.UI_Play.ActivateESC();
+        }
     }
 
     // 아이템 사용

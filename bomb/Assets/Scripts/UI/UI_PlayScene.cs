@@ -10,15 +10,20 @@ public class UI_PlayScene : NetworkBehaviour
     [SerializeField] RectTransform Panel_LeaderBoard;
     [SerializeField] GameObject SeparatorPrefab;
     [SerializeField] GameObject LeaderBoardIconPrefab;
+    public GameObject Panel_Loading;
+    int roundCount;
+    List<PlayerStateManager> players;
+    List<GameObject> leaderBoardIcon = new List<GameObject>();
 
     [Header("Log")]
     [SerializeField] RectTransform Panel_Log;
     [SerializeField] GameObject Panel_TransitionLog;
     [SerializeField] GameObject Panel_ExplosionLog;
-    public GameObject Panel_Loading;
-    int roundCount;
-    List<PlayerStateManager> players;
-    List<GameObject> leaderBoardIcon = new List<GameObject>();
+
+    [Header("ESC")]
+    [SerializeField] RectTransform Panel_ESC;
+    [SerializeField] RectTransform Panel_Option;
+
 
     public void Start() 
     {
@@ -45,6 +50,17 @@ public class UI_PlayScene : NetworkBehaviour
             RectTransform rectT = obj.GetComponent<RectTransform>();
             rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / (roundCount+1) / 2, 0);
         }
+    }
+
+    public void ActivateESC()
+    {
+        if(Panel_Option.gameObject.activeInHierarchy) return;
+        Panel_ESC.gameObject.SetActive(true);
+    }
+
+    public void OnClickButtonResume()
+    {
+        Panel_ESC.gameObject.SetActive(false);
     }
 
     public void SetLeaderBoard(PlayerStateManager winner, int state)

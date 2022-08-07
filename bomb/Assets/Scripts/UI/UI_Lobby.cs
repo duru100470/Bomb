@@ -64,7 +64,7 @@ public class UI_Lobby : NetworkBehaviour
     
     public void ActivateESC()
     {
-        if(Panel_setting.gameObject.activeInHierarchy) return;
+        if(Panel_setting.gameObject.activeInHierarchy || Panel_option.gameObject.activeInHierarchy) return;
         Panel_ESC.gameObject.SetActive(true);
     }
 
@@ -105,7 +105,7 @@ public class UI_Lobby : NetworkBehaviour
 
     public void OnClickButtonBackToMain()
     {
-
+        
     }
 
     public string Encrypt(string str)
