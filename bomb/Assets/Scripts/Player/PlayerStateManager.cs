@@ -82,7 +82,8 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar] private bool isFlickering = false;
     [SyncVar(hook = nameof(OnChangeAisRunning))] public bool AisRunning = false;
     [SyncVar(hook = nameof(OnChangeAisStunned))] public bool AisStunned = false;
-    [SyncVar(hook = nameof(OnChangeAisJumping))]public bool AisJumping = false;
+    [SyncVar(hook = nameof(OnChangeAisJumping))] public bool AisJumping = false;
+    [SyncVar(hook = nameof(OnChangeAisTurning))] public bool AisTurning = false;
     [SyncVar(hook = nameof(OnChangeHasBomb))]
     public bool hasBomb = false;
     public bool isCasting { set; get; } = false;
@@ -605,6 +606,12 @@ public class PlayerStateManager : NetworkBehaviour
     }
     
     [Command]
+    public void CmdSetAisTurning(bool value)
+    {
+        AisTurning = value;
+    }
+
+    [Command]
     public void CmdGhostSkill()
     {
         RpcGhostSKillRoutine();
@@ -791,8 +798,7 @@ public class PlayerStateManager : NetworkBehaviour
         else
         {
             bombStateImage.sprite = bombSpriteList[value];
-        }
-        
+        } 
     }
 
     public void OnChangeAisRunning(bool _, bool value)
@@ -809,6 +815,11 @@ public class PlayerStateManager : NetworkBehaviour
     {
         anim.SetBool("isJumping", value);
         anim.ResetTrigger("TriggerJump");
+    }
+
+    public void OnChangeAisTurning(bool _, bool value)
+    {
+        anim.SetBool("isTurning", value);
     }
 
     #endregion SyncVarHookFunc
