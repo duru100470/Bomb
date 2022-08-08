@@ -21,8 +21,8 @@ public class PlayerStateManager : NetworkBehaviour
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
     private Animator VFXanim;
     [SerializeField] private Animator anim;
-    [SerializeField] private Image curItemImage;
-    [SerializeField] private Sprite defaultItemImage;
+    [SerializeField] private GameObject curItemImagePrefab;
+    private GameObject curItemImage;
     [SerializeField] private Text nickNameText;
     [SerializeField] private Image bombStateImage;
     [SerializeField] private GameObject explosionVFX;
@@ -153,6 +153,10 @@ public class PlayerStateManager : NetworkBehaviour
         VFXanim = explosionVFX.GetComponent<Animator>();
         curGhostSkillCount = GameRuleStore.Instance.CurGameRule.ghostSkillCount;
         curGhostSkillCoolDown = ghostSkillCoolDown;
+
+        curItemImage = Instantiate(curItemImagePrefab, Vector3.zero, Quaternion.identity);
+        curItemImage.GetComponent<ItemImage>().AddPlayer(this);
+        curItemImage.SetActive(false);
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -744,7 +748,7 @@ public class PlayerStateManager : NetworkBehaviour
     public void RpcSetItem()
     {
         curItem = null;
-        curItemImage.sprite = defaultItemImage;
+        curItemImage.SetActive(false);
     }
 
     [ClientRpc]
@@ -810,10 +814,12 @@ public class PlayerStateManager : NetworkBehaviour
 
     public void OnChangeItem(Item _, Item value)
     {
-        curItemImage.sprite = defaultItemImage;
+        curItemImage.SetActive(false);
         if(value != null)
         {
-            curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.Type];
+            curItemImage.SetActive(true);
+            curItemImage.transform.position = transform.position + new Vector3(.5f, .2f, 0f);
+            curItemImage.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.itemSprites[(int)value.Type];
         } 
     }
 
