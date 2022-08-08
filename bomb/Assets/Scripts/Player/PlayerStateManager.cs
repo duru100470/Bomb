@@ -180,10 +180,11 @@ public class PlayerStateManager : NetworkBehaviour
     private void FixedUpdate()
     {
         RaycastHit2D raycastHitLeft = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHitMid = Physics2D.Raycast(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down, .02f, LayerMask.GetMask("Ground"));
         RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
-        if(raycastHitLeft.collider != null && raycastHitRight.collider != null && rigid2d.velocity.y < .2f)
+        if((raycastHitLeft.collider != null && raycastHitMid.collider != null) || (raycastHitMid.collider != null && raycastHitRight.collider != null))
         {
-            isGround = true;
+            if(rigid2d.velocity.y < .2f) isGround = true;
             isWallJumpable = true;
         }
         else
@@ -217,6 +218,7 @@ public class PlayerStateManager : NetworkBehaviour
     public void OnDrawGizmos()
     {
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down * .02f);
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
         // Gizmos.DrawSphere(transform.position, 5f);
@@ -328,7 +330,7 @@ public class PlayerStateManager : NetworkBehaviour
             }
 
             // Drop State
-            if( Input.GetKeyDown(KeyCode.S) && !isGround)
+            if( Input.GetKeyDown(KeyCode.S) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
             {
                 stateMachine.SetState(dicState[PlayerState.Drop]);
                 StartCoroutine(DropRoutine());
