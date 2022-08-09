@@ -15,6 +15,7 @@ public class OptionControl : MonoBehaviour
         MasterVolume.onValueChanged.AddListener( delegate {OnChangeMasterVolume();});
         BGMVolume.onValueChanged.AddListener( delegate {OnChangeBGMVolume();});
         VFXVolume.onValueChanged.AddListener( delegate {OnChangeVFXVolume();});
+        fullScreenToggle.onValueChanged.AddListener(OnChangeFullScreen);
     }
 
     public void OnChangeMasterVolume()
@@ -30,6 +31,11 @@ public class OptionControl : MonoBehaviour
     public void OnChangeVFXVolume()
     {
         SoundManager.Instance.SetVFXVolume(VFXVolume.value);
+    }
+
+    public void OnChangeFullScreen(bool value)
+    {
+        Screen.fullScreen = value;
     }
 }
 
