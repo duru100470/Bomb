@@ -8,6 +8,7 @@ public class RoomPlayer : NetworkRoomPlayer
 {
     [SyncVar(hook = nameof(OnSetNickName))] public string playerNickname = string.Empty;
     RoomManager manager = NetworkManager.singleton as RoomManager;
+    SoundManager Smanager = SoundManager.Instance;
     [SerializeField] Text nameText;
     public static RoomPlayer MyPlayer;
     public SpriteRenderer spriteRenderer { set; get; }
@@ -61,6 +62,9 @@ public class RoomPlayer : NetworkRoomPlayer
             //임시
             GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
         }
+        Smanager.AddAudioSource(GetComponent<AudioSource>());
+        Smanager.AddBGMSource(Camera.main.GetComponent<AudioSource>());
+        Smanager.PlayBGM(AudioType.LobbyBGM);
     }
 
     public void OnSetNickName(string _, string value)

@@ -165,6 +165,7 @@ GameObject:
   - component: {fileID: 8595343695484107602}
   - component: {fileID: 8595343695484107604}
   - component: {fileID: 8595343695484107603}
+  - component: {fileID: 4544471604627943530}
   m_Layer: 5
   m_Name: Panel_Option
   m_TagString: Untagged
@@ -233,6 +234,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4544471604627943530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8595343695484107601}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bca2f2e1f61d6e4f81b6cdd246f8c5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fullScreenToggle: {fileID: 8595343696802232790}
+  MasterVolume: {fileID: 8595343696561394035}
+  BGMVolume: {fileID: 8595343697030970165}
+  VFXVolume: {fileID: 8595343696624478508}
 --- !u!1 &8595343695521363935
 GameObject:
   m_ObjectHideFlags: 0
@@ -1152,7 +1169,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1323,7 +1340,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1759,7 +1776,7 @@ MonoBehaviour:
   m_MinValue: 0
   m_MaxValue: 1
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 0.5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []

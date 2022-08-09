@@ -1,22 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Mirror;
 
 public enum AudioType
 {
-    Invincible,
+    LobbyBGM,
+    GameSceneBGM,
+    ButtonClick,
+    Jump,
     Length
 }
 
-public class SoundManager : Singleton<SoundManager>
+public class SoundManager : NetworkBehaviour
 {
-    [SerializeField] private AudioSource loopAudioSource;
+    public static SoundManager Instance;
     [SerializeField] private AudioSource bgmAudioSource;
-    [SerializeField] private AudioSource[] audioSources;
-    private int sourceIndex;
+    [SerializeField] private List<AudioSource> audioSources = new List<AudioSource>();
     Dictionary<AudioType, AudioClip> audioDictionary = new Dictionary<AudioType, AudioClip>();
     public bool bgmPlaying = false;
-    private bool loopPlaying = false;
 
     [SerializeField] private float MasterVolume = .5f;
     [SerializeField] private float BGMVolume =.5f;
@@ -24,8 +26,7 @@ public class SoundManager : Singleton<SoundManager>
 
     private void Awake()
     {
-        if (SoundManager.Instance != this)
-            Destroy(this.gameObject);
+        Instance = this;
 
         for (int i = 0; i < (int)AudioType.Length; i++)
         {
@@ -36,46 +37,26 @@ public class SoundManager : Singleton<SoundManager>
         DontDestroyOnLoad(this.gameObject);
     }
 
-    private void Start()
+    public void AddAudioSource(AudioSource source)
     {
-        //PlayBGM(AudioType.Invincible);
+        audioSources.Add(source);
     }
 
+    public void AddBGMSource(AudioSource source)
+    {
+        bgmAudioSource = source;
+    }
 
-    public void PlayAudio(AudioType type)
+    public void PlayAudio(AudioType type, int sourceIndex)
     {
         AudioSource source = audioSources[sourceIndex];
         source.loop = false;
         source.clip = audioDictionary[type];
         source.Play();
-
-        sourceIndex++;
-        sourceIndex %= audioSources.Length;
-    }
-
-    public void PlayLoop(AudioType type)
-    {
-        if (loopPlaying) return;
-        loopPlaying = true;
-        Debug.Log(type);
-        AudioSource source = loopAudioSource;
-        source.loop = true;
-        source.clip = audioDictionary[type];
-        source.Play();
-    }
-
-    public void StopLoop()
-    {
-        AudioSource source = loopAudioSource;
-        source.loop = false;
-        source.Stop();
-        loopPlaying = false;
     }
 
     public void PlayBGM(AudioType type)
     { 
-        if (bgmPlaying) return;
-        bgmPlaying = true;
         Debug.Log(type);
         AudioSource source = bgmAudioSource;
         source.loop = true;
@@ -85,16 +66,26 @@ public class SoundManager : Singleton<SoundManager>
 
     public void SetMasterVolume(float vol)
     {
-
+        foreach(var source in audioSources)
+        {
+            source.volume = vol * VFXVolume;
+        }
+        bgmAudioSource.volume = vol * BGMVolume;
+        MasterVolume = vol;
     }
 
     public void SetBGMVolume(float vol)
     {
-
+        bgmAudioSource.volume = vol * MasterVolume;
+        BGMVolume = vol;
     }
 
     public void SetVFXVolume(float vol)
     {
-
+        foreach(var source in audioSources)
+        {
+            source.volume = vol * MasterVolume;
+        }
+        VFXVolume = vol;
     }
 }

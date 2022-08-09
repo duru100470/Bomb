@@ -37,10 +37,6 @@ public class UI_MainScene : MonoBehaviour
     [Header("Option")]
     [SerializeField] RectTransform optionPanel;
     [SerializeField] Button optionQuitButton;
-    [SerializeField] Toggle fullScreenToggle;
-    [SerializeField] Slider MasterVolume;
-    [SerializeField] Slider BGMVolume;
-    [SerializeField] Slider VFXVolume;
 
     [Header("ETC")]
     [SerializeField] RectTransform nicknameEmptyCaution;
@@ -68,10 +64,6 @@ public class UI_MainScene : MonoBehaviour
         tutorialAfterButton.onClick.AddListener(Tuto_After);
         tutorialQuitButton.onClick.AddListener(TutoQuit);
         optionQuitButton.onClick.AddListener(OptionQuit);
-
-        MasterVolume.onValueChanged.AddListener( delegate {OnChangeMasterVolume();});
-        BGMVolume.onValueChanged.AddListener( delegate {OnChangeBGMVolume();});
-        VFXVolume.onValueChanged.AddListener( delegate {OnChangeVFXVolume();});
     }
 
     #region Main
@@ -145,7 +137,6 @@ public class UI_MainScene : MonoBehaviour
         }
     }
 
-
     public void PlayQuit()
     {
         StartCoroutine(Transition());
@@ -188,21 +179,6 @@ public class UI_MainScene : MonoBehaviour
         StartCoroutine(Transition());
         optionPanel.gameObject.SetActive(false);
         MainButtons.SetActive(true);
-    }
-
-    public void OnChangeMasterVolume()
-    {
-        SoundManager.Instance.SetMasterVolume(MasterVolume.value);
-    }
-
-    public void OnChangeBGMVolume()
-    {
-        SoundManager.Instance.SetBGMVolume(BGMVolume.value);
-    }
-
-    public void OnChangeVFXVolume()
-    {
-        SoundManager.Instance.SetVFXVolume(VFXVolume.value);
     }
 
     #endregion Panel_Option

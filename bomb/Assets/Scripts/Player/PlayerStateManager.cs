@@ -37,6 +37,7 @@ public class PlayerStateManager : NetworkBehaviour
     public GameObject curItemObj { set; get; }
     public PhysicsMaterial2D idlePhysicsMat;
     public PhysicsMaterial2D stunPhysicsMat;
+    private SoundManager Smanager = SoundManager.Instance;
     // 폭탄 글로벌 타이머 (For Debugging)
     [SerializeField] private Text timer;
 
@@ -156,7 +157,11 @@ public class PlayerStateManager : NetworkBehaviour
 
         curItemImage = Instantiate(curItemImagePrefab, Vector3.zero, Quaternion.identity);
         curItemImage.GetComponent<ItemImage>().AddPlayer(this);
+
         curItemImage.SetActive(false);
+        Smanager.AddAudioSource(GetComponent<AudioSource>());
+        Smanager.AddBGMSource(Camera.main.GetComponent<AudioSource>());
+        Smanager.PlayBGM(AudioType.GameSceneBGM);
     }
 
     // 키보드 입력 받기 및 State 갱신
