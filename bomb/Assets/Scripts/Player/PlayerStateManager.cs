@@ -160,7 +160,7 @@ public class PlayerStateManager : NetworkBehaviour
 
         curItemImage.SetActive(false);
         Smanager.AddAudioSource(GetComponent<AudioSource>());
-        Smanager.AddBGMSource(Camera.main.GetComponent<AudioSource>());
+        Smanager.SetCamSource(Camera.main.GetComponents<AudioSource>());
         Smanager.PlayBGM(AudioType.GameSceneBGM);
     }
 
@@ -656,6 +656,18 @@ public class PlayerStateManager : NetworkBehaviour
     public void CmdSetIsGhostSkillCasting(bool value)
     {
         isGhostSkllCasting = value;
+    }
+
+    [Command]
+    public void CmdPlayAudio(AudioType type)
+    {
+
+    }
+
+    [ClientRpc]
+    public void RpcPlayAudio(AudioType type)
+    {
+        
     }
 
     #endregion CommandFunc

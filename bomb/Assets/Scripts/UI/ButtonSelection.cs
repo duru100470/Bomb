@@ -24,6 +24,7 @@ public class ButtonSelection : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        SoundManager.Instance.PlayUISound(AudioType.ButtonClick);
         Button.localScale = new Vector3(1f,1f,1f);
     }
 }

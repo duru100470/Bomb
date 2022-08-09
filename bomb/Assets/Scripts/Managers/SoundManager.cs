@@ -16,13 +16,17 @@ public class SoundManager : NetworkBehaviour
 {
     public static SoundManager Instance;
     [SerializeField] private AudioSource bgmAudioSource;
+    [SerializeField] private AudioSource buttonSource;
     [SerializeField] private List<AudioSource> audioSources = new List<AudioSource>();
     Dictionary<AudioType, AudioClip> audioDictionary = new Dictionary<AudioType, AudioClip>();
     public bool bgmPlaying = false;
 
-    [SerializeField] private float MasterVolume = .5f;
-    [SerializeField] private float BGMVolume =.5f;
-    [SerializeField] private float VFXVolume = .5f;
+    [SerializeField] private float masterVolume = .5f;
+    public float MasterVolume => masterVolume;
+    [SerializeField] private float bgmVolume =.5f;
+    public float BGMVolume => bgmVolume;
+    [SerializeField] private float vfxVolume = .5f;
+    public float VFXVolume => vfxVolume;
 
     private void Awake()
     {
@@ -42,9 +46,10 @@ public class SoundManager : NetworkBehaviour
         audioSources.Add(source);
     }
 
-    public void AddBGMSource(AudioSource source)
+    public void SetCamSource(AudioSource[] source)
     {
-        bgmAudioSource = source;
+        bgmAudioSource = source[0];
+        buttonSource = source[1];
     }
 
     public void PlayAudio(AudioType type, int sourceIndex)
@@ -64,28 +69,38 @@ public class SoundManager : NetworkBehaviour
         source.Play();
     }
 
+    public void PlayUISound(AudioType type)
+    {
+        AudioSource source = buttonSource;
+        source.loop = false;
+        source.clip = audioDictionary[type];
+        source.Play();
+    }
+
     public void SetMasterVolume(float vol)
     {
         foreach(var source in audioSources)
         {
-            source.volume = vol * VFXVolume;
+            source.volume = vol * vfxVolume;
         }
-        bgmAudioSource.volume = vol * BGMVolume;
-        MasterVolume = vol;
+        bgmAudioSource.volume = vol * bgmVolume;
+        buttonSource.volume = vol * masterVolume;
+        masterVolume = vol;
     }
 
     public void SetBGMVolume(float vol)
     {
-        bgmAudioSource.volume = vol * MasterVolume;
-        BGMVolume = vol;
+        bgmAudioSource.volume = vol * masterVolume;
+        bgmVolume = vol;
     }
 
     public void SetVFXVolume(float vol)
     {
         foreach(var source in audioSources)
         {
-            source.volume = vol * MasterVolume;
+            source.volume = vol * masterVolume;
         }
-        VFXVolume = vol;
+        buttonSource.volume = vol * masterVolume;
+        vfxVolume = vol;
     }
 }
