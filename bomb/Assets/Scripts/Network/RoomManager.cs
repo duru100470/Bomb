@@ -7,13 +7,7 @@ public class RoomManager : NetworkRoomManager
 {
     public string hostIP;
     [SerializeField] private List<RoomPlayer> roomPlayerList = new List<RoomPlayer>();
-
-    public override void Start()
-    {
-        base.Start();
-        SoundManager.Instance.SetCamSource(Camera.main.GetComponents<AudioSource>());
-    }
-
+    
     public void AddPlayer(RoomPlayer player)
     {
         if (!roomPlayerList.Contains(player))

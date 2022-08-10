@@ -160,7 +160,6 @@ public class PlayerStateManager : NetworkBehaviour
 
         curItemImage.SetActive(false);
         Smanager.AddAudioSource(GetComponent<AudioSource>());
-        Smanager.SetCamSource(Camera.main.GetComponents<AudioSource>());
         Smanager.PlayBGM(AudioType.GameSceneBGM);
     }
 
@@ -185,7 +184,7 @@ public class PlayerStateManager : NetworkBehaviour
     private void FixedUpdate()
     {
         RaycastHit2D raycastHitLeft = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
-        RaycastHit2D raycastHitMid = Physics2D.Raycast(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down, .02f, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHitMid = Physics2D.Raycast(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down, .04f, LayerMask.GetMask("Ground"));
         RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
         if((raycastHitLeft.collider != null && raycastHitMid.collider != null) || (raycastHitMid.collider != null && raycastHitRight.collider != null))
         {
@@ -197,8 +196,8 @@ public class PlayerStateManager : NetworkBehaviour
             isGround = false;
         }
 
-        RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0,0), Vector2.right * (isHeadingRight ? 1 : -1), .1f, LayerMask.GetMask("Ground"));
-        if(raycastHitWall)
+        RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2,0), Vector2.right * (isHeadingRight ? 1 : -1), .08f, LayerMask.GetMask("Ground"));
+        if(raycastHitWall.collider != null)
         {
             isWallAttached = true;
         }
@@ -223,9 +222,9 @@ public class PlayerStateManager : NetworkBehaviour
     public void OnDrawGizmos()
     {
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
-        // Gizmos.DrawRay(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down * .02f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down * .04f);
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
-        // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), 0, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .1f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .08f);
         // Gizmos.DrawSphere(transform.position, 5f);
     }
 

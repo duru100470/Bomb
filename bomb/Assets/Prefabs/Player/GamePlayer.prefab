@@ -563,7 +563,7 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: -0.03, y: 0}
-  m_Size: {x: 0.45, y: 0.8}
+  m_Size: {x: 0.45, y: 0.78}
   m_Direction: 0
 --- !u!82 &3940297001597451534
 AudioSource:
@@ -1267,14 +1267,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: -1561834987773429281, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
---- !u!4 &517442523858284500 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -5643701351989959376, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
-  m_PrefabInstance: {fileID: 3928221611668146916}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6247071190848157321 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6931557250149039213, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
+  m_PrefabInstance: {fileID: 3928221611668146916}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &517442523858284500 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -5643701351989959376, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
   m_PrefabInstance: {fileID: 3928221611668146916}
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &7134535590778256022

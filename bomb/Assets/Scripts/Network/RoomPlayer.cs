@@ -63,7 +63,6 @@ public class RoomPlayer : NetworkRoomPlayer
             GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
         }
         Smanager.AddAudioSource(GetComponent<AudioSource>());
-        Smanager.SetCamSource(Camera.main.GetComponents<AudioSource>());
         Smanager.PlayBGM(AudioType.LobbyBGM);
     }
 

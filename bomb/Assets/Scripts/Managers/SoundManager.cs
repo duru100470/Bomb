@@ -19,12 +19,14 @@ public class SoundManager : NetworkBehaviour
     [SerializeField] private AudioSource buttonSource;
     [SerializeField] private List<AudioSource> audioSources = new List<AudioSource>();
     Dictionary<AudioType, AudioClip> audioDictionary = new Dictionary<AudioType, AudioClip>();
-    public bool bgmPlaying = false;
 
+    [SerializeField] private float initMasterVolume; 
     [SerializeField] private float masterVolume = .5f;
     public float MasterVolume => masterVolume;
+    [SerializeField] private float initBGMVolume;
     [SerializeField] private float bgmVolume =.5f;
     public float BGMVolume => bgmVolume;
+    [SerializeField] private float initVFXVolume;
     [SerializeField] private float vfxVolume = .5f;
     public float VFXVolume => vfxVolume;
 
@@ -39,17 +41,19 @@ public class SoundManager : NetworkBehaviour
 
         transform.parent = null;
         DontDestroyOnLoad(this.gameObject);
+
+        masterVolume = initMasterVolume;
+        bgmVolume = initBGMVolume;
+        vfxVolume = initVFXVolume;
+
+        SetMasterVolume(masterVolume);
+        SetBGMVolume(bgmVolume);
+        SetVFXVolume(vfxVolume);
     }
 
     public void AddAudioSource(AudioSource source)
     {
         audioSources.Add(source);
-    }
-
-    public void SetCamSource(AudioSource[] source)
-    {
-        bgmAudioSource = source[0];
-        buttonSource = source[1];
     }
 
     public void PlayAudio(AudioType type, int sourceIndex)
