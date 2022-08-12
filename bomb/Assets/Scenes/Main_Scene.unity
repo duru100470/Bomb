@@ -3536,7 +3536,6 @@ MonoBehaviour:
   bgmAudioSource: {fileID: 1937840506}
   buttonSource: {fileID: 1937840505}
   audioSources: []
-  bgmPlaying: 0
   initMasterVolume: 0
   masterVolume: 0.5
   initBGMVolume: 0.5

@@ -106,8 +106,15 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private float ghostSkillDelay = 3f;
     [SerializeField] private float ghostSkillForce = 5f;
     [SyncVar] public bool isGhostSkllCasting = false;
+    private AudioSource SoundSource;
 
     #region UnityEventFunc
+
+    private void Awake()
+    {
+        SoundSource = GetComponent<AudioSource>();
+        Smanager.AddAudioSource(SoundSource);
+    }
 
     // Initialize states
     private void Start()
@@ -159,7 +166,7 @@ public class PlayerStateManager : NetworkBehaviour
         curItemImage.GetComponent<ItemImage>().AddPlayer(this);
 
         curItemImage.SetActive(false);
-        Smanager.AddAudioSource(GetComponent<AudioSource>());
+
         Smanager.PlayBGM(AudioType.GameSceneBGM);
     }
 
@@ -453,6 +460,7 @@ public class PlayerStateManager : NetworkBehaviour
         {
             if(playerLocalBombTime <= 0f && hasBomb)
             {
+                CmdPlayAudio(AudioType.Explosion);
                 CmdPlayerDead();
                 yield break;
             }
@@ -660,13 +668,13 @@ public class PlayerStateManager : NetworkBehaviour
     [Command]
     public void CmdPlayAudio(AudioType type)
     {
-
+        RpcPlayAudio(type, Smanager.SourceIdx(SoundSource));
     }
 
     [ClientRpc]
-    public void RpcPlayAudio(AudioType type)
+    public void RpcPlayAudio(AudioType type, int idx)
     {
-        
+        Smanager.PlayAudio(type, idx);
     }
 
     #endregion CommandFunc

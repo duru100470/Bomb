@@ -40,6 +40,7 @@ public class GameManager : NetworkBehaviour
             roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
             StartCoroutine(GameReady());
         }
+        SoundManager.Instance.VolumeRenew();
     }
 
     // 플레이어 리스트에 플레이어 추가

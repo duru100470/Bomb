@@ -9,6 +9,7 @@ public enum AudioType
     GameSceneBGM,
     ButtonClick,
     Jump,
+    Explosion,
     Length
 }
 
@@ -17,7 +18,7 @@ public class SoundManager : NetworkBehaviour
     public static SoundManager Instance;
     [SerializeField] private AudioSource bgmAudioSource;
     [SerializeField] private AudioSource buttonSource;
-    [SerializeField] private List<AudioSource> audioSources = new List<AudioSource>();
+    [SerializeField] private List<AudioSource> audioSources;
     Dictionary<AudioType, AudioClip> audioDictionary = new Dictionary<AudioType, AudioClip>();
 
     [SerializeField] private float initMasterVolume; 
@@ -56,9 +57,9 @@ public class SoundManager : NetworkBehaviour
         audioSources.Add(source);
     }
 
-    public void PlayAudio(AudioType type, int sourceIndex)
+    public void PlayAudio(AudioType type, int idx)
     {
-        AudioSource source = audioSources[sourceIndex];
+        AudioSource source = audioSources[idx];
         source.loop = false;
         source.clip = audioDictionary[type];
         source.Play();
@@ -106,5 +107,17 @@ public class SoundManager : NetworkBehaviour
         }
         buttonSource.volume = vol * masterVolume;
         vfxVolume = vol;
+    }
+
+    public int SourceIdx(AudioSource source)
+    {
+        return audioSources.IndexOf(source);
+    }
+
+    public void VolumeRenew()
+    {
+        SetMasterVolume(masterVolume);
+        SetBGMVolume(bgmVolume);
+        SetVFXVolume(vfxVolume);
     }
 }
