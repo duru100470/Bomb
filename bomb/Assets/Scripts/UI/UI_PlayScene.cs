@@ -38,6 +38,7 @@ public class UI_PlayScene : NetworkBehaviour
         {
             GameObject obj = Instantiate(SeparatorPrefab, Panel_LeaderBoard);
             RectTransform rectT = obj.GetComponent<RectTransform>();
+            rectT.sizeDelta = new Vector2(Screen.width -100, 5f);
             rectT.position = new Vector3(Screen.width/2, Screen.height * (i+1) / (roundCount+1), 0);
         }
 
