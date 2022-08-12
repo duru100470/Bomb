@@ -12,18 +12,23 @@ public class PlayerStateManager : NetworkBehaviour
         Jump,
         Stun,
         Dead,
-        Cast
+        Cast,
+        Drop
     }
 
     private StateMachine stateMachine;
     // 상태를 저장할 딕셔너리 생성
     private Dictionary<PlayerState, IState> dicState = new Dictionary<PlayerState, IState>();
-    private Animator anim;
-    [SerializeField] private Image curItemImage;
-    [SerializeField] private Sprite defaultItemImage;
+    private Animator VFXanim;
+    [SerializeField] private Animator anim;
+    [SerializeField] private GameObject curItemImagePrefab;
+    private GameObject curItemImage;
     [SerializeField] private Text nickNameText;
     [SerializeField] private Image bombStateImage;
     [SerializeField] private GameObject explosionVFX;
+    [SerializeField] private GameObject playerObject;
+    [SerializeField] SpriteRenderer ghostSprite;
+    [SerializeField] private List<Animator> ItemVFX = new List<Animator>();
     public Sprite LeaderBoardIcon;
 
     public SpriteRenderer spriteRenderer { set; get; }
@@ -32,6 +37,7 @@ public class PlayerStateManager : NetworkBehaviour
     public GameObject curItemObj { set; get; }
     public PhysicsMaterial2D idlePhysicsMat;
     public PhysicsMaterial2D stunPhysicsMat;
+    private SoundManager Smanager = SoundManager.Instance;
     // 폭탄 글로벌 타이머 (For Debugging)
     [SerializeField] private Text timer;
 
@@ -40,6 +46,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private float moveSpeed = 0f;
     [SerializeField] private float jumpForce = 5.0f;
     [SerializeField] private float maxSpeed = 10f;
+    [SerializeField] private float berserkMaxSpeed = 15f;
     [SerializeField] private float minSpeed = 2f;
     [SerializeField] private float accelaration = 10f;
     [SerializeField] private float ghostSpeed = 10f;
@@ -48,6 +55,7 @@ public class PlayerStateManager : NetworkBehaviour
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
     public float MaxSpeed => maxSpeed;
+    public float BerserkMaxSpeed => berserkMaxSpeed;
     public float MinSpeed => minSpeed;
     public float Accelaration => accelaration;
     public float GhostSpeed => ghostSpeed;
@@ -59,16 +67,25 @@ public class PlayerStateManager : NetworkBehaviour
     private float jumpBufferTimeCnt;
     private float hangTime = 0.1f;
     private float hangTimeCnt;
+    [SerializeField] private int curGhostSkillCount;
 
     [Header("Player Current State Value")]
 
     [SyncVar(hook = nameof(OnChangeItem))][SerializeField] public Item curItem;
     [SyncVar(hook = nameof(OnChangePlayerLocalBombTime))]
     public float playerLocalBombTime;
+
     [SerializeField] private bool isGround = false;
+    [SerializeField] private bool isWallJumpable;
+    [SerializeField] public bool isWallAttached;
+
     [SyncVar] public bool isHeadingRight = false;
     [SyncVar] private bool isTransferable = true;
     [SyncVar] private bool isFlickering = false;
+    [SyncVar(hook = nameof(OnChangeAisRunning))] public bool AisRunning = false;
+    [SyncVar(hook = nameof(OnChangeAisStunned))] public bool AisStunned = false;
+    [SyncVar(hook = nameof(OnChangeAisJumping))] public bool AisJumping = false;
+    [SyncVar(hook = nameof(OnChangeAisTurning))] public bool AisTurning = false;
     [SyncVar(hook = nameof(OnChangeHasBomb))]
     public bool hasBomb = false;
     public bool isCasting { set; get; } = false;
@@ -79,8 +96,25 @@ public class PlayerStateManager : NetworkBehaviour
     public string playerNickname;
     [SyncVar(hook = nameof(OnChangeBombState))] public int bombState;
     [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
+    [SerializeField] private bool hasJumped = false;
+
+    [Header ("GhostSkill")]
+    [SerializeField] private GameObject ghostSkillEffect;
+    [SerializeField] private float ghostSkillCoolDown = 5f;
+    [SerializeField] private float curGhostSkillCoolDown;
+    [SerializeField] private float ghostSkillRadius = 3f;
+    [SerializeField] private float ghostSkillDelay = 3f;
+    [SerializeField] private float ghostSkillForce = 5f;
+    [SyncVar] public bool isGhostSkllCasting = false;
+    private AudioSource SoundSource;
 
     #region UnityEventFunc
+
+    private void Awake()
+    {
+        SoundSource = GetComponent<AudioSource>();
+        Smanager.AddAudioSource(SoundSource);
+    }
 
     // Initialize states
     private void Start()
@@ -92,7 +126,11 @@ public class PlayerStateManager : NetworkBehaviour
         }
         else
         {
-            GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
+            SpriteRenderer[] rend = playerObject.GetComponentsInChildren<SpriteRenderer>();
+            foreach(var render in rend)
+            {
+                render.color = new Color(1f, 0f, 0f, 1f);
+            } 
         }
         
         // 게임 매니저에 해당 플레이어 추가
@@ -104,6 +142,7 @@ public class PlayerStateManager : NetworkBehaviour
         IState stun = new PlayerStun(this);
         IState dead = new PlayerDead(this);
         IState cast = new PlayerCast(this);
+        IState drop = new PlayerDrop(this);
 
         dicState.Add(PlayerState.Idle, idle);
         dicState.Add(PlayerState.Run, run);
@@ -111,6 +150,7 @@ public class PlayerStateManager : NetworkBehaviour
         dicState.Add(PlayerState.Stun, stun);
         dicState.Add(PlayerState.Dead, dead);
         dicState.Add(PlayerState.Cast, cast);
+        dicState.Add(PlayerState.Drop, drop);
 
         // 시작 상태를 Idle로 설정
         stateMachine = new StateMachine(dicState[PlayerState.Idle]);
@@ -118,7 +158,16 @@ public class PlayerStateManager : NetworkBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
-        anim = explosionVFX.GetComponent<Animator>();
+        VFXanim = explosionVFX.GetComponent<Animator>();
+        curGhostSkillCount = GameRuleStore.Instance.CurGameRule.ghostSkillCount;
+        curGhostSkillCoolDown = ghostSkillCoolDown;
+
+        curItemImage = Instantiate(curItemImagePrefab, Vector3.zero, Quaternion.identity);
+        curItemImage.GetComponent<ItemImage>().AddPlayer(this);
+
+        curItemImage.SetActive(false);
+
+        Smanager.PlayBGM(AudioType.GameSceneBGM);
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -141,10 +190,49 @@ public class PlayerStateManager : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        RaycastHit2D raycastHit = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, 0.02f, LayerMask.GetMask("Ground"));
-        if (raycastHit.collider != null) isGround = true;
-        else isGround = false;
-        spriteRenderer.flipX = !isHeadingRight;
+        RaycastHit2D raycastHitLeft = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHitMid = Physics2D.Raycast(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down, .04f, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
+        if((raycastHitLeft.collider != null && raycastHitMid.collider != null) || (raycastHitMid.collider != null && raycastHitRight.collider != null))
+        {
+            if(rigid2d.velocity.y < .2f) isGround = true;
+            isWallJumpable = true;
+        }
+        else
+        {
+            isGround = false;
+        }
+
+        RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2,0), Vector2.right * (isHeadingRight ? 1 : -1), .08f, LayerMask.GetMask("Ground"));
+        if(raycastHitWall.collider != null)
+        {
+            isWallAttached = true;
+        }
+        else
+        {
+            isWallAttached = false;
+        }
+
+        if(hasJumped && rigid2d.velocity.y < 0f)
+        {
+            CmdSetATriggerJump();  
+            hasJumped = false; 
+        }
+
+        playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1, 1);
+        ItemVFX[0].transform.localScale = new Vector3((!isHeadingRight ? -1 : 1), 1, 1);
+        ItemVFX[0].transform.localPosition = new Vector3(0.44f * (isHeadingRight ? -1 : 1), 0, 0);
+        ghostSprite.flipX = isHeadingRight;
+        coll.offset = new Vector2(isHeadingRight ? 0.03f : -0.03f,0); 
+    }
+
+    public void OnDrawGizmos()
+    {
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down * .04f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
+        // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .08f);
+        // Gizmos.DrawSphere(transform.position, 5f);
     }
 
     // 다른 플레이어 충돌
@@ -159,7 +247,8 @@ public class PlayerStateManager : NetworkBehaviour
             {   
                 GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
                 StartCoroutine(_TransitionDone());
-                StartCoroutine(Stunned(2f));
+                float time = 3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime);
+                StartCoroutine(Stunned(Mathf.Max(time, .25f)));
                 Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
                 if(dir.y == 0) dir.y = 0.1f * power;
                 rigid2d.velocity = dir;
@@ -184,10 +273,16 @@ public class PlayerStateManager : NetworkBehaviour
         if (other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this)
         {
             Vector2 dir = (transform.position - other.transform.position).normalized * other.GetComponent<StoneProjectile>().force;
-            CmdHitStone(other.GetComponent<StoneProjectile>().StunTime, dir);
-            NetworkServer.Destroy(other.gameObject);
+            CmdHitStone(other.GetComponent<StoneProjectile>().StunTime, dir, this);
+            CmdDestroy(other.GetComponent<StoneProjectile>().netId);
         }
         // 서버에 로그 전송
+    }
+
+    [Command]
+    public void CmdDestroy(uint netId)
+    {
+        NetworkServer.Destroy(NetworkServer.spawned[netId].gameObject);
     }
 
     #endregion UnityEventFunc
@@ -199,17 +294,20 @@ public class PlayerStateManager : NetworkBehaviour
         if (stateMachine.CurruentState != dicState[PlayerState.Stun] && stateMachine.CurruentState != dicState[PlayerState.Dead] && !isCasting)
         {
             // Run State
-            if (Input.GetAxisRaw("Horizontal") != 0)
+            if(!hasJumped && isGround)
             {
-                stateMachine.SetState(dicState[PlayerState.Run]);
+                if (Input.GetAxisRaw("Horizontal") != 0)
+                {
+                    stateMachine.SetState(dicState[PlayerState.Run]);
+                }
+                else
+                {
+                    stateMachine.SetState(dicState[PlayerState.Idle]);
+                }
             }
-            else
-            {
-                stateMachine.SetState(dicState[PlayerState.Idle]);
-            }
-
+            
             // Jump State
-            if(isGround) 
+            if(isGround || (isWallJumpable&&isWallAttached)) 
             {
                 hangTimeCnt = hangTime;
             }
@@ -229,7 +327,10 @@ public class PlayerStateManager : NetworkBehaviour
 
             if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f)
             {
+                rigid2d.velocity = new Vector2(rigid2d.velocity.x, jumpForce);
+                hasJumped = true;
                 stateMachine.SetState(dicState[PlayerState.Jump]);
+                isWallJumpable = false;
                 jumpBufferTimeCnt = 0f;
             }   
 
@@ -238,11 +339,33 @@ public class PlayerStateManager : NetworkBehaviour
             {
                 stateMachine.SetState(dicState[PlayerState.Cast]);
             }
+
+            // Drop State
+            if( Input.GetKeyDown(KeyCode.S) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
+            {
+                stateMachine.SetState(dicState[PlayerState.Drop]);
+                StartCoroutine(DropRoutine());
+            }
         }
+
         if (stateMachine.CurruentState == dicState[PlayerState.Dead])
         {
-            //고스트 상태에서 하는 무언가
+            if(Input.GetKeyDown(KeyCode.Q))
+            {
+                if(curGhostSkillCount > 0 && curGhostSkillCoolDown > ghostSkillCoolDown)
+                {
+                    curGhostSkillCoolDown = 0f;
+                    curGhostSkillCount--;
+                    CmdGhostSkill();
+                    StartCoroutine(GhostSkillRoutine());
+                }
+            }
+            curGhostSkillCoolDown += Time.deltaTime;
+        }
 
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            GameManager.Instance.UI_Play.ActivateESC();
         }
     }
 
@@ -261,7 +384,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         StartCoroutine(_TransitionDone());
         RpcAddDirVec(dir);
-        RpcStunSync(2f);
+        RpcStunSync(Mathf.Max(3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime), .25f));
     }
 
     //Dash후 감속
@@ -319,7 +442,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         stateMachine.SetState(dicState[PlayerState.Stun]);
         yield return new WaitForSeconds(stunTime);
-        stateMachine.SetState(dicState[PlayerState.Idle]);
+        stateMachine.SetState(dicState[PlayerState.Run]);
     }
 
     // 폭탄 전달시 약간의 딜레이 부여
@@ -337,6 +460,7 @@ public class PlayerStateManager : NetworkBehaviour
         {
             if(playerLocalBombTime <= 0f && hasBomb)
             {
+                CmdPlayAudio(AudioType.Explosion);
                 CmdPlayerDead();
                 yield break;
             }
@@ -356,6 +480,48 @@ public class PlayerStateManager : NetworkBehaviour
             yield return new WaitForSeconds(0.1f);
             if(!isFlickering) yield break;
         }
+    }
+
+    private IEnumerator GhostSkillRoutine()
+    {
+        isGhostSkllCasting = true;
+        yield return StartCoroutine(GhostSkillEffect());
+        Collider2D[] targets = Physics2D.OverlapCircleAll(transform.position, ghostSkillRadius, LayerMask.GetMask("Player"));
+        foreach(var target in targets)
+        {
+            if(target == this.coll) continue;
+            CmdGhostSkill((target.transform.position - transform.position).normalized * ghostSkillForce, target.GetComponent<PlayerStateManager>());
+            //Debug.Log(target.GetComponent<PlayerStateManager>().playerNickname);
+        }
+        isGhostSkllCasting = false;
+    }
+
+    [Command]
+    public void CmdGhostSkill(Vector2 dir, PlayerStateManager target)
+    {
+        target.RpcAddDirVec(dir);
+    }
+
+    private IEnumerator GhostSkillEffect()
+    {
+        ghostSkillEffect.SetActive(true);
+        float curTime = 0f;
+        while(curTime < ghostSkillDelay)
+        {
+            ghostSkillEffect.transform.localScale = Vector3.one * (curTime / ghostSkillDelay) * ghostSkillRadius;
+            yield return null;
+            curTime += Time.deltaTime;
+        }
+        ghostSkillEffect.SetActive(false);
+    }
+
+    private IEnumerator DropRoutine()
+    {
+        rigid2d.gravityScale = 0f;
+        rigid2d.velocity = Vector2.zero;
+        yield return new WaitForSeconds(.2f);
+        rigid2d.gravityScale = 1f;
+        rigid2d.velocity = Vector2.down * 15f;
     }
 
     #endregion IEnumerators
@@ -392,10 +558,10 @@ public class PlayerStateManager : NetworkBehaviour
     }
 
     [Command]
-    public void CmdHitStone(float time, Vector2 dir)
+    public void CmdHitStone(float time, Vector2 dir, PlayerStateManager target)
     {
+        target.RpcAddDirVec(dir);
         RpcStunSync(time);
-        RpcAddDirVec(dir);
     }
 
     [Command]
@@ -439,10 +605,76 @@ public class PlayerStateManager : NetworkBehaviour
         RpcSetItem();
     }
 
-    [Command]
+    [Command(requiresAuthority = false)]
     public void CmdSetBombStete(int value)
     {
         bombState = value;
+    }
+
+    [Command]
+    public void CmdSetGhostSprite(bool value)
+    {
+        RpcSetGhostSprite(value);
+    }
+
+    [Command]
+    public void CmdSetItemAnim(int idx)
+    {
+        RpcSetItemAnim(idx);
+    }
+
+    [Command]
+    public void CmdSetAisRunning(bool value)
+    {
+        AisRunning = value;
+    }
+
+    [Command]
+    public void CmdSetAisStunned(bool value)
+    {
+        AisStunned = value;
+    }
+
+    [Command]
+    public void CmdSetAisJumping(bool value)
+    {
+        AisJumping = value;
+    }
+
+    [Command]
+    public void CmdSetATriggerJump()
+    {
+        RpcSetTriggerJump();
+    }
+    
+    [Command]
+    public void CmdSetAisTurning(bool value)
+    {
+        AisTurning = value;
+    }
+
+    [Command]
+    public void CmdGhostSkill()
+    {
+        RpcGhostSKillRoutine();
+    }
+
+    [Command]
+    public void CmdSetIsGhostSkillCasting(bool value)
+    {
+        isGhostSkllCasting = value;
+    }
+
+    [Command]
+    public void CmdPlayAudio(AudioType type)
+    {
+        RpcPlayAudio(type, Smanager.SourceIdx(SoundSource));
+    }
+
+    [ClientRpc]
+    public void RpcPlayAudio(AudioType type, int idx)
+    {
+        Smanager.PlayAudio(type, idx);
     }
 
     #endregion CommandFunc
@@ -454,17 +686,24 @@ public class PlayerStateManager : NetworkBehaviour
     {
         if(hasAuthority)
         {
-            Debug.Log("Hitted__" + playerNickname);
+            //Debug.Log("Hitted__" + playerNickname);
             this.rigid2d.velocity = dir;
         }
     }
+
+    [Command]
+    public void CmdSetStun(float time)
+    {
+        RpcStunSync(time);
+    }
+
 
     [ClientRpc]
     public void RpcStunSync(float time)
     {
         if (hasAuthority)
         {
-            Debug.Log("Stunned__" + playerNickname);
+            //Debug.Log("Stunned__" + playerNickname);
             this.StartCoroutine(Stunned(time));
         }
     }
@@ -473,7 +712,7 @@ public class PlayerStateManager : NetworkBehaviour
     [ClientRpc]
     public void RpcDead()
     {
-        anim.SetTrigger("Explode");
+        VFXanim.SetTrigger("Explode");
         if (hasAuthority)
         {
             stateMachine.SetState(dicState[PlayerState.Dead]);
@@ -525,6 +764,8 @@ public class PlayerStateManager : NetworkBehaviour
     public void RpcPlayerRoundReset(){
         rigid2d.velocity = Vector2.zero;
         stateMachine.SetState(dicState[PlayerState.Idle]);
+        curGhostSkillCount = GameRuleStore.Instance.CurGameRule.ghostSkillCount;
+        curGhostSkillCoolDown = ghostSkillCoolDown;
         spriteRenderer.color = new Color(1f,1f,1f,1f);
         this.gameObject.layer = LayerMask.NameToLayer("Player");
     }
@@ -533,7 +774,33 @@ public class PlayerStateManager : NetworkBehaviour
     public void RpcSetItem()
     {
         curItem = null;
-        curItemImage.sprite = defaultItemImage;
+        curItemImage.SetActive(false);
+    }
+
+    [ClientRpc]
+    public void RpcSetGhostSprite(bool value)
+    {
+        ghostSprite.enabled = value;
+        playerObject.SetActive(!value);
+    }
+
+    [ClientRpc]
+    public void RpcSetItemAnim(int idx)
+    {
+        if(idx == 1) return;
+        ItemVFX[idx].SetTrigger("Trigger");
+    }
+
+    [ClientRpc]
+    public void RpcSetTriggerJump()
+    {
+        anim.SetTrigger("TriggerJump");
+    }
+
+    [ClientRpc]
+    public void RpcGhostSKillRoutine()
+    {
+        StartCoroutine(GhostSkillEffect());
     }
 
     #endregion ClientRpcFunc
@@ -573,10 +840,12 @@ public class PlayerStateManager : NetworkBehaviour
 
     public void OnChangeItem(Item _, Item value)
     {
-        curItemImage.sprite = defaultItemImage;
+        curItemImage.SetActive(false);
         if(value != null)
         {
-            curItemImage.sprite = GameManager.Instance.itemSprites[(int)value.Type];
+            curItemImage.SetActive(true);
+            curItemImage.transform.position = transform.position + new Vector3(.5f, .2f, 0f);
+            curItemImage.GetComponent<SpriteRenderer>().sprite = GameManager.Instance.itemSprites[(int)value.Type];
         } 
     }
 
@@ -591,8 +860,28 @@ public class PlayerStateManager : NetworkBehaviour
         else
         {
             bombStateImage.sprite = bombSpriteList[value];
-        }
-        
+        } 
+    }
+
+    public void OnChangeAisRunning(bool _, bool value)
+    {
+        anim.SetBool("isRunning", value);
+    }
+
+    public void OnChangeAisStunned(bool _, bool value)
+    {
+        anim.SetBool("isStunned", value);
+    }
+
+    public void OnChangeAisJumping(bool _, bool value)
+    {
+        anim.SetBool("isJumping", value);
+        anim.ResetTrigger("TriggerJump");
+    }
+
+    public void OnChangeAisTurning(bool _, bool value)
+    {
+        anim.SetBool("isTurning", value);
     }
 
     #endregion SyncVarHookFunc

@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using Mirror;
 using System.Net;
 using System.Net.Sockets;
+using System;
 public class UI_MainScene : MonoBehaviour
 {
     RoomManager manager;
@@ -46,8 +48,9 @@ public class UI_MainScene : MonoBehaviour
 
     void Start()
     {
+        
         manager = NetworkManager.singleton as RoomManager;
-        joinMatchInput.text = "localhost";
+        //joinMatchInput.text = "localhost";
 
         playButton.onClick.AddListener(Play);
         tutorialButton.onClick.AddListener(Tutorial);
@@ -125,7 +128,7 @@ public class UI_MainScene : MonoBehaviour
         if(!playerNickname.text.Equals(string.Empty))
         {
             PlayerSetting.playerNickname = playerNickname.text;
-            NetworkManager.singleton.networkAddress = joinMatchInput.text;
+            NetworkManager.singleton.networkAddress = Decrypt(joinMatchInput.text);
             NetworkManager.singleton.StartClient();
         }
         else
@@ -133,7 +136,6 @@ public class UI_MainScene : MonoBehaviour
             StartCoroutine(EmptyNicknameCaution());
         }
     }
-
 
     public void PlayQuit()
     {
@@ -217,5 +219,33 @@ public class UI_MainScene : MonoBehaviour
             yield return null;
         }
         yield break;
+    }
+
+     public string Decrypt(string input)
+    {
+        string ret = String.Empty;
+        string str = CheckCapital(input);
+        for(int i=0; i< str.Length/2; i++)
+        {
+            string cur = str.Substring(i*2, 2);
+            int first = cur[0] >= 'A' ? cur[0] - 'A' + 10 : cur[0] - '0';
+            int second = cur[1] >= 'A' ? cur[1] - 'A' + 10 : cur[1] - '0';
+            int intValue = first * 16 + second;
+            ret += intValue;
+            if(i != str.Length/2 -1) ret += ".";
+        }
+        return ret;
+    }
+
+    public string CheckCapital(string str)
+    {
+        string ret = String.Empty;
+        for(int i=0; i<str.Length; i++)
+        {
+            char cur = str[i];
+            if(cur <= 'z' && cur >= 'a') cur = (char)(cur + 'A' - 'a');
+            ret += cur.ToString();
+        }
+        return ret;
     }
 }

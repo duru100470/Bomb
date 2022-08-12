@@ -29,6 +29,7 @@ public abstract class Item : NetworkBehaviour
     public void OnUse()
     {
         _OnUse();
+        player.CmdSetItemAnim((int)type);
         CmdDestroy(netId);
     }
     public abstract void _OnUse();

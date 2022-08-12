@@ -10,36 +10,39 @@ public class UI_PlayScene : NetworkBehaviour
     [SerializeField] RectTransform Panel_LeaderBoard;
     [SerializeField] GameObject SeparatorPrefab;
     [SerializeField] GameObject LeaderBoardIconPrefab;
-    [SerializeField] GameObject Panel_Loading;
+    public GameObject Panel_Loading;
+    int roundCount;
+    List<PlayerStateManager> players;
+    List<GameObject> leaderBoardIcon = new List<GameObject>();
 
     [Header("Log")]
     [SerializeField] RectTransform Panel_Log;
     [SerializeField] GameObject Panel_TransitionLog;
     [SerializeField] GameObject Panel_ExplosionLog;
-    [SerializeField] private float dippuseTime = 1f;
 
-    int roundCount;
-    List<PlayerStateManager> players;
-    List<GameObject> leaderBoardIcon = new List<GameObject>();
+    [Header("ESC")]
+    [SerializeField] RectTransform Panel_ESC;
+    [SerializeField] RectTransform Panel_Option;
+
 
     public void Start() 
     {
-        Panel_Loading.gameObject.SetActive(true);
         roundCount = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
         players = GameManager.Instance.GetPlayerList();
     }
 
-    public IEnumerator InitializeLeaderBoard()
+    public void InitializeLeaderBoard()
     {
-        yield return new WaitForSeconds(.5f);
         players = GameManager.Instance.GetPlayerList();
         for(int i=0; i<roundCount; i++)
         {
             GameObject obj = Instantiate(SeparatorPrefab, Panel_LeaderBoard);
             RectTransform rectT = obj.GetComponent<RectTransform>();
+            rectT.sizeDelta = new Vector2(Screen.width -100, 5f);
             rectT.position = new Vector3(Screen.width/2, Screen.height * (i+1) / (roundCount+1), 0);
         }
 
+        Debug.Log(players.Count);
         for(int i=0; i< players.Count; i++)
         {
             GameObject obj = Instantiate(LeaderBoardIconPrefab, Panel_LeaderBoard);
@@ -48,7 +51,17 @@ public class UI_PlayScene : NetworkBehaviour
             RectTransform rectT = obj.GetComponent<RectTransform>();
             rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / (roundCount+1) / 2, 0);
         }
-        yield return null;
+    }
+
+    public void ActivateESC()
+    {
+        if(Panel_Option.gameObject.activeInHierarchy) return;
+        Panel_ESC.gameObject.SetActive(true);
+    }
+
+    public void OnClickButtonResume()
+    {
+        Panel_ESC.gameObject.SetActive(false);
     }
 
     public void SetLeaderBoard(PlayerStateManager winner, int state)
@@ -61,25 +74,6 @@ public class UI_PlayScene : NetworkBehaviour
                 break;
             }
         }
-    }
-
-    public IEnumerator DisplayLoadingPanel(IEnumerator enume)
-    {   
-        // 플레이어들이 모두 접속 시 까지 대기
-        yield return new WaitForSeconds(.5f);
-        yield return StartCoroutine(enume);
-        
-        Image back = Panel_Loading.transform.GetChild(0).GetComponent<Image>();
-        Image title = Panel_Loading.transform.GetChild(1).GetComponent<Image>();
-        float curTime = 1f;
-        while(curTime > 0f)
-        {
-            back.color = title.color = new Color(1f,1f,1f, curTime);
-            curTime -= Time.deltaTime;
-            yield return null;
-        }
-
-        Panel_Loading.gameObject.SetActive(false);
     }
 
     private IEnumerator UpdateLeaderBoard(int index, int state)
@@ -109,6 +103,7 @@ public class UI_PlayScene : NetworkBehaviour
     {
         yield return new WaitForSeconds(1f);
         float curTime = 0f;
+        float dippuseTime = 1f;
         var texts = obj.GetComponentsInChildren<Text>();
         var images = obj.GetComponentsInChildren<Image>();
         while(curTime < dippuseTime)
@@ -118,7 +113,6 @@ public class UI_PlayScene : NetworkBehaviour
             foreach(var image in images) image.color = new Color(1f, 1f, 1f, 1 - curTime/dippuseTime);
             curTime += Time.deltaTime;
             yield return null;
-
         }
         if(obj != null) Destroy(obj);
     }
@@ -126,10 +120,10 @@ public class UI_PlayScene : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdAddLogTransition(PlayerStateManager from, PlayerStateManager to)
     {
-        GameObject obj = Instantiate(Panel_TransitionLog);
+        GameObject obj = Instantiate(Panel_TransitionLog, Panel_Log);
         obj.transform.GetChild(0).GetComponent<Text>().text = from.playerNickname;
         obj.transform.GetChild(2).GetComponent<Text>().text = to.playerNickname;
-        obj.transform.SetParent(Panel_Log);
+        //obj.transform.SetParent(Panel_Log);
         NetworkServer.Spawn(obj);
         RpcSetLogTransition(obj.GetComponent<NetworkIdentity>().netId, from.playerNickname, to.playerNickname);
         StartCoroutine(SetLog(obj));
@@ -138,9 +132,9 @@ public class UI_PlayScene : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdAddLogExplode(PlayerStateManager explosion)
     {
-        GameObject obj = Instantiate(Panel_ExplosionLog);
+        GameObject obj = Instantiate(Panel_ExplosionLog, Panel_Log);
         obj.transform.GetChild(0).GetComponent<Text>().text = explosion.playerNickname;
-        obj.transform.SetParent(Panel_Log);
+        //obj.transform.SetParent(Panel_Log);
         NetworkServer.Spawn(obj);
         RpcSetLogExplosion(obj.GetComponent<NetworkIdentity>().netId, explosion.playerNickname);
         StartCoroutine(SetLog(obj));

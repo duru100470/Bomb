@@ -40,6 +40,7 @@ public class GameManager : NetworkBehaviour
             roundWinningPoint = GameRuleStore.Instance.CurGameRule.roundWinningPoint;
             StartCoroutine(GameReady());
         }
+        SoundManager.Instance.VolumeRenew();
     }
 
     // 플레이어 리스트에 플레이어 추가
@@ -127,9 +128,17 @@ public class GameManager : NetworkBehaviour
             }
         }
 
+        RpcRemoveLoadingPanel();
+
         isPlayerMovable = true;
         
         yield return null;
+    }
+
+    [ClientRpc]
+    public void RpcRemoveLoadingPanel()
+    {
+        UI_Play.Panel_Loading.gameObject.SetActive(false);
     }
 
     //생존자 수에 따른 시간과 폭탄 재분배
@@ -176,8 +185,8 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator RoundReset()
     {
+        StartCoroutine(StopPlayer(4f));
         yield return new WaitForSeconds(1f);
-        StartCoroutine(StopPlayer(3f));
         bombGlobalTime = bombGlobalTimeLeft = Mathf.Round(Random.Range(minBombGlobalTime, maxBombGlobalTime));
 
         alivePlayers = players.ToList();
