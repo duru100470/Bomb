@@ -63,7 +63,7 @@ public class PlayerStateManager : NetworkBehaviour
     public float dashVel { get; set; }
     private float curDashTime = 0f;
     private float lerpT = 0f;
-    private float jumpBufferTime = 0.2f;
+    private float jumpBufferTime = 0.05f;
     private float jumpBufferTimeCnt;
     private float hangTime = 0.1f;
     private float hangTimeCnt;
@@ -76,7 +76,10 @@ public class PlayerStateManager : NetworkBehaviour
     public float playerLocalBombTime;
 
     [SerializeField] private bool isGround = false;
+    [SerializeField] private bool onGround = false;
     [SerializeField] private bool isWallJumpable;
+    [SerializeField] private int wallJumpCnt = 1;
+    private int curWallJumpCnt;
     [SerializeField] public bool isWallAttached;
 
     [SyncVar] public bool isHeadingRight = false;
@@ -195,15 +198,18 @@ public class PlayerStateManager : NetworkBehaviour
         RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
         if((raycastHitLeft.collider != null && raycastHitMid.collider != null) || (raycastHitMid.collider != null && raycastHitRight.collider != null))
         {
-            if(rigid2d.velocity.y < .2f) isGround = true;
-            isWallJumpable = true;
+            if(onGround)
+            {
+                if(rigid2d.velocity.y < .2f) isGround = true;
+                isWallJumpable = true;
+            }
         }
         else
         {
             isGround = false;
         }
 
-        RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2,0), Vector2.right * (isHeadingRight ? 1 : -1), .08f, LayerMask.GetMask("Ground"));
+        RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2,0), Vector2.right * (isHeadingRight ? 1 : -1), .04f, LayerMask.GetMask("Ground"));
         if(raycastHitWall.collider != null)
         {
             isWallAttached = true;
@@ -255,6 +261,21 @@ public class PlayerStateManager : NetworkBehaviour
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
         }
+
+        if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
+        {
+            onGround = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D other) 
+    {
+        if(!hasAuthority) return;
+
+        if(other.transform.CompareTag("Ground"))
+        {
+            onGround = false;
+        }    
     }
 
     // 다른 아이템 충돌
