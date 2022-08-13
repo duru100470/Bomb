@@ -3508,7 +3508,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1937840503}
   - component: {fileID: 1937840502}
-  - component: {fileID: 1937840504}
   - component: {fileID: 1937840507}
   - component: {fileID: 1937840506}
   - component: {fileID: 1937840505}
@@ -3531,8 +3530,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12b05e6021ea7a949b165f18d94c7da2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  syncMode: 0
-  syncInterval: 0.1
   bgmAudioSource: {fileID: 1937840506}
   buttonSource: {fileID: 1937840505}
   audioSources: []
@@ -3556,23 +3553,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1937840504
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1937840501}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sceneId: 347112390
-  serverOnly: 0
-  visible: 0
-  m_AssetId: 
-  hasSpawned: 0
 --- !u!82 &1937840505
 AudioSource:
   m_ObjectHideFlags: 0

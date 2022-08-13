@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Mirror;
 
 public enum AudioType
 {
@@ -13,7 +12,7 @@ public enum AudioType
     Length
 }
 
-public class SoundManager : NetworkBehaviour
+public class SoundManager : MonoBehaviour
 {
     public static SoundManager Instance;
     [SerializeField] private AudioSource bgmAudioSource;
@@ -33,6 +32,7 @@ public class SoundManager : NetworkBehaviour
 
     private void Awake()
     {
+        if(Instance != null) Destroy(this.gameObject);
         Instance = this;
 
         for (int i = 0; i < (int)AudioType.Length; i++)
