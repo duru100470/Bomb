@@ -19,7 +19,10 @@ public class PlayerDrop : IState
     public void OperateExit()
     {
         //Debug.Log("Drop Exit");
-        player.CmdSetStun(.5f);
+        if(player.IsGround)
+        {
+            player.CmdSetStun(.5f);
+        }
     }
     public void OperateUpdate()
     {

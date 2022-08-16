@@ -75,6 +75,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar(hook = nameof(OnChangePlayerLocalBombTime))]
     public float playerLocalBombTime;
 
+    public bool IsGround => isGround;
     [SerializeField] private bool isGround = false;
     [SerializeField] private bool onGround = false;
     [SerializeField] private bool isWallJumpable;
@@ -264,6 +265,11 @@ public class PlayerStateManager : NetworkBehaviour
                 rigid2d.velocity = dir;
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
+        }
+        else if(stateMachine.CurruentState != dicState[PlayerState.Stun] && other.transform.CompareTag("Player") && transform.position.y + coll.bounds.size.y * .75f < other.transform.position.y)
+        {
+            CmdAddForce(new Vector2(other.transform.GetComponent<Rigidbody2D>().velocity.x,jumpForce), other.transform.GetComponent<PlayerStateManager>());
+            CmdSetStun(1f);
         }
 
         if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
@@ -515,14 +521,14 @@ public class PlayerStateManager : NetworkBehaviour
         foreach(var target in targets)
         {
             if(target == this.coll) continue;
-            CmdGhostSkill((target.transform.position - transform.position).normalized * ghostSkillForce, target.GetComponent<PlayerStateManager>());
+            CmdAddForce((target.transform.position - transform.position).normalized * ghostSkillForce, target.GetComponent<PlayerStateManager>());
             //Debug.Log(target.GetComponent<PlayerStateManager>().playerNickname);
         }
         isGhostSkllCasting = false;
     }
 
     [Command]
-    public void CmdGhostSkill(Vector2 dir, PlayerStateManager target)
+    public void CmdAddForce(Vector2 dir, PlayerStateManager target)
     {
         target.RpcAddDirVec(dir);
     }
