@@ -53,6 +53,9 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private float accelaration = 10f;
     [SerializeField] private float ghostSpeed = 10f;
     [SerializeField] private float power = 30f;
+    [SerializeField] private float normalGravityScale = 1.7f;
+    public float NormalGravityScale => normalGravityScale;
+    [SerializeField] private float descendGravityScale = 1.7f  * .75f;
 
     public float MoveSpeed => moveSpeed;
     public float JumpForce => jumpForce;
@@ -65,9 +68,9 @@ public class PlayerStateManager : NetworkBehaviour
     public float dashVel { get; set; }
     private float curDashTime = 0f;
     private float lerpT = 0f;
-    private float jumpBufferTime = 0.05f;
+    [SerializeField] private float jumpBufferTime = 0.05f;
     private float jumpBufferTimeCnt;
-    private float hangTime = 0.1f;
+    [SerializeField] private float hangTime = 0.1f;
     private float hangTimeCnt;
     [SerializeField] private int curGhostSkillCount;
 
@@ -116,6 +119,10 @@ public class PlayerStateManager : NetworkBehaviour
 
     [SerializeField] private float pushCoolDown = .5f;
     private float curPushCoolDown;
+
+    [SerializeField] private float curGroundAngle;
+    private bool lastIsGround = true;
+
 
     #region UnityEventFunc
 
@@ -215,7 +222,8 @@ public class PlayerStateManager : NetworkBehaviour
         {
             if(onGround)
             {
-                if(rigid2d.velocity.y < .2f) isGround = true;
+                //if(rigid2d.velocity.y < .2f)
+                isGround = true;
                 isWallJumpable = true;
             }
         }
@@ -236,9 +244,35 @@ public class PlayerStateManager : NetworkBehaviour
 
         if(hasJumped && rigid2d.velocity.y < 0f)
         {
-            CmdSetATriggerJump();  
-            hasJumped = false; 
+            CmdSetATriggerJump();
+            hasJumped = false;
+            rigid2d.gravityScale = descendGravityScale;
         }
+
+        if(lastIsGround)
+        {
+            //마찰 적용
+            float XFriction = 0;
+            float YFriction = 0;
+            float value = 0.2f * 9.81f * rigid2d.gravityScale;
+            if(curGroundAngle == 0)
+            {
+                XFriction = value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (rigid2d.velocity.x > 0 ? -1 : 1);
+            }
+            else
+            {
+                YFriction = -value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Sin(Mathf.Deg2Rad * curGroundAngle);
+                XFriction = value * rigid2d.gravityScale * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (curGroundAngle > 0 ? -1 : 1);    
+            } 
+            //Debug.Log($"curGround Angle : {curGroundAngle} XFriction : {XFriction} YFriction : {YFriction}");
+            rigid2d.AddForce(new Vector2(XFriction, YFriction), ForceMode2D.Force);
+
+            if(Input.GetAxisRaw("Horizontal") == 0 && Mathf.Abs(rigid2d.velocity.x) < .6f && Mathf.Abs(rigid2d.velocity.y) < .6f)
+            {
+                rigid2d.velocity = Vector2.zero;
+            }
+        }
+        lastIsGround = isGround;
 
         playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1, 1);
         ItemVFX[0].transform.localScale = new Vector3((!isHeadingRight ? -1 : 1), 1, 1);
@@ -277,15 +311,15 @@ public class PlayerStateManager : NetworkBehaviour
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
         }
-        //밟히는 경우
         else if(stateMachine.CurruentState != dicState[PlayerState.Stun] && other.transform.CompareTag("Player") && transform.position.y + coll.bounds.size.y * .75f < other.transform.position.y)
         {
             CmdAddForce(new Vector2(other.transform.GetComponent<Rigidbody2D>().velocity.x,jumpForce), other.transform.GetComponent<PlayerStateManager>());
             CmdSetStun(1f);
         }
 
-        if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
+        if(other.transform.CompareTag("Ground") && other.GetContact(0).point.y < transform.position.y) //&& other.transform.position.y < transform.position.y
         {
+            curGroundAngle = other.transform.rotation.z;
             onGround = true;
         }
     }
@@ -371,6 +405,7 @@ public class PlayerStateManager : NetworkBehaviour
             if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f)
             {
                 rigid2d.velocity = new Vector2(rigid2d.velocity.x, jumpForce);
+                rigid2d.gravityScale = normalGravityScale;
                 hasJumped = true;
                 stateMachine.SetState(dicState[PlayerState.Jump]);
                 isWallJumpable = false;
@@ -493,7 +528,6 @@ public class PlayerStateManager : NetworkBehaviour
                 CmdApplyStun(target, .25f); 
             }
         }
-        
     }
 
     [Command]
@@ -509,7 +543,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         yield return new WaitForSeconds(dashTime);
         isCasting = false;
-        rigid2d.gravityScale = 1f;
+        rigid2d.gravityScale = normalGravityScale;
     }
 
     private IEnumerator Stunned(float stunTime)
@@ -594,7 +628,7 @@ public class PlayerStateManager : NetworkBehaviour
         rigid2d.gravityScale = 0f;
         rigid2d.velocity = Vector2.zero;
         yield return new WaitForSeconds(.2f);
-        rigid2d.gravityScale = 1f;
+        rigid2d.gravityScale = normalGravityScale;
         rigid2d.velocity = Vector2.down * 15f;
     }
 

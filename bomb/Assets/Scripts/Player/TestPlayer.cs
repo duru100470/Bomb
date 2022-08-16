@@ -48,12 +48,18 @@ public class TestPlayer : MonoBehaviour
 
     [SerializeField] private bool hasJumped = false;
 
+    [SerializeField] private float curGroundAngle;
+
+
     private bool nowCasting;
     private bool nowDrop;
     private bool nowIdle;
     private bool nowJump;
     private bool nowRun;
     private bool nowStun;
+
+    private bool lastIsGrond = true;
+    
 
     // Initialize states
     private void Start()
@@ -89,7 +95,6 @@ public class TestPlayer : MonoBehaviour
 
     private void FixedUpdate()
     {
-
         RaycastHit2D raycastHitLeft = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x - .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
         RaycastHit2D raycastHitMid = Physics2D.Raycast(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down, .04f, LayerMask.GetMask("Ground"));
         RaycastHit2D raycastHitRight = Physics2D.Raycast(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down, .1f, LayerMask.GetMask("Ground"));
@@ -124,6 +129,26 @@ public class TestPlayer : MonoBehaviour
         playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1, 1);
         coll.offset = new Vector2(isHeadingRight ? 0.03f : -0.03f,0);
         CurrentSpeedX = rigid2d.velocity.x;
+        
+        if(lastIsGrond && rigid2d.velocity.magnitude > .5f)
+        {
+            float XFriction = 0;
+            float YFriction = 0;
+            if(curGroundAngle == 0)
+            {
+                XFriction = 0.2f * 9.81f * rigid2d.gravityScale * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (rigid2d.velocity.x > 0 ? -1 : 1);
+            }
+            else
+            {
+                YFriction = 0.2f * -9.81f * rigid2d.gravityScale * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Sin(Mathf.Deg2Rad * curGroundAngle);
+                XFriction = 0.2f * 9.81f * rigid2d.gravityScale * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (curGroundAngle > 0 ? -1 : 1);    
+            } 
+            //마찰 적용
+            Debug.Log($"curGround Angle : {curGroundAngle} XFriction : {XFriction} YFriction : {YFriction}");
+            rigid2d.AddForce(new Vector2(XFriction, YFriction), ForceMode2D.Force);
+        }
+        lastIsGrond = isGround;
+
     }
 
     // 다른 플레이어 충돌
@@ -137,6 +162,7 @@ public class TestPlayer : MonoBehaviour
         if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
         {
             onGround = true;
+            curGroundAngle = other.transform.rotation.z;
         }
     }
 

@@ -19,6 +19,7 @@ public class PlayerJump : IState
     public void OperateExit()
     {
         player.CmdSetAisJumping(false);
+        player.rigid2d.gravityScale = player.NormalGravityScale;
     }
     public void OperateUpdate()
     {

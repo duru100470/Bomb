@@ -441,13 +441,17 @@ MonoBehaviour:
   stunPhysicsMat: {fileID: 6200000, guid: fe24cf6f6cd398b49aecc32f16d4e8be, type: 2}
   timer: {fileID: 2210880777623232470}
   moveSpeed: 5
-  jumpForce: 7
+  jumpForce: 8
   maxSpeed: 5
   berserkMaxSpeed: 15
   minSpeed: 2
   accelaration: 10
   ghostSpeed: 5
   power: 10
+  normalGravityScale: 1.7
+  descendGravityScale: 1.2750001
+  jumpBufferTime: 0.1
+  hangTime: 0.1
   curGhostSkillCount: 0
   curItem: {fileID: 0}
   playerLocalBombTime: 0
@@ -479,6 +483,8 @@ MonoBehaviour:
   ghostSkillDelay: 3
   ghostSkillForce: 10
   isGhostSkllCasting: 0
+  pushCoolDown: 0.5
+  curGroundAngle: 0
 --- !u!114 &3965615835837010556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -545,8 +551,8 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_GravityScale: 1.7
+  m_Material: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1

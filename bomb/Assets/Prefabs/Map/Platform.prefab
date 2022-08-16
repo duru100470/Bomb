@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1185309440528746815}
   - component: {fileID: 1185309440528746814}
   - component: {fileID: 1185309440528746813}
+  - component: {fileID: 4418198022927428502}
   m_Layer: 6
   m_Name: Platform
   m_TagString: Ground
@@ -129,3 +130,24 @@ PlatformEffector2D:
   m_UseSideFriction: 0
   m_UseSideBounce: 0
   m_SideArc: 1
+--- !u!50 &4418198022927428502
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1185309440528746803}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 6200000, guid: 64d2608fd1fae1b4895b617cadd66ae7, type: 2}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 7
