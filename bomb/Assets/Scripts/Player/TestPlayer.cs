@@ -20,6 +20,9 @@ public class TestPlayer : MonoBehaviour
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float minSpeed = 2f;
     [SerializeField] private float accelaration = 10f;
+    [SerializeField] private float pushCoolDown = .5f;
+    [SerializeField] private float stepOnForce = 5f;
+    private float curPushCoolDown;
 
     public float MaxSpeed => maxSpeed;
     public float MinSpeed => minSpeed;
@@ -28,9 +31,9 @@ public class TestPlayer : MonoBehaviour
     public float dashVel { get; set; }
     private float curDashTime = 0f;
     private float lerpT = 0f;
-    private float jumpBufferTime = 0.05f;
+    [SerializeField] private float jumpBufferTime = 0.05f;
     private float jumpBufferTimeCnt;
-    private float hangTime = 0.1f;
+    [SerializeField] private float hangTime = 0.1f;
     private float hangTimeCnt;
 
     [Header("Player Current State Value")]
@@ -44,7 +47,6 @@ public class TestPlayer : MonoBehaviour
     public bool isCasting { set; get; } = false;
 
     [SerializeField] private bool hasJumped = false;
-
 
     private bool nowCasting;
     private bool nowDrop;
@@ -127,6 +129,11 @@ public class TestPlayer : MonoBehaviour
     // 다른 플레이어 충돌
     private void OnCollisionEnter2D(Collision2D other)
     {
+        if(other.transform.CompareTag("Player") && transform.position.y > other.transform.position.y + coll.bounds.size.y * .75f)
+        {
+            rigid2d.velocity = new Vector2(rigid2d.velocity.x, stepOnForce);
+        }
+
         if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
         {
             onGround = true;
@@ -201,6 +208,14 @@ public class TestPlayer : MonoBehaviour
                 nowDrop = true;
                 StartCoroutine(DropRoutine());
             }
+
+            // Push State
+            if(Input.GetKeyDown(KeyCode.E) && curPushCoolDown > pushCoolDown)
+            {
+                curPushCoolDown = 0f;
+                Push();
+            }
+            curPushCoolDown += Time.deltaTime;
         }
     }
 
@@ -228,6 +243,19 @@ public class TestPlayer : MonoBehaviour
         yield return new WaitForSeconds(.2f);
         rigid2d.gravityScale = 1f;
         rigid2d.velocity = Vector2.down * 15f;
+    }
+
+    public void Push()
+    {
+        RaycastHit2D[] check = Physics2D.BoxCastAll(coll.bounds.center, coll.bounds.size, 0f, Vector2.right * (isHeadingRight ? 1 : -1), coll.bounds.size.x * 2, LayerMask.GetMask("Player"));
+
+        foreach(var player in check)
+        {
+            if(player.collider != null && player.transform != this.transform)
+            {
+                player.transform.GetComponent<Rigidbody2D>().velocity = new Vector2((isHeadingRight ? .5f : -.5f), .5f) * 5f;
+            }
+        }
     }
 
     public void ClearBool()
