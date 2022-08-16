@@ -13,7 +13,9 @@ public class PlayerStateManager : NetworkBehaviour
         Stun,
         Dead,
         Cast,
-        Drop
+        Drop,
+        Push
+
     }
 
     private StateMachine stateMachine;
@@ -112,6 +114,9 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar] public bool isGhostSkllCasting = false;
     private AudioSource SoundSource;
 
+    [SerializeField] private float pushCoolDown = .5f;
+    private float curPushCoolDown;
+
     #region UnityEventFunc
 
     private void Awake()
@@ -120,8 +125,9 @@ public class PlayerStateManager : NetworkBehaviour
         Smanager.AddAudioSource(SoundSource);
 
         PlayerSetting.JumpKey = KeyCode.Space;
-        PlayerSetting.ItemKey = KeyCode.Q;
+        PlayerSetting.CastKey = KeyCode.Q;
         PlayerSetting.DropKey = KeyCode.S;
+        PlayerSetting.PushKey = KeyCode.E;
     }
 
     // Initialize states
@@ -151,6 +157,7 @@ public class PlayerStateManager : NetworkBehaviour
         IState dead = new PlayerDead(this);
         IState cast = new PlayerCast(this);
         IState drop = new PlayerDrop(this);
+        IState push = new PlayerPush(this);
 
         dicState.Add(PlayerState.Idle, idle);
         dicState.Add(PlayerState.Run, run);
@@ -159,6 +166,7 @@ public class PlayerStateManager : NetworkBehaviour
         dicState.Add(PlayerState.Dead, dead);
         dicState.Add(PlayerState.Cast, cast);
         dicState.Add(PlayerState.Drop, drop);
+        dicState.Add(PlayerState.Push, push);
 
         // 시작 상태를 Idle로 설정
         stateMachine = new StateMachine(dicState[PlayerState.Idle]);
@@ -169,6 +177,8 @@ public class PlayerStateManager : NetworkBehaviour
         VFXanim = explosionVFX.GetComponent<Animator>();
         curGhostSkillCount = GameRuleStore.Instance.CurGameRule.ghostSkillCount;
         curGhostSkillCoolDown = ghostSkillCoolDown;
+        
+        curPushCoolDown = pushCoolDown;
 
         curItemImage = Instantiate(curItemImagePrefab, Vector3.zero, Quaternion.identity);
         curItemImage.GetComponent<ItemImage>().AddPlayer(this);
@@ -251,6 +261,7 @@ public class PlayerStateManager : NetworkBehaviour
     {
         if (!hasAuthority) return;
 
+        //폭탄을 가지고 충돌하는 경우
         if (other.transform.CompareTag("Player") && hasBomb && isTransferable)
         {
             var targetPSM = other.transform.GetComponent<PlayerStateManager>();
@@ -266,6 +277,7 @@ public class PlayerStateManager : NetworkBehaviour
                 CmdBombTransition(targetPSM.netId, dir * (-1));
             }
         }
+        //밟히는 경우
         else if(stateMachine.CurruentState != dicState[PlayerState.Stun] && other.transform.CompareTag("Player") && transform.position.y + coll.bounds.size.y * .75f < other.transform.position.y)
         {
             CmdAddForce(new Vector2(other.transform.GetComponent<Rigidbody2D>().velocity.x,jumpForce), other.transform.GetComponent<PlayerStateManager>());
@@ -366,22 +378,31 @@ public class PlayerStateManager : NetworkBehaviour
             }   
 
             // Cast State
-            if (Input.GetKeyDown(PlayerSetting.ItemKey) && stateMachine.CurruentState != dicState[PlayerState.Cast])
+            if (Input.GetKeyDown(PlayerSetting.CastKey) && stateMachine.CurruentState != dicState[PlayerState.Cast])
             {
                 stateMachine.SetState(dicState[PlayerState.Cast]);
             }
 
             // Drop State
-            if( Input.GetKeyDown(PlayerSetting.DropKey) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
+            if(Input.GetKeyDown(PlayerSetting.DropKey) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
             {
                 stateMachine.SetState(dicState[PlayerState.Drop]);
                 StartCoroutine(DropRoutine());
             }
+
+            // Push State
+            if(Input.GetKeyDown(PlayerSetting.PushKey) && curPushCoolDown > pushCoolDown)
+            {
+                curPushCoolDown = 0f;
+                stateMachine.SetState(dicState[PlayerState.Push]);
+                Push();
+            }
+            curPushCoolDown += Time.deltaTime;
         }
 
         if (stateMachine.CurruentState == dicState[PlayerState.Dead])
         {
-            if(Input.GetKeyDown(PlayerSetting.ItemKey))
+            if(Input.GetKeyDown(PlayerSetting.CastKey))
             {
                 if(curGhostSkillCount > 0 && curGhostSkillCoolDown > ghostSkillCoolDown)
                 {
@@ -457,6 +478,28 @@ public class PlayerStateManager : NetworkBehaviour
         {
             bombState = 2;
         }
+    }
+
+    public void Push()
+    {
+        RaycastHit2D[] check = Physics2D.BoxCastAll(coll.bounds.center, coll.bounds.size, 0f, Vector2.right * (isHeadingRight ? 1 : -1), coll.bounds.size.x * 2, LayerMask.GetMask("Player"));
+
+        foreach(var player in check)
+        {
+            if(player.collider != null && player.transform != this.transform)
+            {
+                PlayerStateManager target = player.transform.GetComponent<PlayerStateManager>();
+                CmdAddForce(new Vector2((isHeadingRight ? .5f : -.5f), .5f) * 5f, target);
+                CmdApplyStun(target, .25f); 
+            }
+        }
+        
+    }
+
+    [Command]
+    public void CmdApplyStun(PlayerStateManager target, float time)
+    {   
+        target.RpcStunSync(time);
     }
 
     #region IEnumerators

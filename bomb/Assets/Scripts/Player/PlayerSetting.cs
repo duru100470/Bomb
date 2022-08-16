@@ -9,7 +9,8 @@ public class PlayerSetting
     public static int playerNum;
 
     public static KeyCode JumpKey;
-    public static KeyCode ItemKey;
+    public static KeyCode CastKey;
     public static KeyCode DropKey;
+    public static KeyCode PushKey;
 
 }
