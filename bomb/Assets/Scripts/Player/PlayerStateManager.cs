@@ -117,6 +117,10 @@ public class PlayerStateManager : NetworkBehaviour
     {
         SoundSource = GetComponent<AudioSource>();
         Smanager.AddAudioSource(SoundSource);
+
+        PlayerSetting.JumpKey = KeyCode.Space;
+        PlayerSetting.ItemKey = KeyCode.Q;
+        PlayerSetting.DropKey = KeyCode.S;
     }
 
     // Initialize states
@@ -337,7 +341,7 @@ public class PlayerStateManager : NetworkBehaviour
                 hangTimeCnt -= Time.deltaTime;
             }
             
-            if(Input.GetKeyDown(KeyCode.Space))
+            if(Input.GetKeyDown(PlayerSetting.JumpKey))
             {
                 jumpBufferTimeCnt = jumpBufferTime;
             }
@@ -356,13 +360,13 @@ public class PlayerStateManager : NetworkBehaviour
             }   
 
             // Cast State
-            if (Input.GetKeyDown(KeyCode.Q) && stateMachine.CurruentState != dicState[PlayerState.Cast])
+            if (Input.GetKeyDown(PlayerSetting.ItemKey) && stateMachine.CurruentState != dicState[PlayerState.Cast])
             {
                 stateMachine.SetState(dicState[PlayerState.Cast]);
             }
 
             // Drop State
-            if( Input.GetKeyDown(KeyCode.S) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
+            if( Input.GetKeyDown(PlayerSetting.DropKey) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
             {
                 stateMachine.SetState(dicState[PlayerState.Drop]);
                 StartCoroutine(DropRoutine());
@@ -371,7 +375,7 @@ public class PlayerStateManager : NetworkBehaviour
 
         if (stateMachine.CurruentState == dicState[PlayerState.Dead])
         {
-            if(Input.GetKeyDown(KeyCode.Q))
+            if(Input.GetKeyDown(PlayerSetting.ItemKey))
             {
                 if(curGhostSkillCount > 0 && curGhostSkillCoolDown > ghostSkillCoolDown)
                 {

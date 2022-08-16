@@ -47,9 +47,7 @@ public class SoundManager : MonoBehaviour
         bgmVolume = initBGMVolume;
         vfxVolume = initVFXVolume;
 
-        SetMasterVolume(masterVolume);
-        SetBGMVolume(bgmVolume);
-        SetVFXVolume(vfxVolume);
+        VolumeRenew();
     }
 
     public void AddAudioSource(AudioSource source)
