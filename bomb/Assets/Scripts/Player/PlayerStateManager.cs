@@ -232,6 +232,11 @@ public class PlayerStateManager : NetworkBehaviour
             isGround = false;
         }
 
+        if(raycastHitMid.collider != null)
+        {
+            curGroundAngle = raycastHitMid.transform.rotation.z;
+        }
+
         RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2,0), Vector2.right * (isHeadingRight ? 1 : -1), .04f, LayerMask.GetMask("Ground"));
         if(raycastHitWall.collider != null)
         {
@@ -254,7 +259,7 @@ public class PlayerStateManager : NetworkBehaviour
             //마찰 적용
             float XFriction = 0;
             float YFriction = 0;
-            float value = 0.2f * 9.81f * rigid2d.gravityScale;
+            float value = .1f * 9.81f * rigid2d.gravityScale;
             if(curGroundAngle == 0)
             {
                 XFriction = value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (rigid2d.velocity.x > 0 ? -1 : 1);
@@ -267,9 +272,10 @@ public class PlayerStateManager : NetworkBehaviour
             //Debug.Log($"curGround Angle : {curGroundAngle} XFriction : {XFriction} YFriction : {YFriction}");
             rigid2d.AddForce(new Vector2(XFriction, YFriction), ForceMode2D.Force);
 
-            if(Input.GetAxisRaw("Horizontal") == 0 && Mathf.Abs(rigid2d.velocity.x) < .6f && Mathf.Abs(rigid2d.velocity.y) < .6f)
+            Vector2 vec = Vector2.zero;
+            if(Input.GetAxisRaw("Horizontal") == 0)
             {
-                rigid2d.velocity = Vector2.zero;
+                rigid2d.velocity = Vector2.SmoothDamp(rigid2d.velocity, Vector2.zero, ref vec, .5f);
             }
         }
         lastIsGround = isGround;
@@ -317,9 +323,8 @@ public class PlayerStateManager : NetworkBehaviour
             CmdSetStun(1f);
         }
 
-        if(other.transform.CompareTag("Ground") && other.GetContact(0).point.y < transform.position.y) //&& other.transform.position.y < transform.position.y
+        if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
         {
-            curGroundAngle = other.transform.rotation.z;
             onGround = true;
         }
     }
