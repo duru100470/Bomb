@@ -273,7 +273,7 @@ public class TestPlayer : MonoBehaviour
 
     public void Push()
     {
-        RaycastHit2D[] check = Physics2D.BoxCastAll(coll.bounds.center, coll.bounds.size, 0f, Vector2.right * (isHeadingRight ? 1 : -1), coll.bounds.size.x * 2, LayerMask.GetMask("Player"));
+        RaycastHit2D[] check = Physics2D.BoxCastAll(coll.bounds.center, coll.bounds.size, 0f, Vector2.right * (isHeadingRight ? 1 : -1), coll.bounds.size.x * .5f, LayerMask.GetMask("Player"));
 
         foreach(var player in check)
         {
