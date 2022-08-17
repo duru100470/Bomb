@@ -256,26 +256,29 @@ public class PlayerStateManager : NetworkBehaviour
 
         if(lastIsGround)
         {
-            //마찰 적용
-            float XFriction = 0;
-            float YFriction = 0;
-            float value = .1f * 9.81f * rigid2d.gravityScale;
-            if(curGroundAngle == 0)
-            {
-                XFriction = value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (rigid2d.velocity.x > 0 ? -1 : 1);
-            }
-            else
-            {
-                YFriction = -value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Sin(Mathf.Deg2Rad * curGroundAngle);
-                XFriction = value * rigid2d.gravityScale * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (curGroundAngle > 0 ? -1 : 1);    
-            } 
-            //Debug.Log($"curGround Angle : {curGroundAngle} XFriction : {XFriction} YFriction : {YFriction}");
-            rigid2d.AddForce(new Vector2(XFriction, YFriction), ForceMode2D.Force);
 
             Vector2 vec = Vector2.zero;
             if(Input.GetAxisRaw("Horizontal") == 0)
             {
-                rigid2d.velocity = Vector2.SmoothDamp(rigid2d.velocity, Vector2.zero, ref vec, .5f);
+                rigid2d.velocity = Vector2.SmoothDamp(rigid2d.velocity, Vector2.zero, ref vec, .1f);
+            }
+            else
+            {
+                //마찰 적용
+                float XFriction = 0;
+                float YFriction = 0;
+                float value = .1f * 9.81f * rigid2d.gravityScale;
+                if(curGroundAngle == 0)
+                {
+                    XFriction = value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (rigid2d.velocity.x > 0 ? -1 : 1);
+                }
+                else
+                {
+                    YFriction = -value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Sin(Mathf.Deg2Rad * curGroundAngle);
+                    XFriction = value * rigid2d.gravityScale * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (curGroundAngle > 0 ? -1 : 1);    
+                } 
+                //Debug.Log($"curGround Angle : {curGroundAngle} XFriction : {XFriction} YFriction : {YFriction}");
+                rigid2d.AddForce(new Vector2(XFriction, YFriction), ForceMode2D.Force);
             }
         }
         lastIsGround = isGround;
