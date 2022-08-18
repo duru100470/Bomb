@@ -8,9 +8,12 @@ public class PlayerSetting
     public static string hostIP;
     public static int playerNum;
 
-    public static KeyCode JumpKey;
-    public static KeyCode CastKey;
-    public static KeyCode DropKey;
-    public static KeyCode PushKey;
+    public static KeyCode JumpKey = KeyCode.Space;
+    public static KeyCode CastKey = KeyCode.Q;
+    public static KeyCode DropKey = KeyCode.S;
+    public static KeyCode PushKey = KeyCode.E;
+
+    public static int[] customState = new int[2];
+   
 
 }

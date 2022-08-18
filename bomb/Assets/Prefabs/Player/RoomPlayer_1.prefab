@@ -196,7 +196,7 @@ GameObject:
   - component: {fileID: 3955398368261116958}
   - component: {fileID: 3236702312469681123}
   m_Layer: 0
-  m_Name: RoomPlayer
+  m_Name: RoomPlayer_1
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -233,7 +233,7 @@ MonoBehaviour:
   sceneId: 0
   serverOnly: 0
   visible: 0
-  m_AssetId: a0ec0cd87f854054ebb858a2f78a4573
+  m_AssetId: 8f8a8c2bac2b02d4ca57687df1dc26c9
   hasSpawned: 0
 --- !u!114 &1158177511340733789
 MonoBehaviour:

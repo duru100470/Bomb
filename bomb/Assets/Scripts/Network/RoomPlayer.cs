@@ -40,6 +40,8 @@ public class RoomPlayer : NetworkRoomPlayer
     public bool isReady = false;
     UI_Lobby UI_Lobby;
 
+    
+
     public void OnChangeHeading(bool _, bool value)
     {
         playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1f, 1f);
@@ -76,6 +78,7 @@ public class RoomPlayer : NetworkRoomPlayer
         if(!RoomManager.IsSceneActive(manager.RoomScene)) gameObject.SetActive(false);
         if (!isLocalPlayer) return;
         KeyboardInput();
+        
     }
 
     private void FixedUpdate()
@@ -127,6 +130,19 @@ public class RoomPlayer : NetworkRoomPlayer
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             UI_Lobby.ActivateESC();
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D other)
+    {
+        if(other.transform.GetComponent<GameRuleSetter>() != null && Input.GetKeyDown(PlayerSetting.CastKey))
+        {
+            other.transform.GetComponent<GameRuleSetter>().EnterRuleSetting();
+        }
+
+        if(other.transform.GetComponent<Customization>() != null && Input.GetKeyDown(PlayerSetting.CastKey))
+        {
+            other.transform.GetComponent<Customization>().EnterCustomization();
         }
     }
 

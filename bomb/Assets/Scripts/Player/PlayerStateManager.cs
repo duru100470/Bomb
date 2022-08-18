@@ -84,7 +84,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private bool isGround = false;
     [SerializeField] private bool onGround = false;
     [SerializeField] private bool isWallJumpable;
-    [SerializeField] private int wallJumpCnt = 1;
+    //[SerializeField] private int wallJumpCnt = 1;
     private int curWallJumpCnt;
     [SerializeField] public bool isWallAttached;
 
@@ -143,7 +143,9 @@ public class PlayerStateManager : NetworkBehaviour
         
         if(isLocalPlayer) 
         {
-            CmdSetNickName(PlayerSetting.playerNickname);        
+            CmdSetNickName(PlayerSetting.playerNickname);
+            CmdApplyCustomSetting();
+            Debug.Log(PlayerSetting.customState[0]);
         }
         else
         {
@@ -234,7 +236,19 @@ public class PlayerStateManager : NetworkBehaviour
 
         if(raycastHitMid.collider != null)
         {
-            curGroundAngle = raycastHitMid.transform.rotation.z;
+            RaycastHit2D raycastHitRef = Physics2D.Raycast(coll.bounds.center + new Vector3(.01f, -coll.bounds.extents.y, 0), Vector2.down, .04f, LayerMask.GetMask("Ground"));
+            if(raycastHitRef.collider != null)
+            {
+                if(raycastHitMid.distance == raycastHitRef.distance)
+                {
+                    curGroundAngle = 0;
+                } 
+                else
+                {
+                    float Ydiff = Mathf.Abs(raycastHitMid.distance - raycastHitRef.distance);
+                    curGroundAngle = Mathf.Atan2(.01f, Ydiff);
+                }
+            }
         }
 
         RaycastHit2D raycastHitWall = Physics2D.Raycast(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2,0), Vector2.right * (isHeadingRight ? 1 : -1), .04f, LayerMask.GetMask("Ground"));
@@ -270,12 +284,12 @@ public class PlayerStateManager : NetworkBehaviour
                 float value = .1f * 9.81f * rigid2d.gravityScale;
                 if(curGroundAngle == 0)
                 {
-                    XFriction = value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (rigid2d.velocity.x > 0 ? -1 : 1);
+                    XFriction = value * Mathf.Cos(curGroundAngle) * Mathf.Cos(curGroundAngle) * (rigid2d.velocity.x > 0 ? -1 : 1);
                 }
                 else
                 {
-                    YFriction = -value * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Sin(Mathf.Deg2Rad * curGroundAngle);
-                    XFriction = value * rigid2d.gravityScale * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * Mathf.Cos(Mathf.Deg2Rad * curGroundAngle) * (curGroundAngle > 0 ? -1 : 1);    
+                    YFriction = -value * Mathf.Cos(curGroundAngle) * Mathf.Sin(curGroundAngle);
+                    XFriction = value * rigid2d.gravityScale * Mathf.Cos(curGroundAngle) * Mathf.Cos(curGroundAngle) * (curGroundAngle > 0 ? -1 : 1);    
                 } 
                 //Debug.Log($"curGround Angle : {curGroundAngle} XFriction : {XFriction} YFriction : {YFriction}");
                 rigid2d.AddForce(new Vector2(XFriction, YFriction), ForceMode2D.Force);
@@ -326,9 +340,16 @@ public class PlayerStateManager : NetworkBehaviour
             CmdSetStun(1f);
         }
 
-        if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
+        if(other.transform.CompareTag("Ground"))
         {
-            onGround = true;
+            for(int i=0; i<other.contactCount; i++)
+            {
+                if(other.GetContact(i).point.y < transform.position.y)
+                {
+                    onGround = true;
+                    break;
+                }
+            }
         }
     }
 
@@ -534,6 +555,25 @@ public class PlayerStateManager : NetworkBehaviour
                 PlayerStateManager target = player.transform.GetComponent<PlayerStateManager>();
                 CmdAddForce(new Vector2((isHeadingRight ? .5f : -.5f), .5f) * 5f, target);
                 CmdApplyStun(target, .25f); 
+            }
+        }
+    }
+
+    [Command]
+    public void CmdApplyCustomSetting()
+    {
+        RpcApplyCustomSetting(PlayerSetting.customState);
+    }
+
+    [ClientRpc]
+    public void RpcApplyCustomSetting(int[] customState)
+    {
+        for(int i=0; i<customState.Length; i++)
+        {
+            if(customState[i] < CustomManager.Instance.listDic[i].Count)
+            {
+                GameObject obj = Instantiate(CustomManager.Instance.listDic[i][customState[i]]);
+                Debug.Log(obj.name);
             }
         }
     }

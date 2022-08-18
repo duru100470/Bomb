@@ -159,7 +159,7 @@ public class TestPlayer : MonoBehaviour
             rigid2d.velocity = new Vector2(rigid2d.velocity.x, stepOnForce);
         }
 
-        if(other.transform.CompareTag("Ground") && other.transform.position.y < transform.position.y)
+        if(other.transform.CompareTag("Ground") && other.GetContact(0).point.y < transform.position.y)//other.transform.position.y < transform.position.y)
         {
             onGround = true;
             curGroundAngle = other.transform.rotation.z;

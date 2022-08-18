@@ -458,7 +458,6 @@ MonoBehaviour:
   isGround: 0
   onGround: 0
   isWallJumpable: 0
-  wallJumpCnt: 1
   isWallAttached: 0
   isHeadingRight: 0
   AisRunning: 0

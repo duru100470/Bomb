@@ -42,7 +42,7 @@ public class UI_PlayScene : NetworkBehaviour
             rectT.position = new Vector3(Screen.width/2, Screen.height * (i+1) / (roundCount+1), 0);
         }
 
-        Debug.Log(players.Count);
+        //Debug.Log(players.Count);
         for(int i=0; i< players.Count; i++)
         {
             GameObject obj = Instantiate(LeaderBoardIconPrefab, Panel_LeaderBoard);
