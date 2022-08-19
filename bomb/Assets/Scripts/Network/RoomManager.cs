@@ -7,7 +7,6 @@ public class RoomManager : NetworkRoomManager
 {
     public string hostIP;
     [SerializeField] private List<RoomPlayer> roomPlayerList;
-    
     [SerializeField] private List<GameObject> playerPrefabList;
     private Dictionary<GameObject, bool> playerPrefabMemory = new Dictionary<GameObject, bool>();
 
@@ -56,6 +55,4 @@ public class RoomManager : NetworkRoomManager
         GameObject obj = Instantiate(temp, new Vector3(0,-4,0), Quaternion.identity);
         return obj;
     }
-
-
 }

@@ -40,8 +40,6 @@ public class RoomPlayer : NetworkRoomPlayer
     public bool isReady = false;
     UI_Lobby UI_Lobby;
 
-    
-
     public void OnChangeHeading(bool _, bool value)
     {
         playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1f, 1f);
@@ -58,14 +56,14 @@ public class RoomPlayer : NetworkRoomPlayer
             rigid2d = GetComponent<Rigidbody2D>();
             coll = GetComponent<Collider2D>();
             MyPlayer = this;
+            Smanager.AddAudioSource(GetComponent<AudioSource>());
+            Smanager.PlayBGM(AudioType.LobbyBGM);
         }
         else
         {
             //임시
             GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
         }
-        Smanager.AddAudioSource(GetComponent<AudioSource>());
-        Smanager.PlayBGM(AudioType.LobbyBGM);
     }
 
     public void OnSetNickName(string _, string value)
@@ -135,6 +133,8 @@ public class RoomPlayer : NetworkRoomPlayer
 
     private void OnTriggerStay2D(Collider2D other)
     {
+        if(!hasAuthority) return;
+
         if(other.transform.GetComponent<GameRuleSetter>() != null && Input.GetKeyDown(PlayerSetting.CastKey))
         {
             other.transform.GetComponent<GameRuleSetter>().EnterRuleSetting();
@@ -143,6 +143,26 @@ public class RoomPlayer : NetworkRoomPlayer
         if(other.transform.GetComponent<Customization>() != null && Input.GetKeyDown(PlayerSetting.CastKey))
         {
             other.transform.GetComponent<Customization>().EnterCustomization();
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if(!hasAuthority) return;
+
+        if(other.CompareTag("ReadyZone") && manager.roomSlots.Count != 1)
+        {
+            CmdChangeReadyState(true);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if(!hasAuthority) return;
+
+        if(other.CompareTag("ReadyZone"))
+        {
+            CmdChangeReadyState(false);
         }
     }
 

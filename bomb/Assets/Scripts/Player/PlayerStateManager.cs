@@ -32,6 +32,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] SpriteRenderer ghostSprite;
     [SerializeField] private List<Animator> ItemVFX = new List<Animator>();
     public Sprite LeaderBoardIcon;
+    private List<SpriteRenderer> CustomObjects = new List<SpriteRenderer>();
 
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
@@ -40,6 +41,8 @@ public class PlayerStateManager : NetworkBehaviour
     public PhysicsMaterial2D idlePhysicsMat;
     public PhysicsMaterial2D stunPhysicsMat;
     private SoundManager Smanager = SoundManager.Instance;
+    private AudioSource SoundSource;
+
     // 폭탄 글로벌 타이머 (For Debugging)
     [SerializeField] private Text timer;
 
@@ -73,6 +76,9 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private float hangTime = 0.1f;
     private float hangTimeCnt;
     [SerializeField] private int curGhostSkillCount;
+    [SerializeField] private float pushCoolDown = .5f;
+    private float curPushCoolDown;
+    [SerializeField] private float curGroundAngle;
 
     [Header("Player Current State Value")]
 
@@ -88,6 +94,7 @@ public class PlayerStateManager : NetworkBehaviour
     private int curWallJumpCnt;
     [SerializeField] public bool isWallAttached;
 
+    private bool lastIsGround = true;
     [SyncVar] public bool isHeadingRight = false;
     [SyncVar] private bool isTransferable = true;
     [SyncVar] private bool isFlickering = false;
@@ -106,6 +113,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar(hook = nameof(OnChangeBombState))] public int bombState;
     [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
     [SerializeField] private bool hasJumped = false;
+    [SyncVar(hook = nameof(OnChangeCustomState))] public List<int> customState;
 
     [Header ("GhostSkill")]
     [SerializeField] private GameObject ghostSkillEffect;
@@ -115,14 +123,6 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private float ghostSkillDelay = 3f;
     [SerializeField] private float ghostSkillForce = 5f;
     [SyncVar] public bool isGhostSkllCasting = false;
-    private AudioSource SoundSource;
-
-    [SerializeField] private float pushCoolDown = .5f;
-    private float curPushCoolDown;
-
-    [SerializeField] private float curGroundAngle;
-    private bool lastIsGround = true;
-
 
     #region UnityEventFunc
 
@@ -140,12 +140,10 @@ public class PlayerStateManager : NetworkBehaviour
     // Initialize states
     private void Start()
     {
-        
         if(isLocalPlayer) 
         {
             CmdSetNickName(PlayerSetting.playerNickname);
-            CmdApplyCustomSetting();
-            Debug.Log(PlayerSetting.customState[0]);
+            CmdSetCustomState(PlayerSetting.customState);
         }
         else
         {
@@ -195,6 +193,9 @@ public class PlayerStateManager : NetworkBehaviour
         curItemImage.SetActive(false);
 
         Smanager.PlayBGM(AudioType.GameSceneBGM);
+
+        CustomObjects.Add(playerObject.transform.Find("Head").GetChild(0).GetComponent<SpriteRenderer>());
+        CustomObjects.Add(playerObject.transform.Find("Body").GetChild(0).GetComponent<SpriteRenderer>());
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -310,7 +311,6 @@ public class PlayerStateManager : NetworkBehaviour
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Vector2.down * .04f);
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(-coll.bounds.extents.x + .1f, -coll.bounds.extents.y, 0), Vector2.down * .1f);
         // Gizmos.DrawRay(coll.bounds.center + new Vector3(coll.bounds.extents.x * (isHeadingRight ? 1 : -1), -coll.bounds.extents.y/2, 0), Vector2.right * (isHeadingRight ? 1 : -1) * .08f);
-        // Gizmos.DrawSphere(transform.position, 5f);
     }
 
     // 다른 플레이어 충돌
@@ -559,30 +559,18 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
-    [Command]
-    public void CmdApplyCustomSetting()
+    public void SetCustom(List<int> customState)
     {
-        RpcApplyCustomSetting(PlayerSetting.customState);
-    }
-
-    [ClientRpc]
-    public void RpcApplyCustomSetting(int[] customState)
-    {
-        for(int i=0; i<customState.Length; i++)
+        for(int i=0; i<customState.Count; i++)
         {
             if(customState[i] < CustomManager.Instance.listDic[i].Count)
             {
-                GameObject obj = Instantiate(CustomManager.Instance.listDic[i][customState[i]]);
-                Debug.Log(obj.name);
+                CustomObjects[i].sprite = CustomManager.Instance.listDic[i][customState[i]];
+                Debug.Log(CustomObjects[i].sprite.name + ", " + playerNickname);
             }
         }
     }
 
-    [Command]
-    public void CmdApplyStun(PlayerStateManager target, float time)
-    {   
-        target.RpcStunSync(time);
-    }
 
     #region IEnumerators
 
@@ -833,6 +821,25 @@ public class PlayerStateManager : NetworkBehaviour
         Smanager.PlayAudio(type, idx);
     }
 
+    [Command]
+    public void CmdApplyStun(PlayerStateManager target, float time)
+    {   
+        target.RpcStunSync(time);
+    }
+
+    [Command]
+    public void CmdSetStun(float time)
+    {
+        RpcStunSync(time);
+    }
+
+    [Command]
+    public void CmdSetCustomState(int[] _customState)
+    {
+        List<int> temp = new List<int>(_customState);
+        customState = temp;
+    }
+
     #endregion CommandFunc
     
     #region ClientRpcFunc
@@ -846,13 +853,6 @@ public class PlayerStateManager : NetworkBehaviour
             this.rigid2d.velocity = dir;
         }
     }
-
-    [Command]
-    public void CmdSetStun(float time)
-    {
-        RpcStunSync(time);
-    }
-
 
     [ClientRpc]
     public void RpcStunSync(float time)
@@ -1038,6 +1038,11 @@ public class PlayerStateManager : NetworkBehaviour
     public void OnChangeAisTurning(bool _, bool value)
     {
         anim.SetBool("isTurning", value);
+    }
+
+    public void OnChangeCustomState(List<int> _, List<int> value)
+    {
+        SetCustom(value);
     }
 
     #endregion SyncVarHookFunc

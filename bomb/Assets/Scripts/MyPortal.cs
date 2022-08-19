@@ -17,7 +17,6 @@ public class MyPortal : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("dfdf");
         if(other.CompareTag("Player"))
         {
             Debug.Log("Trigger");
