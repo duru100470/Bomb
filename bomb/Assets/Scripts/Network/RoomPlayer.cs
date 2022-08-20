@@ -85,6 +85,12 @@ public class RoomPlayer : NetworkRoomPlayer
     public static RoomPlayer MyPlayer;
     RoomManager manager = NetworkManager.singleton as RoomManager;
 
+    [SerializeField]private bool inCustom = false;
+    [SerializeField]private bool inSetting = false;
+
+    private Customization _Customization;
+    private GameRuleSetter _GameRuleSetter;
+
     public override void OnStartClient()
     {   
         if(isLocalPlayer) 
@@ -122,6 +128,9 @@ public class RoomPlayer : NetworkRoomPlayer
         spriteRenderer = GetComponent<SpriteRenderer>();
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
+
+        _Customization = FindObjectOfType<Customization>();
+        _GameRuleSetter = FindObjectOfType<GameRuleSetter>();
     }
 
     private void Update()
@@ -262,7 +271,17 @@ public class RoomPlayer : NetworkRoomPlayer
                 stateMachine.SetState(dicState[RPlayerState.Jump]);
                 isWallJumpable = false;
                 jumpBufferTimeCnt = 0f;
-            }   
+            }
+
+            if(Input.GetKeyDown(PlayerSetting.CastKey) && inCustom && !_GameRuleSetter.isActive)
+            {
+                _Customization.EnterCustomization();
+            }
+
+            if(Input.GetKeyDown(PlayerSetting.CastKey) && inSetting && !_Customization.isActive)
+            {
+                _GameRuleSetter.EnterRuleSetting();
+            }
 
             // Drop State
             if(Input.GetKeyDown(PlayerSetting.DropKey) && !isGround && stateMachine.CurruentState != dicState[RPlayerState.Drop])
@@ -287,21 +306,6 @@ public class RoomPlayer : NetworkRoomPlayer
         }
     }
 
-    private void OnTriggerStay2D(Collider2D other)
-    {
-        if(!hasAuthority) return;
-
-        if(other.transform.GetComponent<GameRuleSetter>() != null && Input.GetKeyDown(PlayerSetting.CastKey))
-        {
-            other.transform.GetComponent<GameRuleSetter>().EnterRuleSetting();
-        }
-
-        if(other.transform.GetComponent<Customization>() != null && Input.GetKeyDown(PlayerSetting.CastKey))
-        {
-            other.transform.GetComponent<Customization>().EnterCustomization();
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(!hasAuthority) return;
@@ -309,6 +313,16 @@ public class RoomPlayer : NetworkRoomPlayer
         if(other.CompareTag("ReadyZone") && manager.roomSlots.Count != 1)
         {
             CmdChangeReadyState(true);
+        }
+
+        if(other.transform.GetComponent<GameRuleSetter>() != null)
+        {
+            inSetting = true;
+        }
+        
+        if(other.transform.GetComponent<Customization>() != null)
+        {
+            inCustom = true;
         }
     }
 
@@ -320,6 +334,17 @@ public class RoomPlayer : NetworkRoomPlayer
         {
             CmdChangeReadyState(false);
         }
+    
+        if(other.transform.GetComponent<GameRuleSetter>() != null)
+        {
+            inSetting = false;
+        }
+        
+        if(other.transform.GetComponent<Customization>() != null)
+        {
+            inCustom = false;
+        }
+
     }
 
     private void OnCollisionEnter2D(Collision2D other)

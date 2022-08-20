@@ -8,7 +8,7 @@ public class GameRuleSetter : NetworkBehaviour
     [SerializeField] RectTransform Panel_setting;
 
     [Header ("GameRule")]
-
+    [SerializeField] Button Button_back;
     [SyncVar(hook = nameof(OnChangeMaxBombTime))] private int maxBombTime;
     [SerializeField] private Text maxBombTimeText;
     [SyncVar(hook = nameof(OnChangeMinBombTime))] private int minBombTime;
@@ -17,10 +17,12 @@ public class GameRuleSetter : NetworkBehaviour
     [SerializeField] private Text scorePerRoundText;
     [SyncVar(hook = nameof(OnChangeGhostSkilCount))] private int ghostSkillCount;
     [SerializeField] private Text ghostSKillCountText;
+    public bool isActive = false;
 
     private void Start()
     {
         UpdateRule();
+        Button_back.onClick.AddListener(OnChangeButtonBack);
     }
 
     public void UpdateRule()
@@ -33,7 +35,14 @@ public class GameRuleSetter : NetworkBehaviour
 
     public void EnterRuleSetting()
     {
+        isActive = true;
         Panel_setting.gameObject.SetActive(true);
+    }
+
+    public void OnChangeButtonBack()
+    {
+        isActive = false;
+        Panel_setting.gameObject.SetActive(false);
     }
 
     public void OnChangeMaxBombTime(int _, int value)

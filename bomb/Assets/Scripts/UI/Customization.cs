@@ -34,6 +34,7 @@ public class Customization : MonoBehaviour
 
     [SerializeField] Button Button_head;
     [SerializeField] Button Button_body;
+    [SerializeField] Button Button_back;
 
     [SerializeField] GameObject selectionButtonPrefab;
 
@@ -42,6 +43,7 @@ public class Customization : MonoBehaviour
     [SerializeField] SpriteRenderer PreviewHead;
     [SerializeField] SpriteRenderer PreviewBody;
     public int curPartsIdx;
+    public bool isActive = false;
 
     private void Start()
     {
@@ -56,6 +58,7 @@ public class Customization : MonoBehaviour
 
         Button_head.onClick.AddListener(OnClickHeadButton);
         Button_body.onClick.AddListener(OnClickBodyButton);
+        Button_back.onClick.AddListener(OnClickBackButton);
 
         PlayerSetting.customState[0] = (int)Head_Parts.None;
         PlayerSetting.customState[1] = (int)Body_Parts.None;
@@ -65,6 +68,7 @@ public class Customization : MonoBehaviour
     {
         Panel_Customize.gameObject.SetActive(true);
         PreviewObject.SetActive(true);
+        isActive = true;
     }
 
     public void SetupCustomButton(List<Sprite> list, RectTransform parent)
@@ -118,4 +122,10 @@ public class Customization : MonoBehaviour
         curPartsIdx = (int)Parts.Body;
     }
 
+    public void OnClickBackButton()
+    {
+        isActive = false;
+        PreviewObject.SetActive(false);
+        Panel_Customize.gameObject.SetActive(false);
+    }
 }

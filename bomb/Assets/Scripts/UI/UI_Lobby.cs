@@ -21,7 +21,6 @@ public class UI_Lobby : NetworkBehaviour
     public RoomPlayer player;
 
 
-
     public void Start()
     {
         if(isServer)
@@ -108,5 +107,4 @@ public class UI_Lobby : NetworkBehaviour
         return ret;
     }
 
-    
 }

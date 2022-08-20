@@ -283,10 +283,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: aee7cc30b86542e40ba204f0fe8e80f6, type: 3}
   Button_head: {fileID: 916486235}
   Button_body: {fileID: 262182879}
+  Button_back: {fileID: 1848010621}
   selectionButtonPrefab: {fileID: 3388972637414476258, guid: 9f5068c58b295454da9dfda13dc44750, type: 3}
   PreviewHead: {fileID: 1309844019}
   PreviewBody: {fileID: 1915622000}
   curPartsIdx: 0
+  isActive: 0
 --- !u!1 &98285161
 GameObject:
   m_ObjectHideFlags: 0
@@ -961,19 +963,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 182052977}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 102316751}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &182052977
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1362,10 +1352,12 @@ MonoBehaviour:
   syncMode: 0
   syncInterval: 0.1
   Panel_setting: {fileID: 102316752}
+  Button_back: {fileID: 182052976}
   maxBombTimeText: {fileID: 1179378441}
   minBombTimeText: {fileID: 747523475}
   scorePerRoundText: {fileID: 193385815}
   ghostSKillCountText: {fileID: 1136212658}
+  isActive: 0
 --- !u!114 &234233710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3476,7 +3468,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &765752807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7053,31 +7045,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1848010622}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1234987347}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 624958423}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1848010622
 MonoBehaviour:
   m_ObjectHideFlags: 0
