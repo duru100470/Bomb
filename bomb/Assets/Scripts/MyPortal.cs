@@ -19,7 +19,6 @@ public class MyPortal : MonoBehaviour
     {
         if(other.CompareTag("Player"))
         {
-            Debug.Log("Trigger");
             Rigidbody2D rigid = other.GetComponent<Rigidbody2D>();
             other.transform.position = oppositePortal.exitTransform;
             rigid.velocity = new Vector2((oppositePortal.exitHeading ? 1 : -1) * Mathf.Abs(rigid.velocity.x), rigid.velocity.y);

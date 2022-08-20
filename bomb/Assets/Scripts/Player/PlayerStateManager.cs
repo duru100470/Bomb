@@ -15,7 +15,6 @@ public class PlayerStateManager : NetworkBehaviour
         Cast,
         Drop,
         Push
-
     }
 
     private StateMachine stateMachine;
@@ -113,7 +112,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SyncVar(hook = nameof(OnChangeBombState))] public int bombState;
     [SerializeField] private List<Sprite> bombSpriteList = new List<Sprite>();
     [SerializeField] private bool hasJumped = false;
-    [SyncVar(hook = nameof(OnChangeCustomState))] public List<int> customState;
+    [SyncVar(hook = nameof(OnChangeCustomState))] public List<int> customState = new List<int>();
 
     [Header ("GhostSkill")]
     [SerializeField] private GameObject ghostSkillEffect;
@@ -140,6 +139,9 @@ public class PlayerStateManager : NetworkBehaviour
     // Initialize states
     private void Start()
     {
+        CustomObjects.Add(playerObject.transform.Find("Head").GetChild(0).GetComponent<SpriteRenderer>());
+        CustomObjects.Add(playerObject.transform.Find("Body").GetChild(0).GetComponent<SpriteRenderer>());
+        
         if(isLocalPlayer) 
         {
             CmdSetNickName(PlayerSetting.playerNickname);
@@ -151,7 +153,8 @@ public class PlayerStateManager : NetworkBehaviour
             foreach(var render in rend)
             {
                 render.color = new Color(1f, 0f, 0f, 1f);
-            } 
+            }
+            ApplyCustom(customState);
         }
         
         // 게임 매니저에 해당 플레이어 추가
@@ -194,8 +197,6 @@ public class PlayerStateManager : NetworkBehaviour
 
         Smanager.PlayBGM(AudioType.GameSceneBGM);
 
-        CustomObjects.Add(playerObject.transform.Find("Head").GetChild(0).GetComponent<SpriteRenderer>());
-        CustomObjects.Add(playerObject.transform.Find("Body").GetChild(0).GetComponent<SpriteRenderer>());
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -316,7 +317,7 @@ public class PlayerStateManager : NetworkBehaviour
     // 다른 플레이어 충돌
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (!hasAuthority) return;
+        if(!hasAuthority) return;
 
         //폭탄을 가지고 충돌하는 경우
         if (other.transform.CompareTag("Player") && hasBomb && isTransferable)
@@ -559,7 +560,7 @@ public class PlayerStateManager : NetworkBehaviour
         }
     }
 
-    public void SetCustom(List<int> customState)
+    public void ApplyCustom(List<int> customState)
     {
         for(int i=0; i<customState.Count; i++)
         {
@@ -570,7 +571,6 @@ public class PlayerStateManager : NetworkBehaviour
             }
         }
     }
-
 
     #region IEnumerators
 
@@ -1042,7 +1042,7 @@ public class PlayerStateManager : NetworkBehaviour
 
     public void OnChangeCustomState(List<int> _, List<int> value)
     {
-        SetCustom(value);
+        ApplyCustom(value);
     }
 
     #endregion SyncVarHookFunc

@@ -282,20 +282,33 @@ MonoBehaviour:
   showRoomGUI: 1
   readyToBegin: 0
   index: 0
-  playerNickname: 
-  nameText: {fileID: 5492758871105411536}
+  anim: {fileID: 0}
+  playerObject: {fileID: 9120440862438487008}
   idlePhysicsMat: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
   stunPhysicsMat: {fileID: 6200000, guid: fe24cf6f6cd398b49aecc32f16d4e8be, type: 2}
   moveSpeed: 5
   jumpForce: 7
   maxSpeed: 5
+  berserkMaxSpeed: 15
   minSpeed: 2
   accelaration: 10
   ghostSpeed: 10
+  normalGravityScale: 1.7
+  descendGravityScale: 1.2750001
+  jumpBufferTime: 0.05
+  hangTime: 0.1
+  curGhostSkillCount: 0
+  pushCoolDown: 0.5
+  curGroundAngle: 0
   isGround: 0
-  playerObject: {fileID: 9120440862438487008}
+  onGround: 0
+  isWallJumpable: 0
+  isWallAttached: 0
   isHeadingRight: 0
+  playerNickname: 
+  hasJumped: 0
   isReady: 0
+  nameText: {fileID: 5492758871105411536}
 --- !u!212 &190203361078529773
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -356,12 +369,12 @@ CapsuleCollider2D:
   m_GameObject: {fileID: 7831647137117860489}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.45, y: 1}
+  m_Offset: {x: -0.03, y: 0}
+  m_Size: {x: 0.45, y: 0.78}
   m_Direction: 0
 --- !u!50 &8176076102709101727
 Rigidbody2D:
