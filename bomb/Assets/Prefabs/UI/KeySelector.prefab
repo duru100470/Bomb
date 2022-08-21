@@ -92,7 +92,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 0
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
@@ -147,6 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f129d85a8b1512244b5309e9ddde0e04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  optionControl: {fileID: 0}
   KeyName: {fileID: 5016041332371083218}
   CurKeyCode: {fileID: 5460035374683272758}
   matchKey: 0

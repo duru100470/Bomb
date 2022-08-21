@@ -254,7 +254,7 @@ public class RoomPlayer : NetworkRoomPlayer
                 hangTimeCnt -= Time.deltaTime;
             }
             
-            if(Input.GetKeyDown(PlayerSetting.JumpKey))
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Jump]))
             {
                 jumpBufferTimeCnt = jumpBufferTime;
             }
@@ -273,25 +273,25 @@ public class RoomPlayer : NetworkRoomPlayer
                 jumpBufferTimeCnt = 0f;
             }
 
-            if(Input.GetKeyDown(PlayerSetting.CastKey) && inCustom && !_GameRuleSetter.isActive)
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Cast]) && inCustom && !_GameRuleSetter.isActive)
             {
                 _Customization.EnterCustomization();
             }
 
-            if(Input.GetKeyDown(PlayerSetting.CastKey) && inSetting && !_Customization.isActive)
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Cast]) && inSetting && !_Customization.isActive)
             {
                 _GameRuleSetter.EnterRuleSetting();
             }
 
             // Drop State
-            if(Input.GetKeyDown(PlayerSetting.DropKey) && !isGround && stateMachine.CurruentState != dicState[RPlayerState.Drop])
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Drop]) && !isGround && stateMachine.CurruentState != dicState[RPlayerState.Drop])
             {
                 stateMachine.SetState(dicState[RPlayerState.Drop]);
                 StartCoroutine(DropRoutine());
             }
 
             // Push State
-            if(Input.GetKeyDown(PlayerSetting.PushKey) && curPushCoolDown > pushCoolDown)
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Push]) && curPushCoolDown > pushCoolDown)
             {
                 curPushCoolDown = 0f;
                 stateMachine.SetState(dicState[RPlayerState.Push]);

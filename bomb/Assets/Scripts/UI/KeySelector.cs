@@ -8,23 +8,18 @@ public class KeySelector : MonoBehaviour
     [SerializeField] OptionControl optionControl;
     [SerializeField] Text KeyName;
     [SerializeField] Text CurKeyCode;
-    [SerializeField] public KeyCode matchKey;
-    [SerializeField] PlayerSetting.BindKeys thisKey;
+    [SerializeField] KeyCode matchKey;
+    [SerializeField] public PlayerSetting.BindKeys thisKey;
 
     public void Start()
     {
         UpdateCurKey();
     }
 
-    public void UpdateKeyBinds()
-    {
-        PlayerSetting.keyDict[thisKey] = matchKey;
-    }
-
     public void UpdateCurKey()
     {
         KeyName.text = thisKey.ToString();
-        CurKeyCode.text = matchKey.ToString();
+        CurKeyCode.text = PlayerSetting.keyList[(int)thisKey].ToString();
     }
 
     public void OnClickKeyBind()

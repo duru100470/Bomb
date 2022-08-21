@@ -129,11 +129,6 @@ public class PlayerStateManager : NetworkBehaviour
     {
         SoundSource = GetComponent<AudioSource>();
         Smanager.AddAudioSource(SoundSource);
-
-        PlayerSetting.JumpKey = KeyCode.Space;
-        PlayerSetting.CastKey = KeyCode.Q;
-        PlayerSetting.DropKey = KeyCode.S;
-        PlayerSetting.PushKey = KeyCode.E;
     }
 
     // Initialize states
@@ -423,7 +418,7 @@ public class PlayerStateManager : NetworkBehaviour
                 hangTimeCnt -= Time.deltaTime;
             }
             
-            if(Input.GetKeyDown(PlayerSetting.JumpKey))
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Jump]))
             {
                 jumpBufferTimeCnt = jumpBufferTime;
             }
@@ -443,20 +438,20 @@ public class PlayerStateManager : NetworkBehaviour
             }   
 
             // Cast State
-            if (Input.GetKeyDown(PlayerSetting.CastKey) && stateMachine.CurruentState != dicState[PlayerState.Cast])
+            if (Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Cast]) && stateMachine.CurruentState != dicState[PlayerState.Cast])
             {
                 stateMachine.SetState(dicState[PlayerState.Cast]);
             }
 
             // Drop State
-            if(Input.GetKeyDown(PlayerSetting.DropKey) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Drop]) && !isGround && stateMachine.CurruentState != dicState[PlayerState.Drop])
             {
                 stateMachine.SetState(dicState[PlayerState.Drop]);
                 StartCoroutine(DropRoutine());
             }
 
             // Push State
-            if(Input.GetKeyDown(PlayerSetting.PushKey) && curPushCoolDown > pushCoolDown)
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Push]) && curPushCoolDown > pushCoolDown)
             {
                 curPushCoolDown = 0f;
                 stateMachine.SetState(dicState[PlayerState.Push]);
@@ -467,7 +462,7 @@ public class PlayerStateManager : NetworkBehaviour
 
         if (stateMachine.CurruentState == dicState[PlayerState.Dead])
         {
-            if(Input.GetKeyDown(PlayerSetting.CastKey))
+            if(Input.GetKeyDown(PlayerSetting.keyList[(int)PlayerSetting.BindKeys.Cast]))
             {
                 if(curGhostSkillCount > 0 && curGhostSkillCoolDown > ghostSkillCoolDown)
                 {

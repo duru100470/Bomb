@@ -15,13 +15,13 @@ public class PlayerSetting
         Drop,
         Push
     }
-
-    public static Dictionary<BindKeys, KeyCode> keyDict = new Dictionary<BindKeys, KeyCode>();
-    public static List<KeyCode> AvailKeys = new List<KeyCode>();
-    public static KeyCode JumpKey = KeyCode.Space;
-    public static KeyCode CastKey = KeyCode.Q;
-    public static KeyCode DropKey = KeyCode.S;
-    public static KeyCode PushKey = KeyCode.E;
+    
+    public static List<KeyCode> keyList = new List<KeyCode>{KeyCode.Space, KeyCode.Q, KeyCode.S, KeyCode.E};
+    public static List<KeyCode> originKey = new List<KeyCode>{KeyCode.Space, KeyCode.Q, KeyCode.S, KeyCode.E};
+    public static List<KeyCode> AvailKeys = new List<KeyCode>()
+    {
+        KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.R, KeyCode.T, KeyCode.S, KeyCode.F, KeyCode.Space, KeyCode.G
+    };
 
     public static int[] customState = new int[2];
    

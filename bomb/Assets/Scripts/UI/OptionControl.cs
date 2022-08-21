@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 public class OptionControl : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class OptionControl : MonoBehaviour
     [SerializeField] Button Button_CastKey;
     [SerializeField] Button Button_DropKey;
     [SerializeField] Button Button_PushKey;
+    [SerializeField] Button Button_ResetKeyBind;
+    [SerializeField] GameObject KeySelectors;
+    private KeySelector[] selectors;
+
     public PlayerSetting.BindKeys curKey;
     public KeyCode curKeyCode;
     public KeySelector curKeySelector;
@@ -28,38 +33,26 @@ public class OptionControl : MonoBehaviour
         BGMVolume.value = SoundManager.Instance.BGMVolume;
         VFXVolume.value = SoundManager.Instance.VFXVolume;
 
-        PlayerSetting.keyDict.Add(PlayerSetting.BindKeys.Jump, PlayerSetting.JumpKey);
-        PlayerSetting.keyDict.Add(PlayerSetting.BindKeys.Cast, PlayerSetting.CastKey);
-        PlayerSetting.keyDict.Add(PlayerSetting.BindKeys.Drop, PlayerSetting.DropKey);
-        PlayerSetting.keyDict.Add(PlayerSetting.BindKeys.Push, PlayerSetting.PushKey);
-
         Button_JumpKey.onClick.AddListener(OnClickKeySetButton);
         Button_CastKey.onClick.AddListener(OnClickKeySetButton);
         Button_DropKey.onClick.AddListener(OnClickKeySetButton);
         Button_PushKey.onClick.AddListener(OnClickKeySetButton);
 
-        PlayerSetting.AvailKeys.Add(KeyCode.Q);
-        PlayerSetting.AvailKeys.Add(KeyCode.W);
-        PlayerSetting.AvailKeys.Add(KeyCode.E);
-        PlayerSetting.AvailKeys.Add(KeyCode.R);
-        PlayerSetting.AvailKeys.Add(KeyCode.T);
-        PlayerSetting.AvailKeys.Add(KeyCode.S);
-        PlayerSetting.AvailKeys.Add(KeyCode.F);
-        PlayerSetting.AvailKeys.Add(KeyCode.Space);
-        PlayerSetting.AvailKeys.Add(KeyCode.G);
+        Button_ResetKeyBind.onClick.AddListener(OnClickResetKeyBind);
+
+        selectors = KeySelectors.GetComponentsInChildren<KeySelector>();
     }
 
     public void Update()
     {
-        if(Panel_KeySelecting.gameObject.activeInHierarchy)
-        {
+        if(Panel_KeySelecting.gameObject.activeInHierarchy && !Input.GetKey(KeyCode.Escape))
+        {       
             foreach(var input in PlayerSetting.AvailKeys)
             {
-                if(Input.GetKeyDown(input) && !PlayerSetting.keyDict.ContainsValue(input))
+                if(Input.GetKeyDown(input) && !PlayerSetting.keyList.Contains(input))
                 {
-                    curKeySelector.matchKey = input;
+                    PlayerSetting.keyList[(int)curKey] = input;
                     curKeySelector.UpdateCurKey();
-                    curKeySelector.UpdateKeyBinds();
                     Panel_KeySelecting.gameObject.SetActive(false);
                     break;
                 }
@@ -92,5 +85,13 @@ public class OptionControl : MonoBehaviour
         Panel_KeySelecting.gameObject.SetActive(true);
     }
 
+    public void OnClickResetKeyBind()
+    {
+        PlayerSetting.keyList = PlayerSetting.originKey.ToList();
+        foreach(var item in selectors)
+        {
+            item.UpdateCurKey();
+        }
+    }
 }
 
