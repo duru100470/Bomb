@@ -24,6 +24,8 @@ public class UI_PlayScene : NetworkBehaviour
     [SerializeField] RectTransform Panel_ESC;
     [SerializeField] RectTransform Panel_Option;
 
+    [SerializeField] Animator LeaderBoardAnim;
+
 
     public void Start() 
     {
@@ -80,6 +82,7 @@ public class UI_PlayScene : NetworkBehaviour
     {
         yield return new WaitForSeconds(1f);
         Panel_LeaderBoard.gameObject.SetActive(true);
+        LeaderBoardAnim.SetBool("Up", false);
         float curTime = 0;
         RectTransform rectT = leaderBoardIcon[index].GetComponent<RectTransform>();
         players = GameManager.Instance.GetPlayerList();
@@ -94,7 +97,8 @@ public class UI_PlayScene : NetworkBehaviour
             yield return null;
         }
         rectT.position = new Vector3(rectT.position.x, Screen.height / (roundCount+1) * (players[index].roundScore + 0.5f) ,0);
-        yield return new WaitForSeconds(1f);
+        LeaderBoardAnim.SetBool("Up", true);
+        yield return new WaitForSeconds(1.9f);
         Panel_LeaderBoard.gameObject.SetActive(false);
         if(state == 1 && isServer) RpcSetWinnerBoard(players[index].playerNickname);
     }

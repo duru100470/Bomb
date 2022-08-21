@@ -317,6 +317,7 @@ public class PlayerStateManager : NetworkBehaviour
         //폭탄을 가지고 충돌하는 경우
         if (other.transform.CompareTag("Player") && hasBomb && isTransferable)
         {
+            Debug.Log("Bomb Transition");
             var targetPSM = other.transform.GetComponent<PlayerStateManager>();
             if (targetPSM.hasBomb == false)
             {   
@@ -324,7 +325,7 @@ public class PlayerStateManager : NetworkBehaviour
                 StartCoroutine(_TransitionDone());
                 float time = 3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime);
                 StartCoroutine(Stunned(Mathf.Max(time, .25f)));
-                Vector2 dir = (Vector3.Scale(transform.position - other.transform.position,new Vector3(2,1,1))).normalized * power;
+                Vector2 dir = (Vector3.Scale(transform.position - other.transform.position, new Vector3(2,1,1))).normalized * power;
                 if(dir.y == 0) dir.y = 0.1f * power;
                 rigid2d.velocity = dir;
                 CmdBombTransition(targetPSM.netId, dir * (-1));
@@ -332,6 +333,7 @@ public class PlayerStateManager : NetworkBehaviour
         }
         else if(stateMachine.CurruentState != dicState[PlayerState.Stun] && other.transform.CompareTag("Player") && transform.position.y + coll.bounds.size.y * .75f < other.transform.position.y)
         {
+            Debug.Log("Stampped");
             CmdAddForce(new Vector2(other.transform.GetComponent<Rigidbody2D>().velocity.x,jumpForce), other.transform.GetComponent<PlayerStateManager>());
             CmdSetStun(1f);
         }
