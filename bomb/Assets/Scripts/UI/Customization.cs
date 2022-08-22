@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Mirror;
 
 public class Customization : MonoBehaviour
 {
@@ -40,15 +41,26 @@ public class Customization : MonoBehaviour
 
     private Dictionary<int, SpriteRenderer> idxToParent = new Dictionary<int, SpriteRenderer>();
     private Dictionary<int, List<Sprite>> idxToTargetSprite = new Dictionary<int, List<Sprite>>();
+    [SerializeField] SpriteRenderer PreviewFace;
     [SerializeField] SpriteRenderer PreviewHead;
     [SerializeField] SpriteRenderer PreviewBody;
+    [SerializeField] SpriteRenderer PreviewLeftArm;
+    [SerializeField] SpriteRenderer PreviewRightLeg;
+    [SerializeField] SpriteRenderer PreviewLeftLeg;
+    [SerializeField] SpriteRenderer PreviewRightArm;
+    [SerializeField] SpriteRenderer PreviewTail;
+
+    [SerializeField] SpriteRenderer HeadCustom; 
+    [SerializeField] SpriteRenderer BodyCustom;
+
     public int curPartsIdx;
     public bool isActive = false;
+    public RoomPlayer localPlayer;
 
     private void Start()
     {
-        idxToParent.Add(0, PreviewHead);
-        idxToParent.Add(1, PreviewBody);
+        idxToParent.Add(0, HeadCustom);
+        idxToParent.Add(1, BodyCustom);
 
         idxToTargetSprite.Add(0, Head_partsList);
         idxToTargetSprite.Add(1, Body_partsList);
@@ -85,11 +97,6 @@ public class Customization : MonoBehaviour
         temp.GetComponent<ButtonCustomization>().manager = this;
         temp.GetComponent<ButtonCustomization>().index = list.Count;
     }
-
-    public void UpdatePreviewModel()
-    {
-        //PreviewHead = transform.Find("Head").gameObject;
-    }
     
     public void ApplyCustom(int index)
     {
@@ -100,6 +107,18 @@ public class Customization : MonoBehaviour
             return;
         } 
         idxToParent[curPartsIdx].sprite = idxToTargetSprite[curPartsIdx][index];
+    }
+
+    public void UpdatePreviewModel()
+    {
+        PreviewFace.sprite = localPlayer.transform.GetChild(0).Find("Face").GetComponent<SpriteRenderer>().sprite;
+        PreviewHead.sprite = localPlayer.transform.GetChild(0).Find("Head").GetComponent<SpriteRenderer>().sprite;
+        PreviewBody.sprite = localPlayer.transform.GetChild(0).Find("Body").GetComponent<SpriteRenderer>().sprite;
+        PreviewLeftArm.sprite = localPlayer.transform.GetChild(0).Find("Left arm").GetComponent<SpriteRenderer>().sprite;
+        PreviewRightLeg.sprite = localPlayer.transform.GetChild(0).Find("Right leg").GetComponent<SpriteRenderer>().sprite;
+        PreviewLeftLeg.sprite = localPlayer.transform.GetChild(0).Find("Left leg").GetComponent<SpriteRenderer>().sprite;
+        PreviewRightArm.sprite = localPlayer.transform.GetChild(0).Find("Right arm").GetComponent<SpriteRenderer>().sprite;
+        PreviewTail.sprite = localPlayer.transform.GetChild(0).Find("Tail").GetComponent<SpriteRenderer>().sprite;
     }
 
     public void ResetCurButton()

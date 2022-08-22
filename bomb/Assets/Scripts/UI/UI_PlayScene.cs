@@ -40,8 +40,8 @@ public class UI_PlayScene : NetworkBehaviour
         {
             GameObject obj = Instantiate(SeparatorPrefab, Panel_LeaderBoard);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.sizeDelta = new Vector2(Screen.width -100, 5f);
-            rectT.position = new Vector3(Screen.width/2, Screen.height * (i+1) / (roundCount+1), 0);
+            rectT.sizeDelta = new Vector2(Screen.width -400, 5f);
+            rectT.position = new Vector3(Screen.width/2, (850 * (i+1) / (roundCount+1)) + 100, 0);
         }
 
         //Debug.Log(players.Count);
@@ -51,7 +51,7 @@ public class UI_PlayScene : NetworkBehaviour
             obj.GetComponent<Image>().sprite = players[i].LeaderBoardIcon;
             leaderBoardIcon.Add(obj);
             RectTransform rectT = obj.GetComponent<RectTransform>();
-            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), Screen.height / (roundCount+1) / 2, 0);
+            rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), (850 / (roundCount+1) / 2) + 100, 0);
         }
     }
 
@@ -81,8 +81,11 @@ public class UI_PlayScene : NetworkBehaviour
     private IEnumerator UpdateLeaderBoard(int index, int state)
     {
         yield return new WaitForSeconds(1f);
+        
         Panel_LeaderBoard.gameObject.SetActive(true);
         LeaderBoardAnim.SetBool("Up", false);
+        yield return new WaitForSeconds(1f);
+
         float curTime = 0;
         RectTransform rectT = leaderBoardIcon[index].GetComponent<RectTransform>();
         players = GameManager.Instance.GetPlayerList();
@@ -92,11 +95,11 @@ public class UI_PlayScene : NetworkBehaviour
         }
         while(curTime < 2f)
         {
-            rectT.position = new Vector3(rectT.position.x, rectT.position.y + Screen.height / (roundCount+1) * (Time.deltaTime / 2f) ,0);
+            rectT.position = new Vector3(rectT.position.x, rectT.position.y + 850 / (roundCount+1) * (Time.deltaTime / 2f) ,0);
             curTime += Time.deltaTime;
             yield return null;
         }
-        rectT.position = new Vector3(rectT.position.x, Screen.height / (roundCount+1) * (players[index].roundScore + 0.5f) ,0);
+        rectT.position = new Vector3(rectT.position.x, (850 / (roundCount+1) * (players[index].roundScore + 0.5f)) + 100 ,0);
         LeaderBoardAnim.SetBool("Up", true);
         yield return new WaitForSeconds(1.9f);
         Panel_LeaderBoard.gameObject.SetActive(false);

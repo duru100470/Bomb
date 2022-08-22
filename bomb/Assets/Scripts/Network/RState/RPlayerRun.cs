@@ -13,11 +13,11 @@ public class RPlayerRun : IState
 
     public void OperateEnter()
     {
-        //player.CmdSetAisRunning(true);
+        player.CmdSetAisRunning(true);
     }
     public void OperateExit()
     {
-        //player.CmdSetAisRunning(false);
+        player.CmdSetAisRunning(false);
     }
     public void OperateUpdate()
     {
@@ -26,8 +26,8 @@ public class RPlayerRun : IState
         //isHeadingRight는 현재 누르고 있는 방향을 가리킴, 중립 상태에서는 가장 마지막으로 눌렀던 방향을 가리킴
         if (direction != 0) player.CmdSyncHeading(direction > 0 ? true : false);
         Rigidbody2D rbody = player.rigid2d;
-        //if(rbody.velocity.x * direction < 0) player.CmdSetAisTurning(true);
-        //else player.CmdSetAisTurning(false);
+        if(rbody.velocity.x * direction < 0) player.CmdSetAisTurning(true);
+        else player.CmdSetAisTurning(false);
         float curAccel = Mathf.Abs(rbody.velocity.x) < player.MinSpeed ? player.Accelaration * 2 : player.Accelaration;
         float xVelocity = rbody.velocity.x + direction * curAccel * Time.deltaTime;
         rbody.velocity = new Vector2(Mathf.Clamp(xVelocity, -player.MaxSpeed, player.MaxSpeed), rbody.velocity.y);

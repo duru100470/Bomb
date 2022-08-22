@@ -7,8 +7,9 @@ public class RoomManager : NetworkRoomManager
 {
     public string hostIP;
     [SerializeField] private List<RoomPlayer> roomPlayerList;
+    [SerializeField] private List<GameObject> roomPlayerPrefabList;
     [SerializeField] private List<GameObject> playerPrefabList;
-    private Dictionary<GameObject, bool> playerPrefabMemory = new Dictionary<GameObject, bool>();
+    public Dictionary<int, bool> playerPrefabMemory = new Dictionary<int, bool>();
 
     public void AddPlayer(RoomPlayer player)
     {
@@ -27,9 +28,9 @@ public class RoomManager : NetworkRoomManager
     public override void OnStartHost()
     {
         hostIP = PlayerSetting.hostIP;
-        foreach(var obj in playerPrefabList)
+        foreach(var obj in roomPlayerPrefabList)
         {
-            playerPrefabMemory.Add(obj, false);
+            playerPrefabMemory.Add(roomPlayerPrefabList.IndexOf(obj), false);
         }
     }
 
@@ -41,18 +42,27 @@ public class RoomManager : NetworkRoomManager
 
     public override GameObject OnRoomServerCreateRoomPlayer(NetworkConnectionToClient conn)
     {
+        if(roomPlayerPrefabList.Count == roomSlots.Count) return null;
         GameObject temp;
+        int idx;
         while(true)
         {
-            int idx = Random.Range(0, playerPrefabList.Count);
-            if(!playerPrefabMemory[playerPrefabList[idx]])
+            idx = Random.Range(0, roomPlayerPrefabList.Count);
+            if(!playerPrefabMemory[idx])
             {
-                temp = playerPrefabList[idx];
-                playerPrefabMemory[playerPrefabList[idx]] = true;
+                temp = roomPlayerPrefabList[idx];
+                playerPrefabMemory[idx] = true;
                 break;
             }
         }
         GameObject obj = Instantiate(temp, new Vector3(0,-4,0), Quaternion.identity);
+        obj.GetComponent<RoomPlayer>().PrefabIndex = idx;
+        return obj;
+    }
+
+    public override GameObject OnRoomServerCreateGamePlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
+    {
+        GameObject obj = Instantiate(playerPrefabList[roomPlayer.GetComponent<RoomPlayer>().PrefabIndex], Vector3.zero, Quaternion.identity);
         return obj;
     }
 }

@@ -167,8 +167,15 @@ public class GameManager : NetworkBehaviour
     private IEnumerator RoundEnd()
     {
         yield return new WaitForSeconds(7f);
+        RpcToRoomScene();
+    }
+
+    [ClientRpc]
+    public void RpcToRoomScene()
+    {
         manager.ServerChangeScene(manager.RoomScene);
     }
+
 
     private IEnumerator StopPlayer(float stopTime){
         isPlayerMovable = false;

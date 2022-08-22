@@ -13,12 +13,12 @@ public class RPlayerJump : IState
 
     public void OperateEnter()
     {
-        //player.CmdSetAisJumping(true);
+        player.CmdSetAisJumping(true);
         //player.CmdPlayAudio(AudioType.Jump);
     }
     public void OperateExit()
     {
-        //player.CmdSetAisJumping(false);
+        player.CmdSetAisJumping(false);
         player.rigid2d.gravityScale = player.NormalGravityScale;
     }
     public void OperateUpdate()

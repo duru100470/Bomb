@@ -25,7 +25,6 @@ public class RoomPlayer : NetworkRoomPlayer
     [SerializeField] private GameObject playerObject;
     private List<SpriteRenderer> CustomObjects = new List<SpriteRenderer>();
 
-    public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
     public Collider2D coll { set; get; }
     public GameObject curItemObj { set; get; }
@@ -79,6 +78,12 @@ public class RoomPlayer : NetworkRoomPlayer
 
     [SyncVar(hook = nameof(OnSetNickName))] public string playerNickname = string.Empty;
     [SerializeField] private bool hasJumped = false;
+
+    [SyncVar(hook = nameof(OnChangeAisRunning))] public bool AisRunning = false;
+    [SyncVar(hook = nameof(OnChangeAisStunned))] public bool AisStunned = false;
+    [SyncVar(hook = nameof(OnChangeAisJumping))] public bool AisJumping = false;
+    [SyncVar(hook = nameof(OnChangeAisTurning))] public bool AisTurning = false;
+
     public bool isReady = false;
     UI_Lobby UI_Lobby;
     [SerializeField] Text nameText;
@@ -90,6 +95,10 @@ public class RoomPlayer : NetworkRoomPlayer
 
     private Customization _Customization;
     private GameRuleSetter _GameRuleSetter;
+    private SpriteRenderer[] rends;
+    public int PrefabIndex;
+
+    private Customization custom;
 
     public override void OnStartClient()
     {   
@@ -102,12 +111,16 @@ public class RoomPlayer : NetworkRoomPlayer
 
             Smanager.AddAudioSource(GetComponent<AudioSource>());
             Smanager.PlayBGM(AudioType.LobbyBGM);
+
+            custom = FindObjectOfType<Customization>();
+            custom.localPlayer = this;
+            custom.UpdatePreviewModel();
         }
-        else
-        {
-            //임시
-            GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
-        }
+        // else
+        // {
+        //     //임시
+        //     GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
+        // }
 
         IState idle = new RPlayerIdle(this);
         IState run = new RPlayerRun(this);
@@ -125,7 +138,7 @@ public class RoomPlayer : NetworkRoomPlayer
 
         stateMachine = new StateMachine(dicState[RPlayerState.Idle]);
 
-        spriteRenderer = GetComponent<SpriteRenderer>();
+        rends = GetComponentsInChildren<SpriteRenderer>();
         rigid2d = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
 
@@ -135,8 +148,23 @@ public class RoomPlayer : NetworkRoomPlayer
 
     private void Update()
     {
-        if(!RoomManager.IsSceneActive(manager.RoomScene)) gameObject.SetActive(false);
         if (!isLocalPlayer) return;
+
+        if(!RoomManager.IsSceneActive(manager.RoomScene))
+        {
+            foreach(var item in rends)
+            {
+                item.enabled = false;
+            }
+        }
+        if(RoomManager.IsSceneActive(manager.RoomScene))
+        {
+            foreach(var item in rends)
+            {
+                item.enabled = true;
+            }
+        }
+
         KeyboardInput();
         stateMachine.DoOperateUpdate();
     }
@@ -191,6 +219,7 @@ public class RoomPlayer : NetworkRoomPlayer
 
         if(hasJumped && rigid2d.velocity.y < 0f)
         {
+            CmdSetATriggerJump();
             hasJumped = false;
             rigid2d.gravityScale = descendGravityScale;
         }
@@ -320,11 +349,13 @@ public class RoomPlayer : NetworkRoomPlayer
         if(other.transform.GetComponent<GameRuleSetter>() != null)
         {
             inSetting = true;
+            other.transform.GetComponent<SpriteRenderer>().enabled = true;
         }
         
         if(other.transform.GetComponent<Customization>() != null)
         {
             inCustom = true;
+            other.transform.GetComponent<SpriteRenderer>().enabled = true;
         }
     }
 
@@ -340,11 +371,13 @@ public class RoomPlayer : NetworkRoomPlayer
         if(other.transform.GetComponent<GameRuleSetter>() != null)
         {
             inSetting = false;
+            other.transform.GetComponent<SpriteRenderer>().enabled = false;
         }
         
         if(other.transform.GetComponent<Customization>() != null)
         {
             inCustom = false;
+            other.transform.GetComponent<SpriteRenderer>().enabled = false;
         }
 
     }
@@ -441,6 +474,42 @@ public class RoomPlayer : NetworkRoomPlayer
         isHeadingRight = value;
     }
 
+    [Command]
+    public void CmdSetAisRunning(bool value)
+    {
+        AisRunning = value;
+    }
+
+    [Command]
+    public void CmdSetAisStunned(bool value)
+    {
+        AisStunned = value;
+    }
+
+    [Command]
+    public void CmdSetAisJumping(bool value)
+    {
+        AisJumping = value;
+    }
+
+    [Command]
+    public void CmdSetATriggerJump()
+    {
+        RpcSetTriggerJump();
+    }
+    
+    [Command]
+    public void CmdSetAisTurning(bool value)
+    {
+        AisTurning = value;
+    }
+
+    [ClientRpc]
+    public void RpcSetTriggerJump()
+    {
+        anim.SetTrigger("TriggerJump");
+    }
+
     public void OnChangeHeading(bool _, bool value)
     {
         playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1f, 1f);
@@ -449,6 +518,27 @@ public class RoomPlayer : NetworkRoomPlayer
     public void OnSetNickName(string _, string value)
     {
         nameText.text = value;
+    }
+
+    public void OnChangeAisRunning(bool _, bool value)
+    {
+        anim.SetBool("isRunning", value);
+    }
+
+    public void OnChangeAisStunned(bool _, bool value)
+    {
+        anim.SetBool("isStunned", value);
+    }
+
+    public void OnChangeAisJumping(bool _, bool value)
+    {
+        anim.SetBool("isJumping", value);
+        anim.ResetTrigger("TriggerJump");
+    }
+
+    public void OnChangeAisTurning(bool _, bool value)
+    {
+        anim.SetBool("isTurning", value);
     }
 
     private IEnumerator DropRoutine()

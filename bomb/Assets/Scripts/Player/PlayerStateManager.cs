@@ -582,7 +582,14 @@ public class PlayerStateManager : NetworkBehaviour
     private IEnumerator Stunned(float stunTime)
     {
         stateMachine.SetState(dicState[PlayerState.Stun]);
-        yield return new WaitForSeconds(stunTime);
+        //yield return new WaitForSeconds(stunTime);
+        float curTime = 0;
+        while(curTime < stunTime)
+        {
+            if(stateMachine.CurruentState == dicState[PlayerState.Dead]) yield break;
+            curTime += Time.deltaTime;
+            yield return null;
+        }
         stateMachine.SetState(dicState[PlayerState.Run]);
     }
 
@@ -634,6 +641,8 @@ public class PlayerStateManager : NetworkBehaviour
             CmdAddForce((target.transform.position - transform.position).normalized * ghostSkillForce, target.GetComponent<PlayerStateManager>());
             //Debug.Log(target.GetComponent<PlayerStateManager>().playerNickname);
         }
+        yield return new WaitForSeconds(1f);
+        ghostSkillEffect.GetComponent<Animator>().SetBool("Trigger", false);
         isGhostSkllCasting = false;
     }
 
@@ -653,6 +662,7 @@ public class PlayerStateManager : NetworkBehaviour
             yield return null;
             curTime += Time.deltaTime;
         }
+        ghostSkillEffect.GetComponent<Animator>().SetBool("Trigger", true);
         ghostSkillEffect.SetActive(false);
     }
 

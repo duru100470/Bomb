@@ -209,7 +209,7 @@ GameObject:
   - component: {fileID: 64179734}
   - component: {fileID: 64179733}
   m_Layer: 0
-  m_Name: CustomMaanger
+  m_Name: CustomManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2818,6 +2818,13 @@ MonoBehaviour:
   - {fileID: 7802509286842065159, guid: b2d3cd33c60cd8d43b05b31252216537, type: 3}
   - {fileID: 7802509286842065159, guid: 168c63b891475d14eb05c960381177b0, type: 3}
   - {fileID: 7831647137117860489, guid: 8f8a8c2bac2b02d4ca57687df1dc26c9, type: 3}
+  - {fileID: 7831647137117860489, guid: 643e56311b1484d4f89e44ca3b54e6f1, type: 3}
+  - {fileID: 2556292238141432243, guid: 6268318f00d3d3b459a279c71f358b55, type: 3}
+  - {fileID: 2556292238141432243, guid: 5db3cc00898087d45a12ce536e28c26c, type: 3}
+  - {fileID: 2556292238141432243, guid: 9b169c55e79346541aa555662e326b66, type: 3}
+  - {fileID: 7831647137117860489, guid: 8f8a8c2bac2b02d4ca57687df1dc26c9, type: 3}
+  - {fileID: 7831647137117860489, guid: 643e56311b1484d4f89e44ca3b54e6f1, type: 3}
+  - {fileID: 7831647137117860489, guid: 4383342730b91b541b4db11fefee338b, type: 3}
   showRoomGUI: 0
   minPlayers: 2
   roomPlayerPrefab: {fileID: 1158177511340733789, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
@@ -2828,9 +2835,16 @@ MonoBehaviour:
   clientIndex: 0
   hostIP: 
   roomPlayerList: []
-  playerPrefabList:
+  roomPlayerPrefabList:
   - {fileID: 7831647137117860489, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
   - {fileID: 7831647137117860489, guid: 8f8a8c2bac2b02d4ca57687df1dc26c9, type: 3}
+  - {fileID: 7831647137117860489, guid: 643e56311b1484d4f89e44ca3b54e6f1, type: 3}
+  - {fileID: 7831647137117860489, guid: 4383342730b91b541b4db11fefee338b, type: 3}
+  playerPrefabList:
+  - {fileID: 2556292238141432243, guid: d9d345430133f9948a47d914788b1a8b, type: 3}
+  - {fileID: 2556292238141432243, guid: 6268318f00d3d3b459a279c71f358b55, type: 3}
+  - {fileID: 2556292238141432243, guid: 5db3cc00898087d45a12ce536e28c26c, type: 3}
+  - {fileID: 2556292238141432243, guid: 9b169c55e79346541aa555662e326b66, type: 3}
 --- !u!4 &1384861481
 Transform:
   m_ObjectHideFlags: 0
