@@ -30,14 +30,19 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private GameObject playerObject;
     [SerializeField] SpriteRenderer ghostSprite;
     [SerializeField] private List<Animator> ItemVFX = new List<Animator>();
+    [SerializeField] private GameObject jumpParticle;
+    [SerializeField] private ParticleSystem explodeParticle;
+    [SerializeField] private GameObject dropParticle;
+    [SerializeField] private ParticleSystem transitionParticle;
     public Sprite LeaderBoardIcon;
+    public Sprite LeaderBoardFace;
     private List<SpriteRenderer> CustomObjects = new List<SpriteRenderer>();
 
     public SpriteRenderer spriteRenderer { set; get; }
     public Rigidbody2D rigid2d { set; get; }
     public Collider2D coll { set; get; }
     public GameObject curItemObj { set; get; }
-    public PhysicsMaterial2D idlePhysicsMat;
+    public PhysicsMaterial2D idlePhysicsMat; 
     public PhysicsMaterial2D stunPhysicsMat;
     private SoundManager Smanager = SoundManager.Instance;
     public AudioSource SoundSource;
@@ -309,8 +314,6 @@ public class PlayerStateManager : NetworkBehaviour
     {
         if(!hasAuthority) return;
 
-        Debug.Log("Collide");
-
         //폭탄을 가지고 충돌하는 경우
         if (other.transform.CompareTag("Player") && hasBomb && isTransferable)
         {
@@ -362,6 +365,7 @@ public class PlayerStateManager : NetworkBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if(!hasAuthority) return;
+
         // 아이템인 경우, 현재 아이템을 가지고 있지 않은 상태여야 한다
         if (other.transform.CompareTag("Item") && curItem == null)
         {
@@ -371,7 +375,7 @@ public class PlayerStateManager : NetworkBehaviour
             CmdAddItem(_item);
         }
         // Stone에 맞았을 때
-        if (other.transform.CompareTag("Projectile") && other.GetComponent<StoneProjectile>().player != this)
+        if (other.transform.CompareTag("Projectile") && !other.GetComponent<StoneProjectile>().playerNickname.Equals(playerNickname))
         {
             Vector2 dir = (transform.position - other.transform.position).normalized * other.GetComponent<StoneProjectile>().force;
             CmdHitStone(other.GetComponent<StoneProjectile>().StunTime, dir, this);
@@ -428,6 +432,7 @@ public class PlayerStateManager : NetworkBehaviour
 
             if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f && !hasJumped)
             {
+
                 rigid2d.velocity = new Vector2(rigid2d.velocity.x, jumpForce);
                 rigid2d.gravityScale = normalGravityScale;
                 hasJumped = true;
@@ -495,7 +500,14 @@ public class PlayerStateManager : NetworkBehaviour
     {
         StartCoroutine(_TransitionDone());
         RpcAddDirVec(dir);
+        RpcPlayTransitionParticle();
         RpcStunSync(Mathf.Max(3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime), .25f));
+    }
+
+    [ClientRpc]
+    public void RpcPlayTransitionParticle()
+    {
+        transitionParticle.Play();
     }
 
     //Dash후 감속
@@ -869,6 +881,34 @@ public class PlayerStateManager : NetworkBehaviour
         customState = temp;
     }
 
+    [Command]
+    public void CmdPlayJumpParticle()
+    {
+        RpcPlayJumpParticle();
+    }
+
+    [ClientRpc]
+    public void RpcPlayJumpParticle()
+    {
+        GameObject obj = Instantiate(jumpParticle, coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Quaternion.Euler(-90, 0, 0));
+        obj.GetComponent<ParticleSystem>().Play();
+        Destroy(obj, 1f);
+    }
+
+    [Command]
+    public void CmdPlayDropParticle()
+    {
+        RpcPlayDropParticle();
+    }
+
+    [ClientRpc]
+    public void RpcPlayDropParticle()
+    {
+        GameObject obj = Instantiate(dropParticle, coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Quaternion.Euler(-90, 0, 0));
+        obj.GetComponent<ParticleSystem>().Play();
+        Destroy(obj, 1f);
+    }
+
     #endregion CommandFunc
     
     #region ClientRpcFunc
@@ -898,6 +938,7 @@ public class PlayerStateManager : NetworkBehaviour
     public void RpcDead()
     {
         VFXanim.SetTrigger("Explode");
+        explodeParticle.Play();
         if (hasAuthority)
         {
             stateMachine.SetState(dicState[PlayerState.Dead]);

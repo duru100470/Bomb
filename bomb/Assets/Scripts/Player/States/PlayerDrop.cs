@@ -21,6 +21,7 @@ public class PlayerDrop : IState
         //Debug.Log("Drop Exit");
         if(player.IsGround)
         {
+            player.CmdPlayDropParticle();
             player.CmdSetStun(.5f);
         }
     }

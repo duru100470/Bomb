@@ -11,7 +11,7 @@ public class StoneProjectile : NetworkBehaviour
     [SyncVar] public bool dir;
     [SyncVar] public bool heading;
     [SerializeField] float projectileSpeed = 10f;
-    public PlayerStateManager player;
+    [SyncVar] public string playerNickname;
 
     public void Start()
     {

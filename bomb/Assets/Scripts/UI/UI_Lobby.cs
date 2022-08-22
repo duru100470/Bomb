@@ -62,36 +62,6 @@ public class UI_Lobby : NetworkBehaviour
         Panel_ESC.gameObject.SetActive(true);
     }
 
-    public void OnClickButtonPlay()
-    {
-        if(isServer)
-        {
-            int cnt = 0;
-            foreach(var cur in manager.roomSlots)
-            {
-                if(cur.readyToBegin)
-                {
-                    cnt++;
-                }
-            }
-            if(cnt == manager.roomSlots.Count-1)
-            {
-                player.CmdChangeReadyState(true);
-            }
-        }
-        else
-        {
-            if(player.readyToBegin)
-            {
-                player.CmdChangeReadyState(false);
-            }
-            else
-            {
-                player.CmdChangeReadyState(true);
-            }
-        }
-    }
-
     public void OnClickButtonResume()
     {
         Panel_ESC.gameObject.SetActive(false);

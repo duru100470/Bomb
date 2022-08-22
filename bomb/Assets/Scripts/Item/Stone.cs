@@ -18,7 +18,7 @@ public class Stone : Item
         StoneProjectile sProj = projectile.GetComponent<StoneProjectile>();
         sProj.dir = player.isHeadingRight;
         sProj.heading = !player.isHeadingRight;
-        sProj.player = player;
+        sProj.playerNickname = player.playerNickname;
         sProj.force = force;
         NetworkServer.Spawn(projectile);
     }

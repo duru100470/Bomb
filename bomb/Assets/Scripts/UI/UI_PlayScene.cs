@@ -50,6 +50,7 @@ public class UI_PlayScene : NetworkBehaviour
         {
             GameObject obj = Instantiate(LeaderBoardIconPrefab, Panel_LeaderBoard);
             obj.GetComponent<Image>().sprite = players[i].LeaderBoardIcon;
+            obj.transform.GetChild(0).GetComponent<Image>().sprite = players[i].LeaderBoardFace;
             leaderBoardIcon.Add(obj);
             RectTransform rectT = obj.GetComponent<RectTransform>();
             rectT.position = new Vector3(Screen.width * (i+1) / (players.Count+1), (850 / (roundCount+1) / 2) + 100, 0);
@@ -189,6 +190,7 @@ public class UI_PlayScene : NetworkBehaviour
         Panel_Winner.GetComponent<Animator>().SetTrigger("Trigger");
         Panel_Winner.GetComponentInChildren<Text>().text = players[index].playerNickname + " Win!";
         winnerImage.sprite = players[index].LeaderBoardIcon;
+        winnerImage.transform.GetChild(0).GetComponent<Image>().sprite = players[index].LeaderBoardFace;
     }
 
 }

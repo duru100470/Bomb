@@ -13,6 +13,7 @@ public class PlayerJump : IState
 
     public void OperateEnter()
     {
+        player.CmdPlayJumpParticle();
         player.CmdSetAisJumping(true);
         player.CmdPlayAudio(AudioType.Jump);
     }

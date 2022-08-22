@@ -17,10 +17,11 @@ public class MyPortal : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.CompareTag("Player"))
+        if(other.transform.CompareTag("Player") || other.transform.CompareTag("Projectile"))
         {
+            Vector3 vec = other.transform.position - transform.position;
+            other.transform.position = oppositePortal.exitTransform + new Vector3(exitHeading ? vec.x : -vec.y , vec.y, 0);
             Rigidbody2D rigid = other.GetComponent<Rigidbody2D>();
-            other.transform.position = oppositePortal.exitTransform;
             rigid.velocity = new Vector2((oppositePortal.exitHeading ? 1 : -1) * Mathf.Abs(rigid.velocity.x), rigid.velocity.y);
         }
     }
