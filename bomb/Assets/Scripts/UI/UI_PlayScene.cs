@@ -14,6 +14,7 @@ public class UI_PlayScene : NetworkBehaviour
     int roundCount;
     List<PlayerStateManager> players;
     List<GameObject> leaderBoardIcon = new List<GameObject>();
+    [SerializeField] Image winnerImage;
 
     [Header("Log")]
     [SerializeField] RectTransform Panel_Log;
@@ -101,9 +102,13 @@ public class UI_PlayScene : NetworkBehaviour
         }
         rectT.position = new Vector3(rectT.position.x, (850 / (roundCount+1) * (players[index].roundScore + 0.5f)) + 100 ,0);
         LeaderBoardAnim.SetBool("Up", true);
-        yield return new WaitForSeconds(1.9f);
+        yield return new WaitForSeconds(1.8f);
         Panel_LeaderBoard.gameObject.SetActive(false);
-        if(state == 1 && isServer) RpcSetWinnerBoard(players[index].playerNickname);
+
+        if(state == 1 && isServer)
+        {
+            RpcSetWinnerBoard(index);
+        } 
     }
 
     public IEnumerator SetLog(GameObject obj)
@@ -130,7 +135,6 @@ public class UI_PlayScene : NetworkBehaviour
         GameObject obj = Instantiate(Panel_TransitionLog, Panel_Log);
         obj.transform.GetChild(0).GetComponent<Text>().text = from.playerNickname;
         obj.transform.GetChild(2).GetComponent<Text>().text = to.playerNickname;
-        //obj.transform.SetParent(Panel_Log);
         NetworkServer.Spawn(obj);
         RpcSetLogTransition(obj.GetComponent<NetworkIdentity>().netId, from.playerNickname, to.playerNickname);
         StartCoroutine(SetLog(obj));
@@ -179,9 +183,12 @@ public class UI_PlayScene : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcSetWinnerBoard(string name)
+    public void RpcSetWinnerBoard(int index)
     {
         Panel_Winner.gameObject.SetActive(true);
-        Panel_Winner.GetComponentInChildren<Text>().text = name + "\nWin!";
+        Panel_Winner.GetComponent<Animator>().SetTrigger("Trigger");
+        Panel_Winner.GetComponentInChildren<Text>().text = players[index].playerNickname + " Win!";
+        winnerImage.sprite = players[index].LeaderBoardIcon;
     }
+
 }

@@ -40,7 +40,7 @@ public class PlayerStateManager : NetworkBehaviour
     public PhysicsMaterial2D idlePhysicsMat;
     public PhysicsMaterial2D stunPhysicsMat;
     private SoundManager Smanager = SoundManager.Instance;
-    private AudioSource SoundSource;
+    public AudioSource SoundSource;
 
     // 폭탄 글로벌 타이머 (For Debugging)
     [SerializeField] private Text timer;
@@ -144,11 +144,6 @@ public class PlayerStateManager : NetworkBehaviour
         }
         else
         {
-            SpriteRenderer[] rend = playerObject.GetComponentsInChildren<SpriteRenderer>();
-            foreach(var render in rend)
-            {
-                render.color = new Color(1f, 0f, 0f, 1f);
-            }
             ApplyCustom(customState);
         }
         
@@ -314,6 +309,8 @@ public class PlayerStateManager : NetworkBehaviour
     {
         if(!hasAuthority) return;
 
+        Debug.Log("Collide");
+
         //폭탄을 가지고 충돌하는 경우
         if (other.transform.CompareTag("Player") && hasBomb && isTransferable)
         {
@@ -429,7 +426,7 @@ public class PlayerStateManager : NetworkBehaviour
                 jumpBufferTimeCnt -= Time.deltaTime;
             }
 
-            if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f)
+            if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f && !hasJumped)
             {
                 rigid2d.velocity = new Vector2(rigid2d.velocity.x, jumpForce);
                 rigid2d.gravityScale = normalGravityScale;
@@ -802,6 +799,31 @@ public class PlayerStateManager : NetworkBehaviour
     public void CmdSetAisTurning(bool value)
     {
         AisTurning = value;
+    }
+
+    [Command]
+    public void CmdSetRunAnimMultiplier()
+    {
+        RpcSetRunAnimMultiplier();
+    }
+
+    [Command]
+    public void CmdSetRunAnimMultiplier(float value)
+    {
+        RpcSetRunAnimMultiplier(value);
+    }
+
+    [ClientRpc]
+    public void RpcSetRunAnimMultiplier()
+    {
+        float multiplier = Mathf.Abs(rigid2d.velocity.x) * 0.2f + 1;
+        anim.SetFloat("SpeedMultiplier", multiplier);
+    }
+
+    [ClientRpc]
+    public void RpcSetRunAnimMultiplier(float value)
+    {
+        anim.SetFloat("SpeedMultiplier", value);
     }
 
     [Command]

@@ -73,7 +73,7 @@ public class RoomPlayer : NetworkRoomPlayer
     [SerializeField] public bool isWallAttached;
 
     private bool lastIsGround = true;
-    [SyncVar] public bool isHeadingRight = false;
+    [SyncVar(hook = nameof(OnChangeHeading))] public bool isHeadingRight = false;
     public bool isCasting { set; get; } = false;
 
     [SyncVar(hook = nameof(OnSetNickName))] public string playerNickname = string.Empty;
@@ -96,8 +96,7 @@ public class RoomPlayer : NetworkRoomPlayer
     private Customization _Customization;
     private GameRuleSetter _GameRuleSetter;
     private SpriteRenderer[] rends;
-    public int PrefabIndex;
-
+    [SyncVar] public int PrefabIndex;
     private Customization custom;
 
     public override void OnStartClient()
@@ -116,11 +115,6 @@ public class RoomPlayer : NetworkRoomPlayer
             custom.localPlayer = this;
             custom.UpdatePreviewModel();
         }
-        // else
-        // {
-        //     //임시
-        //     GetComponent<SpriteRenderer>().material.color = new Color(1f, 0f, 0f, 1f);
-        // }
 
         IState idle = new RPlayerIdle(this);
         IState run = new RPlayerRun(this);
@@ -149,21 +143,6 @@ public class RoomPlayer : NetworkRoomPlayer
     private void Update()
     {
         if (!isLocalPlayer) return;
-
-        if(!RoomManager.IsSceneActive(manager.RoomScene))
-        {
-            foreach(var item in rends)
-            {
-                item.enabled = false;
-            }
-        }
-        if(RoomManager.IsSceneActive(manager.RoomScene))
-        {
-            foreach(var item in rends)
-            {
-                item.enabled = true;
-            }
-        }
 
         KeyboardInput();
         stateMachine.DoOperateUpdate();
@@ -252,7 +231,6 @@ public class RoomPlayer : NetworkRoomPlayer
         }
         lastIsGround = isGround;
 
-        playerObject.transform.localScale = new Vector3((isHeadingRight ? -1 : 1), 1, 1);
         coll.offset = new Vector2(isHeadingRight ? 0.03f : -0.03f,0); 
     }
 
@@ -294,7 +272,7 @@ public class RoomPlayer : NetworkRoomPlayer
                 jumpBufferTimeCnt -= Time.deltaTime;
             }
 
-            if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f)
+            if (jumpBufferTimeCnt > 0f && hangTimeCnt > 0f && !hasJumped)
             {
                 rigid2d.velocity = new Vector2(rigid2d.velocity.x, jumpForce);
                 rigid2d.gravityScale = normalGravityScale;
@@ -469,7 +447,7 @@ public class RoomPlayer : NetworkRoomPlayer
     }
 
     [Command]
-    public void CmdSyncHeading(bool value)
+    public void CmdIsHeadingSync(bool value)
     {
         isHeadingRight = value;
     }
@@ -508,6 +486,31 @@ public class RoomPlayer : NetworkRoomPlayer
     public void RpcSetTriggerJump()
     {
         anim.SetTrigger("TriggerJump");
+    }
+
+    [Command]
+    public void CmdSetRunAnimMultiplier()
+    {
+        RpcSetRunAnimMultiplier();
+    }
+
+    [Command]
+    public void CmdSetRunAnimMultiplier(float value)
+    {
+        RpcSetRunAnimMultiplier(value);
+    }
+
+    [ClientRpc]
+    public void RpcSetRunAnimMultiplier()
+    {
+        float multiplier = Mathf.Abs(rigid2d.velocity.x) * 0.2f + 1;
+        anim.SetFloat("SpeedMultiplier", multiplier);
+    }
+
+    [ClientRpc]
+    public void RpcSetRunAnimMultiplier(float value)
+    {
+        anim.SetFloat("SpeedMultiplier", value);
     }
 
     public void OnChangeHeading(bool _, bool value)
@@ -555,5 +558,10 @@ public class RoomPlayer : NetworkRoomPlayer
         stateMachine.SetState(dicState[RPlayerState.Stun]);
         yield return new WaitForSeconds(stunTime);
         stateMachine.SetState(dicState[RPlayerState.Run]);
+    }
+
+    public override void OnClientExitRoom()
+    {
+        manager.playerPrefabMemory[PrefabIndex] = false;  
     }
 }

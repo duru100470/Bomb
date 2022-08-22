@@ -6,38 +6,42 @@ using UnityEngine;
 public class RoomManager : NetworkRoomManager
 {
     public string hostIP;
-    [SerializeField] private List<RoomPlayer> roomPlayerList;
     [SerializeField] private List<GameObject> roomPlayerPrefabList;
     [SerializeField] private List<GameObject> playerPrefabList;
-    public Dictionary<int, bool> playerPrefabMemory = new Dictionary<int, bool>();
+    public List<bool> playerPrefabMemory = new List<bool>();
+    public bool playersReady = false;
 
-    public void AddPlayer(RoomPlayer player)
-    {
-        if (!roomPlayerList.Contains(player))
-        {
-            roomPlayerList.Add(player);
-            Debug.Log("roomPlayer Added");
-        }
-    }
-
-    public List<RoomPlayer> GetPlayerList()
-    {
-        return roomPlayerList;
-    } 
-    
     public override void OnStartHost()
     {
         hostIP = PlayerSetting.hostIP;
+        // foreach(var obj in roomPlayerPrefabList)
+        // {
+        //     playerPrefabMemory.Add(false);
+        // }
+    }
+
+    public override void OnStartClient()
+    {
         foreach(var obj in roomPlayerPrefabList)
         {
-            playerPrefabMemory.Add(roomPlayerPrefabList.IndexOf(obj), false);
+            playerPrefabMemory.Add(false);
         }
     }
 
     public override void OnRoomServerPlayersReady()
     {
+        playersReady = true;
+    }
+
+    public void StartGame()
+    {
         PlayerSetting.playerNum = roomSlots.Count;
-        base.OnRoomServerPlayersReady();
+        ServerChangeScene(GameplayScene);
+    }
+
+    public override void OnRoomServerPlayersNotReady()
+    {
+        playersReady = false;
     }
 
     public override GameObject OnRoomServerCreateRoomPlayer(NetworkConnectionToClient conn)
@@ -65,4 +69,17 @@ public class RoomManager : NetworkRoomManager
         GameObject obj = Instantiate(playerPrefabList[roomPlayer.GetComponent<RoomPlayer>().PrefabIndex], Vector3.zero, Quaternion.identity);
         return obj;
     }
+
+    public override void OnRoomStopServer()
+    {
+        SoundManager.Instance.ResetAudioSource();
+    }
+
+    public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer, GameObject gamePlayer)
+    {
+        Destroy(roomPlayer, 1f);
+        return true;
+    }
+
+
 }

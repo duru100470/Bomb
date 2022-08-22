@@ -15,11 +15,14 @@ public class UI_Lobby : NetworkBehaviour
     [SerializeField] Text playerStatus_text;
     [SerializeField] RectTransform Panel_ESC;
     [SerializeField] RectTransform Panel_option;
+    [SerializeField] RectTransform Panel_CountDown;
+    [SerializeField] Text countdown_text;
     [SerializeField] Button button_resume;
     [SerializeField] Button button_backtomain;
     RoomManager manager = NetworkManager.singleton as RoomManager;
+    [SyncVar] private bool _playersReady;
     public RoomPlayer player;
-
+    private bool isDelaying = false;
 
     public void Start()
     {
@@ -46,8 +49,13 @@ public class UI_Lobby : NetworkBehaviour
             if(player.readyToBegin) cnt++;
         }
         playerStatus_text.text = cnt + " / " + (manager.roomSlots.Count-1);
-    }
 
+        if(isServer) _playersReady = manager.playersReady;
+        if(_playersReady && !isDelaying)
+        {
+            StartCoroutine(GameStartDelay());
+        } 
+    }
     
     public void ActivateESC()
     {
@@ -91,7 +99,14 @@ public class UI_Lobby : NetworkBehaviour
 
     public void OnClickButtonBackToMain()
     {
-        
+        if(player.isServer)
+        {
+            manager.StopServer();
+        }
+        else
+        {
+            manager.StopClient();
+        }
     }
 
     public string Encrypt(string str)
@@ -107,4 +122,23 @@ public class UI_Lobby : NetworkBehaviour
         return ret;
     }
 
+    private IEnumerator GameStartDelay()
+    {
+        Panel_CountDown.gameObject.SetActive(true);
+        isDelaying = true;
+        float curTime = 4f;
+        while(curTime > 0f)
+        {
+            if(!_playersReady)
+            {
+                Panel_CountDown.gameObject.SetActive(false);
+                isDelaying = false;
+                yield break;
+            }
+            curTime -= Time.deltaTime;
+            countdown_text.text = $"GAME BEGINS IN...\n{(int)curTime}";
+            yield return null;
+        }
+        manager.StartGame();
+    }
 }

@@ -166,7 +166,7 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator RoundEnd()
     {
-        yield return new WaitForSeconds(7f);
+        yield return new WaitForSeconds(10f);
         RpcToRoomScene();
     }
 

@@ -158,7 +158,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 20}
-  m_SizeDelta: {x: 600, y: 350}
+  m_SizeDelta: {x: 1200, y: 700}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &37654117
 MonoBehaviour:
@@ -180,7 +180,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 35eca0a63303ca546972a23a6e5d32c5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b1f8aba81f4d0ec42a2611327e0256d5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -541,16 +541,16 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 87db2d9c0a86e7f4c89de6fb03203eb0, type: 3}
-    m_FontSize: 30
+    m_FontSize: 60
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
-    m_MaxSize: 40
+    m_MaxSize: 70
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
-    m_VerticalOverflow: 0
+    m_HorizontalOverflow: 1
+    m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 'Back
 
@@ -2590,9 +2590,9 @@ RectTransform:
   m_Father: {fileID: 2131452352}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -350, y: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 200, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1287564232
@@ -2805,7 +2805,7 @@ MonoBehaviour:
   onlineScene: Assets/Scenes/Room_Scene.unity
   transport: {fileID: 1384861479}
   networkAddress: localhost
-  maxConnections: 100
+  maxConnections: 4
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 2556292238141432243, guid: d9d345430133f9948a47d914788b1a8b, type: 3}
   autoCreatePlayer: 1
@@ -2817,14 +2817,13 @@ MonoBehaviour:
   - {fileID: 558901428346621358, guid: 4ff98e4505727744ba80f700287a65a6, type: 3}
   - {fileID: 7802509286842065159, guid: b2d3cd33c60cd8d43b05b31252216537, type: 3}
   - {fileID: 7802509286842065159, guid: 168c63b891475d14eb05c960381177b0, type: 3}
-  - {fileID: 7831647137117860489, guid: 8f8a8c2bac2b02d4ca57687df1dc26c9, type: 3}
-  - {fileID: 7831647137117860489, guid: 643e56311b1484d4f89e44ca3b54e6f1, type: 3}
   - {fileID: 2556292238141432243, guid: 6268318f00d3d3b459a279c71f358b55, type: 3}
   - {fileID: 2556292238141432243, guid: 5db3cc00898087d45a12ce536e28c26c, type: 3}
   - {fileID: 2556292238141432243, guid: 9b169c55e79346541aa555662e326b66, type: 3}
   - {fileID: 7831647137117860489, guid: 8f8a8c2bac2b02d4ca57687df1dc26c9, type: 3}
   - {fileID: 7831647137117860489, guid: 643e56311b1484d4f89e44ca3b54e6f1, type: 3}
   - {fileID: 7831647137117860489, guid: 4383342730b91b541b4db11fefee338b, type: 3}
+  - {fileID: 7831647137117860489, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
   showRoomGUI: 0
   minPlayers: 2
   roomPlayerPrefab: {fileID: 1158177511340733789, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
@@ -2834,7 +2833,6 @@ MonoBehaviour:
   roomSlots: []
   clientIndex: 0
   hostIP: 
-  roomPlayerList: []
   roomPlayerPrefabList:
   - {fileID: 7831647137117860489, guid: a0ec0cd87f854054ebb858a2f78a4573, type: 3}
   - {fileID: 7831647137117860489, guid: 8f8a8c2bac2b02d4ca57687df1dc26c9, type: 3}
@@ -2845,6 +2843,8 @@ MonoBehaviour:
   - {fileID: 2556292238141432243, guid: 6268318f00d3d3b459a279c71f358b55, type: 3}
   - {fileID: 2556292238141432243, guid: 5db3cc00898087d45a12ce536e28c26c, type: 3}
   - {fileID: 2556292238141432243, guid: 9b169c55e79346541aa555662e326b66, type: 3}
+  playerPrefabMemory: 
+  playersReady: 0
 --- !u!4 &1384861481
 Transform:
   m_ObjectHideFlags: 0
@@ -3087,9 +3087,9 @@ RectTransform:
   m_Father: {fileID: 2131452352}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 350, y: 0}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -200, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1616980750
@@ -4136,8 +4136,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 27}
-  m_SizeDelta: {x: 120, y: 30}
+  m_AnchoredPosition: {x: 0, y: 50}
+  m_SizeDelta: {x: 240, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2097244810
 MonoBehaviour:

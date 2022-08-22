@@ -18,6 +18,7 @@ public class PlayerRun : IState
     public void OperateExit()
     {
         player.CmdSetAisRunning(false);
+        player.CmdSetRunAnimMultiplier(1f);
     }
     public void OperateUpdate()
     {
@@ -32,5 +33,6 @@ public class PlayerRun : IState
         float xVelocity = rbody.velocity.x + direction * curAccel * Time.deltaTime;
         float curMaxSpeed = player.bombState == 3 ? player.BerserkMaxSpeed : player.MaxSpeed;
         rbody.velocity = new Vector2(Mathf.Clamp(xVelocity, -curMaxSpeed, curMaxSpeed), rbody.velocity.y);
+        player.CmdSetRunAnimMultiplier();
     }
 }

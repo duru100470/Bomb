@@ -52,6 +52,7 @@ public class SoundManager : MonoBehaviour
 
     public void AddAudioSource(AudioSource source)
     {
+        Debug.Log(source.name);
         audioSources.Add(source);
     }
 
@@ -118,4 +119,10 @@ public class SoundManager : MonoBehaviour
         SetBGMVolume(bgmVolume);
         SetVFXVolume(vfxVolume);
     }
+
+    public void ResetAudioSource()
+    {
+        audioSources.Clear();
+    }
+
 }
