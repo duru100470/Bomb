@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 868218022598380265}
   - component: {fileID: 9023587953692558816}
-  - component: {fileID: -777264795062042028}
   - component: {fileID: -2625019371000932454}
   - component: {fileID: -7930286616728988817}
   - component: {fileID: -9004699211253539192}
+  - component: {fileID: 9091142765643035879}
   m_Layer: 7
   m_Name: projectile_stone
   m_TagString: Projectile
@@ -86,32 +86,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &-777264795062042028
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4087488319536920985}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.495, y: 0.3225}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.5, y: 0.5}
-  m_EdgeRadius: 0
 --- !u!114 &-2625019371000932454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -129,8 +103,9 @@ MonoBehaviour:
   stunTime: 1
   force: 0
   dir: 0
+  heading: 0
   projectileSpeed: 10
-  player: {fileID: 0}
+  playerNickname: 
 --- !u!114 &-7930286616728988817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,3 +144,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!58 &9091142765643035879
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4087488319536920985}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.1, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.09
