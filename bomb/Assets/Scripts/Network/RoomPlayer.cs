@@ -234,6 +234,11 @@ public class RoomPlayer : NetworkRoomPlayer
         coll.offset = new Vector2(isHeadingRight ? 0.03f : -0.03f,0); 
     }
 
+    private void OnDestroy() 
+    {
+        SoundManager.Instance.RemoveAudioSource(GetComponent<AudioSource>());    
+    }
+
     // 키보드 입력 제어
     private void KeyboardInput()
     {

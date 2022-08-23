@@ -27,6 +27,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private Text nickNameText;
     [SerializeField] private Image bombStateImage;
     [SerializeField] private GameObject explosionVFX;
+    public GameObject stunVFX;
     [SerializeField] private GameObject playerObject;
     [SerializeField] SpriteRenderer ghostSprite;
     [SerializeField] private List<Animator> ItemVFX = new List<Animator>();
@@ -192,6 +193,11 @@ public class PlayerStateManager : NetworkBehaviour
 
         Smanager.PlayBGM(AudioType.GameSceneBGM);
 
+    }
+
+    private void OnDestroy() 
+    {
+        SoundManager.Instance.RemoveAudioSource(SoundSource);    
     }
 
     // 키보드 입력 받기 및 State 갱신
@@ -918,6 +924,18 @@ public class PlayerStateManager : NetworkBehaviour
         GameObject obj = Instantiate(transitionParticle, coll.bounds.center, Quaternion.Euler(-90, 0, 0));
         obj.GetComponent<ParticleSystem>().Play();
         Destroy(obj, 1f);
+    }
+
+    [Command]
+    public void CmdSetStunVFX(bool value)
+    {
+        RpcSetStunVFX(value);
+    }
+
+    [ClientRpc]
+    public void RpcSetStunVFX(bool value)
+    {
+        stunVFX.SetActive(value);
     }
 
     #endregion CommandFunc
