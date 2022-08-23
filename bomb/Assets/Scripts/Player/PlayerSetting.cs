@@ -20,7 +20,7 @@ public class PlayerSetting
     public static List<KeyCode> originKey = new List<KeyCode>{KeyCode.Space, KeyCode.Q, KeyCode.S, KeyCode.E};
     public static List<KeyCode> AvailKeys = new List<KeyCode>()
     {
-        KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.R, KeyCode.T, KeyCode.S, KeyCode.F, KeyCode.Space, KeyCode.G
+        KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.R, KeyCode.T, KeyCode.S, KeyCode.F, KeyCode.Space, KeyCode.G, KeyCode.LeftShift, KeyCode.Tab, KeyCode.Z, KeyCode.X, KeyCode.C, KeyCode.V
     };
 
     public static int[] customState = new int[2];

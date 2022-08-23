@@ -23,6 +23,7 @@ public class UI_Lobby : NetworkBehaviour
     [SyncVar] private bool _playersReady;
     public RoomPlayer player;
     private bool isDelaying = false;
+    [SerializeField] Canvas canvas;
 
     public void Start()
     {
@@ -59,7 +60,20 @@ public class UI_Lobby : NetworkBehaviour
     
     public void ActivateESC()
     {
-        Panel_ESC.gameObject.SetActive(true);
+        if(Panel_option.gameObject.activeInHierarchy)
+        {
+            Panel_option.gameObject.SetActive(false);
+            Panel_ESC.gameObject.SetActive(true);
+        }
+        else if(Panel_ESC.gameObject.activeInHierarchy) 
+        {
+            Panel_ESC.gameObject.SetActive(false);
+        }
+        else
+        {
+            Panel_ESC.gameObject.SetActive(true);
+        }
+        
     }
 
     public void OnClickButtonResume()

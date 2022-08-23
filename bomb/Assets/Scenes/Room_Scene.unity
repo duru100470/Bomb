@@ -8219,6 +8219,7 @@ MonoBehaviour:
   button_resume: {fileID: 1296544679}
   button_backtomain: {fileID: 934032890}
   player: {fileID: 0}
+  canvas: {fileID: 1107571572}
 --- !u!4 &1937559296
 Transform:
   m_ObjectHideFlags: 0

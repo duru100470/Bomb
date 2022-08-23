@@ -545,7 +545,7 @@ MonoBehaviour:
   jumpParticle: {fileID: 4664285165022134012}
   explodeParticle: {fileID: 2271797560853513487}
   dropParticle: {fileID: 4506356791865494243}
-  transitionParticle: {fileID: 2411925253056062691}
+  transitionParticle: {fileID: 2411925253056062689}
   LeaderBoardIcon: {fileID: 2685814295249734813, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
   LeaderBoardFace: {fileID: -2178975032621495579, guid: 337fad81d45f11e4eb8c3636876d4eed, type: 3}
   idlePhysicsMat: {fileID: 6200000, guid: 0e370f48c7052e2498af6e5a3101126b, type: 2}
@@ -1357,14 +1357,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 458a78e3ed6821645bdc318524f9d28d, type: 3}
+--- !u!1 &2411925253056062689 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3558102046702047955, guid: 458a78e3ed6821645bdc318524f9d28d, type: 3}
+  m_PrefabInstance: {fileID: 1159689860445337138}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2411925253056062716 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3558102046702047950, guid: 458a78e3ed6821645bdc318524f9d28d, type: 3}
-  m_PrefabInstance: {fileID: 1159689860445337138}
-  m_PrefabAsset: {fileID: 0}
---- !u!198 &2411925253056062691 stripped
-ParticleSystem:
-  m_CorrespondingSourceObject: {fileID: 3558102046702047953, guid: 458a78e3ed6821645bdc318524f9d28d, type: 3}
   m_PrefabInstance: {fileID: 1159689860445337138}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &3928221611668146916

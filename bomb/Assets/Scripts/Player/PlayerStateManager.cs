@@ -33,7 +33,7 @@ public class PlayerStateManager : NetworkBehaviour
     [SerializeField] private GameObject jumpParticle;
     [SerializeField] private ParticleSystem explodeParticle;
     [SerializeField] private GameObject dropParticle;
-    [SerializeField] private ParticleSystem transitionParticle;
+    [SerializeField] private GameObject transitionParticle;
     public Sprite LeaderBoardIcon;
     public Sprite LeaderBoardFace;
     private List<SpriteRenderer> CustomObjects = new List<SpriteRenderer>();
@@ -315,27 +315,30 @@ public class PlayerStateManager : NetworkBehaviour
         if(!hasAuthority) return;
 
         //폭탄을 가지고 충돌하는 경우
-        if (other.transform.CompareTag("Player") && hasBomb && isTransferable)
+        if (other.transform.CompareTag("Player"))
         {
-            Debug.Log("Bomb Transition");
-            var targetPSM = other.transform.GetComponent<PlayerStateManager>();
-            if (targetPSM.hasBomb == false)
-            {   
-                GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
-                StartCoroutine(_TransitionDone());
-                float time = 3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime);
-                StartCoroutine(Stunned(Mathf.Max(time, .25f)));
-                Vector2 dir = (Vector3.Scale(transform.position - other.transform.position, new Vector3(2,1,1))).normalized * power;
-                if(dir.y == 0) dir.y = 0.1f * power;
-                rigid2d.velocity = dir;
-                CmdBombTransition(targetPSM.netId, dir * (-1));
+            if(hasBomb && isTransferable)
+            {
+                Debug.Log("Bomb Transition");
+                var targetPSM = other.transform.GetComponent<PlayerStateManager>();
+                if (targetPSM.hasBomb == false)
+                {   
+                    GameManager.Instance.UI_Play.CmdAddLogTransition(this, targetPSM);
+                    StartCoroutine(_TransitionDone());
+                    float time = 3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime);
+                    StartCoroutine(Stunned(Mathf.Max(time, .25f)));
+                    Vector2 dir = (Vector3.Scale(transform.position - other.transform.position, new Vector3(2,1,1))).normalized * power;
+                    if(dir.y == 0) dir.y = 0.1f * power;
+                    rigid2d.velocity = dir;
+                    CmdBombTransition(targetPSM.netId, dir * (-1));
+                }
             }
-        }
-        else if(stateMachine.CurruentState != dicState[PlayerState.Stun] && other.transform.CompareTag("Player") && transform.position.y + coll.bounds.size.y * .75f < other.transform.position.y)
-        {
-            Debug.Log("Stampped");
-            CmdAddForce(new Vector2(other.transform.GetComponent<Rigidbody2D>().velocity.x,jumpForce), other.transform.GetComponent<PlayerStateManager>());
-            CmdSetStun(1f);
+            else if(stateMachine.CurruentState != dicState[PlayerState.Stun] && transform.position.y + coll.bounds.size.y * .75f < other.transform.position.y)
+            {
+                Debug.Log("Stampped");
+                CmdAddForce(new Vector2(other.transform.GetComponent<Rigidbody2D>().velocity.x,jumpForce), other.transform.GetComponent<PlayerStateManager>());
+                CmdSetStun(1f);
+            }
         }
 
         if(other.transform.CompareTag("Ground"))
@@ -502,12 +505,6 @@ public class PlayerStateManager : NetworkBehaviour
         RpcAddDirVec(dir);
         RpcPlayTransitionParticle();
         RpcStunSync(Mathf.Max(3*((float)GameManager.Instance.bombGlobalTimeLeft / GameManager.Instance.bombGlobalTime), .25f));
-    }
-
-    [ClientRpc]
-    public void RpcPlayTransitionParticle()
-    {
-        transitionParticle.Play();
     }
 
     //Dash후 감속
@@ -905,6 +902,20 @@ public class PlayerStateManager : NetworkBehaviour
     public void RpcPlayDropParticle()
     {
         GameObject obj = Instantiate(dropParticle, coll.bounds.center + new Vector3(0, -coll.bounds.extents.y, 0), Quaternion.Euler(-90, 0, 0));
+        obj.GetComponent<ParticleSystem>().Play();
+        Destroy(obj, 1f);
+    }
+
+    [Command]
+    public void CmdPlayTransitionParticle()
+    {
+        RpcPlayTransitionParticle();
+    }
+
+    [ClientRpc]
+    public void RpcPlayTransitionParticle()
+    {
+        GameObject obj = Instantiate(transitionParticle, coll.bounds.center, Quaternion.Euler(-90, 0, 0));
         obj.GetComponent<ParticleSystem>().Play();
         Destroy(obj, 1f);
     }
