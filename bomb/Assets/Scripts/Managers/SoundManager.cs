@@ -125,4 +125,12 @@ public class SoundManager : MonoBehaviour
         audioSources.Clear();
     }
 
+    public void RemoveAudioSource(AudioSource source)
+    {
+        if(audioSources.Contains(source))
+        {
+            audioSources.Remove(source);
+        }
+    }
+
 }

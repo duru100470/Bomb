@@ -45,7 +45,7 @@ public class OptionControl : MonoBehaviour
 
     public void Update()
     {
-        if(Panel_KeySelecting.gameObject.activeInHierarchy && !Input.GetKey(KeyCode.Escape))
+        if(Panel_KeySelecting.gameObject.activeInHierarchy)
         {       
             foreach(var input in PlayerSetting.AvailKeys)
             {
@@ -56,6 +56,11 @@ public class OptionControl : MonoBehaviour
                     Panel_KeySelecting.gameObject.SetActive(false);
                     break;
                 }
+                if(Input.GetKey(KeyCode.Escape))
+                {
+                    Panel_KeySelecting.gameObject.SetActive(false);
+                    return;
+                } 
             }
         }
     }

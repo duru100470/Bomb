@@ -77,6 +77,7 @@ public class RoomManager : NetworkRoomManager
 
     public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer, GameObject gamePlayer)
     {
+        SoundManager.Instance.RemoveAudioSource(roomPlayer.GetComponent<AudioSource>());
         Destroy(roomPlayer, 1f);
         return true;
     }
