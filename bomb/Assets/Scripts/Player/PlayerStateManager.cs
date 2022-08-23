@@ -46,7 +46,7 @@ public class PlayerStateManager : NetworkBehaviour
     public PhysicsMaterial2D idlePhysicsMat; 
     public PhysicsMaterial2D stunPhysicsMat;
     private SoundManager Smanager = SoundManager.Instance;
-    public AudioSource SoundSource;
+    public AudioSource[] SoundSource;
 
     // 폭탄 글로벌 타이머 (For Debugging)
     [SerializeField] private Text timer;
@@ -133,7 +133,7 @@ public class PlayerStateManager : NetworkBehaviour
 
     private void Awake()
     {
-        SoundSource = GetComponent<AudioSource>();
+        SoundSource = GetComponents<AudioSource>();
         Smanager.AddAudioSource(SoundSource);
     }
 
@@ -387,6 +387,7 @@ public class PlayerStateManager : NetworkBehaviour
         if (other.transform.CompareTag("Projectile") && !other.GetComponent<StoneProjectile>().playerNickname.Equals(playerNickname))
         {
             Vector2 dir = (transform.position - other.transform.position).normalized * other.GetComponent<StoneProjectile>().force;
+            //CmdPlayAudio(AudioType.Stone_hit);
             CmdHitStone(other.GetComponent<StoneProjectile>().StunTime, dir, this);
             CmdDestroy(other.GetComponent<StoneProjectile>().netId);
         }
@@ -683,6 +684,7 @@ public class PlayerStateManager : NetworkBehaviour
         rigid2d.gravityScale = 0f;
         rigid2d.velocity = Vector2.zero;
         yield return new WaitForSeconds(.2f);
+        CmdPlayAudio(AudioType.Dash);
         rigid2d.gravityScale = normalGravityScale;
         rigid2d.velocity = Vector2.down * 15f;
     }
@@ -853,16 +855,16 @@ public class PlayerStateManager : NetworkBehaviour
         isGhostSkllCasting = value;
     }
 
-    [Command]
+    [Command(requiresAuthority = false)]
     public void CmdPlayAudio(AudioType type)
     {
-        RpcPlayAudio(type, Smanager.SourceIdx(SoundSource));
+        RpcPlayAudio(type);
     }
 
     [ClientRpc]
-    public void RpcPlayAudio(AudioType type, int idx)
+    public void RpcPlayAudio(AudioType type)
     {
-        Smanager.PlayAudio(type, idx);
+        Smanager.PlayAudio(type);
     }
 
     [Command]

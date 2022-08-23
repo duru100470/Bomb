@@ -4,11 +4,19 @@ using UnityEngine;
 
 public enum AudioType
 {
+    MainBGM,
     LobbyBGM,
     GameSceneBGM,
     ButtonClick,
     Jump,
     Explosion,
+    Item_Jump,
+    Dash,
+    Stone_hit,
+    Stone_Throw,
+    Stun,
+    Portal,
+    Drop_End,
     Length
 }
 
@@ -29,7 +37,8 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private float initVFXVolume;
     [SerializeField] private float vfxVolume = .5f;
     public float VFXVolume => vfxVolume;
-
+    private int curIdx = 0;
+    
     private void Awake()
     {
         if(Instance != null) Destroy(this.gameObject);
@@ -52,16 +61,28 @@ public class SoundManager : MonoBehaviour
 
     public void AddAudioSource(AudioSource source)
     {
-        Debug.Log(source.name);
+        //Debug.Log(source.name);
         audioSources.Add(source);
     }
 
-    public void PlayAudio(AudioType type, int idx)
+    public void AddAudioSource(AudioSource[] source)
     {
-        AudioSource source = audioSources[idx];
+        foreach(var item in source)
+        {
+            audioSources.Add(item);
+        }
+    }
+
+    public void PlayAudio(AudioType type)
+    {
+        Debug.Log(audioDictionary[type].name);
+        AudioSource source = audioSources[curIdx];
         source.loop = false;
         source.clip = audioDictionary[type];
         source.Play();
+
+        curIdx++;
+        curIdx %= audioSources.Count;
     }
 
     public void PlayBGM(AudioType type)
@@ -130,6 +151,17 @@ public class SoundManager : MonoBehaviour
         if(audioSources.Contains(source))
         {
             audioSources.Remove(source);
+        }
+    }
+
+    public void RemoveAudioSource(AudioSource[] source)
+    {
+        foreach(var item in source)
+        {
+            if(audioSources.Contains(item))
+            {   
+                audioSources.Remove(item);
+            }   
         }
     }
 

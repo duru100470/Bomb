@@ -64,6 +64,8 @@ public class UI_MainScene : MonoBehaviour
         tutorialAfterButton.onClick.AddListener(Tuto_After);
         tutorialQuitButton.onClick.AddListener(TutoQuit);
         optionQuitButton.onClick.AddListener(OptionQuit);
+
+        SoundManager.Instance.PlayBGM(AudioType.MainBGM);
     }
 
     #region Main

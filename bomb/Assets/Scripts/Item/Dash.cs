@@ -11,6 +11,7 @@ public class Dash : Item
 
     public override void _OnUse()
     {
+        player.CmdPlayAudio(AudioType.Dash);
         rbody = player.GetComponent<Rigidbody2D>();
         rbody.gravityScale = 0f;
         player.isCasting = true;

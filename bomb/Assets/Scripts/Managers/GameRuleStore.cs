@@ -55,8 +55,8 @@ public class GameRuleStore : MonoBehaviour
         curGameRule.maxPlayer = 6;
         curGameRule.minPlayer = 3;
         curGameRule.isPlayerEliminated = true;
-        curGameRule.maxBombTime = 80000;
-        curGameRule.minBombTime = 60000;
+        curGameRule.maxBombTime = 80;
+        curGameRule.minBombTime = 60;
         curGameRule.bombCount = 1;
         curGameRule.setCount = 3;
         curGameRule.roundCount = curGameRule.maxPlayer - 1;

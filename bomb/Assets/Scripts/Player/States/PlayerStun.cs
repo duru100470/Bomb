@@ -15,6 +15,7 @@ public class PlayerStun : IState
     {
         player.CmdSetStunVFX(true);
         player.CmdSetAisStunned(true);
+        player.CmdPlayAudio(AudioType.Stun);
         player.spriteRenderer.color = new Color(1, 1, 1, 0.5f);
         player.coll.sharedMaterial = player.stunPhysicsMat;
     }

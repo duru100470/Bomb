@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Mirror;
 public class MyPortal : MonoBehaviour
 {
     [SerializeField] MyPortal oppositePortal;
@@ -19,6 +19,7 @@ public class MyPortal : MonoBehaviour
     {
         if(other.transform.CompareTag("Player") || other.transform.CompareTag("Projectile"))
         {
+            if(NetworkManager.IsSceneActive("Play_Scene")) SoundManager.Instance.PlayAudio(AudioType.Portal);
             Vector3 vec = other.transform.position - transform.position;
             other.transform.position = oppositePortal.exitTransform + new Vector3(exitHeading ? vec.x : -vec.y , vec.y, 0);
             Rigidbody2D rigid = other.GetComponent<Rigidbody2D>();

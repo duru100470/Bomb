@@ -21,6 +21,7 @@ public class PlayerDrop : IState
         //Debug.Log("Drop Exit");
         if(player.IsGround)
         {
+            player.CmdPlayAudio(AudioType.Drop_End);
             player.CmdPlayDropParticle();
             player.CmdSetStun(.5f);
         }

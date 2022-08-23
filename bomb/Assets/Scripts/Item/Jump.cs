@@ -6,6 +6,7 @@ public class Jump : Item
 {
     public override void _OnUse()
     {
+        player.CmdPlayAudio(AudioType.Item_Jump);
         player.rigid2d.velocity = new Vector2(player.rigid2d.velocity.x, 0);
         player.rigid2d.velocity += Vector2.up * player.JumpForce;
     }
