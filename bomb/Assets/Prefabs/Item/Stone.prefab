@@ -130,7 +130,7 @@ MonoBehaviour:
   type: 1
   itemSprite: {fileID: 21300000, guid: 123ce12fb55c2cf4798eaa6381a1dfa4, type: 3}
   spawner: {fileID: 0}
-  force: 20
+  force: 15
 --- !u!114 &3146234370720574044
 MonoBehaviour:
   m_ObjectHideFlags: 0

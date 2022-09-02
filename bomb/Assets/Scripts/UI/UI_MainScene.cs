@@ -108,14 +108,6 @@ public class UI_MainScene : MonoBehaviour
     {
         if(!playerNickname.text.Equals(string.Empty))
         {
-
-            var host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                    PlayerSetting.hostIP = ip.ToString();
-            }
-            
             PlayerSetting.playerNickname = playerNickname.text;
             NetworkManager.singleton.StartHost();
         }
@@ -130,7 +122,7 @@ public class UI_MainScene : MonoBehaviour
         if(!playerNickname.text.Equals(string.Empty))
         {
             PlayerSetting.playerNickname = playerNickname.text;
-            NetworkManager.singleton.networkAddress = Decrypt(joinMatchInput.text);
+            NetworkManager.singleton.networkAddress = joinMatchInput.text;
             NetworkManager.singleton.StartClient();
         }
         else
@@ -221,33 +213,5 @@ public class UI_MainScene : MonoBehaviour
             yield return null;
         }
         yield break;
-    }
-
-     public string Decrypt(string input)
-    {
-        string ret = String.Empty;
-        string str = CheckCapital(input);
-        for(int i=0; i< str.Length/2; i++)
-        {
-            string cur = str.Substring(i*2, 2);
-            int first = cur[0] >= 'A' ? cur[0] - 'A' + 10 : cur[0] - '0';
-            int second = cur[1] >= 'A' ? cur[1] - 'A' + 10 : cur[1] - '0';
-            int intValue = first * 16 + second;
-            ret += intValue;
-            if(i != str.Length/2 -1) ret += ".";
-        }
-        return ret;
-    }
-
-    public string CheckCapital(string str)
-    {
-        string ret = String.Empty;
-        for(int i=0; i<str.Length; i++)
-        {
-            char cur = str[i];
-            if(cur <= 'z' && cur >= 'a') cur = (char)(cur + 'A' - 'a');
-            ret += cur.ToString();
-        }
-        return ret;
     }
 }

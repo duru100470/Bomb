@@ -100,7 +100,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   syncMode: 0
   syncInterval: 0.1
-  stunTime: 1
+  stunTime: 0.5
   force: 0
   dir: 0
   heading: 0

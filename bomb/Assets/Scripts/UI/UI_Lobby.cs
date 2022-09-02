@@ -9,8 +9,7 @@ using System;
 public class UI_Lobby : NetworkBehaviour
 {
     [SyncVar] public string hostIP;
-    [SerializeField] Text text;
-    [SerializeField] Button button_Play;
+    [SerializeField] Button buttonPlay;
     [SerializeField] Text buttonPlay_text;
     [SerializeField] Text playerStatus_text;
     [SerializeField] RectTransform Panel_ESC;
@@ -29,14 +28,12 @@ public class UI_Lobby : NetworkBehaviour
     {
         if(isServer)
         {
-            hostIP = Encrypt(PlayerSetting.hostIP);
             buttonPlay_text.text = "PLAY";
         }
         else
         {
             buttonPlay_text.text = "READY";
         }
-        text.text = hostIP;
 
         button_resume.onClick.AddListener(OnClickButtonResume);
         button_backtomain.onClick.AddListener(OnClickButtonBackToMain);
@@ -91,19 +88,6 @@ public class UI_Lobby : NetworkBehaviour
         {
             manager.StopClient();
         }
-    }
-
-    public string Encrypt(string str)
-    {
-        string ret = String.Empty;
-        string[] strings = str.Split('.');
-        foreach(var strng in strings)
-        {
-            int cur = Int32.Parse(strng);
-            if(cur < 17) ret += "0";
-            ret += Int32.Parse(strng).ToString("X");
-        }
-        return ret;
     }
 
     private IEnumerator GameStartDelay()
